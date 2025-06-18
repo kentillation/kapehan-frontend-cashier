@@ -1,0 +1,52 @@
+body {
+    font-family: Poppins, sans-serif;
+}
+
+.v-btn--size-default,
+.v-icon {
+    min-width: 0 !important;
+}
+
+.v-data-table {
+    max-width: 100%;
+}
+
+/*  */
+
+thead .v-data-table__th .v-data-table-header__content {
+    color: #a2a0a0;
+}
+
+.to-show-head {
+    display: none;
+}
+
+.to-show {
+    display: none;
+}
+
+@media (max-width: 450px) {
+    .to-hide-head {
+        display: none;
+    }
+
+    .to-show-head {
+        display: flex;
+    }
+}
+
+@media (max-width: 530px) {
+    .to-hide {
+        display: none;
+    }
+
+    .to-show {
+        display: flex;
+    }
+}
+
+.skeleton-loader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}

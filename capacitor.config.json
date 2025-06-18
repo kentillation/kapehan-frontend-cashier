@@ -1,0 +1,10 @@
+{
+  "appId": "com.example.kapehan",
+  "appName": "Kapehan",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "https://kapehan.kentillation.com",
+    "cleartext": true
+  }
+}
