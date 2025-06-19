@@ -5,8 +5,8 @@ export const TRANSACTION_API = {
         SUBMIT: '/submit-transaction',
     },
 
-    async submitTransactionApi(transactionData) {
-        if (!transactionData || !Array.isArray(transactionData)) {
+    async submitTransactionApi(payload) {
+        if (!payload || !payload.reference_number || !Array.isArray(payload.products)) {
             throw new Error('Invalid transaction data');
         }
         try {
@@ -22,7 +22,7 @@ export const TRANSACTION_API = {
             };
             const response = await apiClient.post(
                 this.ENDPOINTS.SUBMIT,
-                { transactions: transactionData },
+                payload, // Send direct payload without transactions wrapper
                 config
             );
             if (!response.data) {

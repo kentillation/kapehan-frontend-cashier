@@ -26,7 +26,7 @@
                         <!-- eslint-disable vue/valid-v-slot -->
                         <template v-slot:item.product_name="{ item }">
                             <span class="small">{{ item.product_name }}{{ item.temp_label }}{{ item.size_label
-                            }}</span>&nbsp;
+                                }}</span>&nbsp;
                         </template>
                         <template v-slot:item.product_price="{ item }">
                             <span class="small">₱{{ item.product_price }}</span>
@@ -103,10 +103,8 @@
 
                         <template v-slot:item.status="{ item }">
                             <v-chip :color="item.status === 'Brewing...' ? 'orange' : 'green'"
-                                    :prepend-icon="item.status === 'Brewing...' ? 'mdi-coffee' : 'mdi-check'"
-                                    size="small" 
-                                    variant="flat"
-                                    @click="changeStatus(item)">
+                                :prepend-icon="item.status === 'Brewing...' ? 'mdi-coffee' : 'mdi-check'" size="small"
+                                variant="flat" @click="changeStatus(item)">
                                 {{ item.status }}
                             </v-chip>
                         </template>
@@ -133,12 +131,14 @@ export default {
     },
     data() {
         return {
-            customer_charge: '',
+            reference_number: '',
+            table_number: null,
+            total_quantity: '',
             customer_cash: '',
+            customer_charge: '',
             customer_change: '',
-            table_number: '',
+            customer_discount: '',
             customer_name: '',
-            customer_discount: null,
             loadingProducts: false,
             validatingData: false,
             searchProduct: '',
@@ -146,20 +146,7 @@ export default {
             loading: false,
             products: [],
             selectedProducts: [],
-            orders: [
-                {
-                    reference_number: '001-003',
-                    status: 'Brewing...',
-                },
-                {
-                    reference_number: '001-002',
-                    status: 'Served',
-                },
-                {
-                    reference_number: '001-001',
-                    status: 'Served',
-                },
-            ],
+            orders: [],
             headers: [
                 { title: 'Product', value: 'product_name' },
                 { title: 'Price', value: 'product_price' },
@@ -179,17 +166,6 @@ export default {
                 { discount_id: 4, discount_label: '20%' },
                 { discount_id: 5, discount_label: '30%' },
                 { discount_id: 6, discount_label: '-' },
-            ],
-            dataRows: [
-                {
-                    reference_number: '',
-                    table_number: null,
-                    total_quantity: '',
-                    customer_cash: '',
-                    customer_charge: '',
-                    customer_change: '',
-                    customer_discount: '',
-                },
             ],
         };
     },
@@ -234,7 +210,6 @@ export default {
     },
     mounted() {
         this.fetchProducts();
-        this.generateReferenceNumber();
     },
     methods: {
         async generateReferenceNumber() {
@@ -304,31 +279,40 @@ export default {
         async submitForm() {
             try {
                 this.loading = true;
-                const isValid = await this.$refs.transactionForm.validate();
-                if (!isValid) {
+                if (!this.$refs.transactionForm.validate()) {
                     this.loading = false;
                     return;
                 }
-                const orderedProducts = this.selectedProducts.map(product => ({
-                    product_id: product.product_id,
-                    quantity: product.quantity,
+                const orderedProducts = this.selectedProducts.map(p => ({
+                    product_id: p.product_id,
+                    quantity: p.quantity
                 }));
-                const transactionData = this.dataRows.map(row => ({
-                    reference_number: this.newRefNumber,
-                    table_number: row.table_number,
+                const refNumber = typeof this.newRefNumber === 'function' || typeof this.newRefNumber?.then === 'function'
+                    ? await this.newRefNumber
+                    : this.newRefNumber;
+
+                if (!refNumber || !this.table_number) {
+                    this.showError("Reference number and table number are required.");
+                    this.loading = false;
+                    return;
+                }
+                const transactionData = [{
+                    reference_number: refNumber,
+                    table_number: this.table_number,
                     total_quantity: this.totalQuantity,
-                    customer_cash: parseFloat(row.customer_cash.replace(/[^0-9.]/g, '')) || 0,
+                    customer_cash: parseFloat(this.customer_cash.replace(/[^0-9.]/g, '')) || 0,
                     customer_charge: this.totalCharge,
-                    customer_change: parseFloat(row.customer_change.replace(/[^0-9.]/g, '')) || 0,
-                    customer_discount: row.customer_discount,
-                }));
+                    customer_change: parseFloat(this.customer_change.replace(/[^0-9.]/g, '')) || 0,
+                    customer_discount: this.customer_discount,
+                }];
+                console.log('Transaction Data:', transactionData);
+                console.log('Ordered Products:', orderedProducts);
                 await this.transactStore.submitTransactStore(transactionData, orderedProducts);
                 this.showSuccess("Transaction submitted successfully!");
                 this.$refs.transactionForm.reset();
-                this.transactStore.clearState();
             } catch (error) {
+                this.showError("Failed to transact. Please try again!");
                 console.error('Transaction submission error:', error);
-                this.showError(error.message || "Failed to process transaction. Please try again!");
             } finally {
                 this.loading = false;
             }

@@ -15,14 +15,11 @@ export const useTransactStore = defineStore('transactionData', {
             this.error = null;
             this.success = false;
             try {
-                if (!transactionData || !Array.isArray(transactionData)) {
-                    throw new Error('Invalid transaction data');
-                }
-                if (!orderedProducts || !Array.isArray(orderedProducts)) {
-                    throw new Error('Invalid product data');
+                if (!transactionData?.[0] || !Array.isArray(orderedProducts)) {
+                    throw new Error('Invalid data');
                 }
                 const payload = {
-                    transactions: transactionData,
+                    ...transactionData[0],  // Flatten transaction object
                     products: orderedProducts
                 };
                 const response = await TRANSACTION_API.submitTransactionApi(payload);
