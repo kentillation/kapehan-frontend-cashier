@@ -95,22 +95,33 @@
                 <v-col cols="12" lg="6" md="6" sm="12" xs="12">
                     <h2>Current Orders</h2>
                     <v-data-table :headers="headersOrders" :items="currentOrders" :loading="loadingCurrentOrders" density="comfortable" height="300px">
-                        <template v-slot:item.reference_number="{ item }">
+                        <template v-slot:item.table_number="{ item }">
                             <div class="d-flex align-center justify-space-between">
-                                {{ item.reference_number }}
+                                {{ item.table_number }}
                             </div>
                         </template>
 
-                        <template v-slot:item.order_status_id="{ item }">
-                            <v-chip 
-                                :color="getStatusColor(item.order_status_id)"
-                                :prepend-icon="getStatusIcon(item.order_status_id)"
-                                size="small" 
-                                variant="flat"  
-                                @click="changeStatus(item)"
-                                class="text-white">
-                                {{ getStatusName(item.order_status_id) }}
-                            </v-chip>
+                        <!--eslint-disable-next-line -->
+                        <template v-slot:item.actions="{ item }">
+                            <div class="d-flex" style="gap: 8px;">
+                                <v-chip 
+                                    :color="getStatusColor(item.order_status_id)"
+                                    prepend-icon="mdi-eye-outline"
+                                    size="small" 
+                                    variant="flat" 
+                                    class="ps-5 text-white">
+                                </v-chip>
+
+                                <v-chip 
+                                    :color="getStatusColor(item.order_status_id)"
+                                    :prepend-icon="getStatusIcon(item.order_status_id)"
+                                    size="small" 
+                                    variant="flat" 
+                                    @click="changeStatus(item)"
+                                    class="text-white">
+                                    {{ getStatusName(item.order_status_id) }}
+                                </v-chip>
+                            </div>
                         </template>
 
                     </v-data-table>
@@ -162,8 +173,8 @@ export default {
                 { title: 'Actions', value: 'actions', sortable: false, width: '40%' },
             ],
             headersOrders: [
-                { title: 'Order number', value: 'reference_number', width: '60%' },
-                { title: 'Status', value: 'order_status_id', sortable: false, width: '40%' },
+                { title: 'Table number', value: 'table_number', width: '50%' },
+                { title: 'Status', value: 'actions', sortable: false, width: '50%' },
             ],
             discountOptions: [
                 { discount_id: 1, discount_label: '5%' },
@@ -386,9 +397,9 @@ export default {
 
         getStatusIcon(statusId) {
             switch(statusId) {
-                case 1: return 'mdi-coffee';        // Brewing
-                case 2: return 'mdi-check-circle';   // Ready
-                case 3: return 'mdi-truck-delivery'; // Served
+                case 1: return 'mdi-radiator';        // Brewing
+                case 2: return 'mdi-human-greeting';   // Ready
+                case 3: return 'mdi-check-circle'; // Served
                 default: return 'mdi-help-circle';   // Unknown
             }
         },
