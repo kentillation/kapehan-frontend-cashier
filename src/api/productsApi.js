@@ -10,12 +10,11 @@ export const PRODUCTS_API = {
 
     /**
      * Products Information
-     * @param {string|number} branchId - ID of the branch to fetch products for
      * @returns {Promise<Object>} Products data for the branch
      * @throws {Error} Enhanced error with server response details
      */
 
-    async fetchAllProductsApi(branchId) {
+    async fetchAllProductsApi() {
         try {
             const authToken = localStorage.getItem('auth_token');
             if (!authToken) {
@@ -28,7 +27,7 @@ export const PRODUCTS_API = {
                 },
             };
             const response = await apiClient.get(
-                `${this.ENDPOINTS.FETCH}/${branchId}`,
+                `${this.ENDPOINTS.FETCH}`,
                 config
             );
 

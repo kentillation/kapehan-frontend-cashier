@@ -94,18 +94,22 @@
                 </v-col>
                 <v-col cols="12" lg="6" md="6" sm="12" xs="12">
                     <h2>Current Orders</h2>
-                    <v-data-table :headers="headersOrders" :items="currentOrders" density="comfortable" height="300px">
+                    <v-data-table :headers="headersOrders" :items="currentOrders" :loading="loadingCurrentOrders" density="comfortable" height="300px">
                         <template v-slot:item.reference_number="{ item }">
                             <div class="d-flex align-center justify-space-between">
-                                ct-{{ item.reference_number }}
+                                {{ item.reference_number }}
                             </div>
                         </template>
 
-                        <template v-slot:item.status="{ item }">
-                            <v-chip :color="item.status === 'Brewing...' ? 'orange' : 'green'"
-                                :prepend-icon="item.status === 'Brewing...' ? 'mdi-coffee' : 'mdi-check'" size="small"
-                                variant="flat" @click="changeStatus(item)">
-                                {{ item.status }}
+                        <template v-slot:item.order_status_id="{ item }">
+                            <v-chip 
+                                :color="getStatusColor(item.order_status_id)"
+                                :prepend-icon="getStatusIcon(item.order_status_id)"
+                                size="small" 
+                                variant="flat"  
+                                @click="changeStatus(item)"
+                                class="text-white">
+                                {{ getStatusName(item.order_status_id) }}
                             </v-chip>
                         </template>
 
@@ -140,6 +144,7 @@ export default {
             customer_discount: '',
             customer_name: '',
             loadingProducts: false,
+            loadingCurrentOrders: false,
             validatingData: false,
             searchProduct: '',
             isFormValid: false,
@@ -147,6 +152,7 @@ export default {
             products: [],
             selectedProducts: [],
             orders: [],
+            order_statuses: [],
             headers: [
                 { title: 'Product', value: 'product_name' },
                 { title: 'Price', value: 'product_price' },
@@ -157,7 +163,7 @@ export default {
             ],
             headersOrders: [
                 { title: 'Order number', value: 'reference_number', width: '60%' },
-                { title: 'Status', value: 'status', sortable: false, width: '40%' },
+                { title: 'Status', value: 'order_status_id', sortable: false, width: '40%' },
             ],
             discountOptions: [
                 { discount_id: 1, discount_label: '5%' },
@@ -210,6 +216,8 @@ export default {
     },
     mounted() {
         this.fetchProducts();
+        this.fetchOrderStatus();
+        this.fetchCurrentOrders();
     },
     methods: {
         async generateReferenceNumber() {
@@ -222,18 +230,38 @@ export default {
         async fetchProducts() {
             this.loadingProducts = true;
             try {
-                await this.productsStore.fetchAllProductsStore(1);
-                if (this.productsStore.products.length === 0) {
-                    this.products = [];
-                } else {
-                    this.products = this.productsStore.products;
-                }
+                await this.productsStore.fetchAllProductsStore();
+                this.products = this.productsStore.products;
                 this.loadingProducts = false;
             } catch (error) {
                 console.error('Error fetching products:', error);
                 this.showError("Error fetching products!");
             } finally {
                 this.loadingProducts = false;
+            }
+        },
+
+        async fetchOrderStatus() {
+            try {
+                await this.transactStore.fetchAllOrderStatusStore();
+                this.order_statuses = this.transactStore.orderStatuses;
+            } catch (error) {
+                console.error('Error fetching order status:', error);
+                this.showError("Error fetching order status!");
+            }
+        },
+
+        async fetchCurrentOrders() {
+            this.loadingCurrentOrders = true;
+            try {
+                await this.transactStore.fetchAllCurrentOrdersStore();
+                this.orders = this.transactStore.currentOrders;
+                this.loadingCurrentOrders = false;
+            } catch (error) {
+                console.error('Error fetching current orders:', error);
+                this.showError("Error fetching current orders!");
+            } finally {
+                this.loadingCurrentOrders = false;
             }
         },
 
@@ -305,16 +333,63 @@ export default {
                     customer_change: parseFloat(this.customer_change.replace(/[^0-9.]/g, '')) || 0,
                     customer_discount: this.customer_discount,
                 }];
-                console.log('Transaction Data:', transactionData);
-                console.log('Ordered Products:', orderedProducts);
                 await this.transactStore.submitTransactStore(transactionData, orderedProducts);
+                this.fetchCurrentOrders();
                 this.showSuccess("Transaction submitted successfully!");
                 this.$refs.transactionForm.reset();
+                this.totalCharge = 0;
+                this.totalQuantity = 0;
+                this.selectedProducts = [];
             } catch (error) {
                 this.showError("Failed to transact. Please try again!");
                 console.error('Transaction submission error:', error);
             } finally {
                 this.loading = false;
+            }
+        },
+
+        changeStatus(order) {
+            if (!order || !order.reference_number) {
+                this.showError("Invalid order data!");
+                return;
+            }
+            const currentStatusIndex = this.order_statuses.findIndex(
+                status => status.order_status_id === order.order_status_id
+            );
+            const nextStatusIndex = (currentStatusIndex + 1) % this.order_statuses.length;
+            const newStatus = this.order_statuses[nextStatusIndex].order_status_id;
+            this.transactStore.updateOrderStatusStore(order.reference_number, newStatus)
+                .then(() => {
+                    const statusName = this.getStatusName(newStatus);
+                    this.showSuccess(`Order status updated to ${statusName}`);
+                    this.fetchCurrentOrders();
+                })
+                .catch(error => {
+                    console.error('Error updating order status:', error);
+                    this.showError("Failed to update order status. Please try again!");
+                });
+        },
+
+        getStatusName(statusId) {
+            const status = this.order_statuses.find(s => s.order_status_id === statusId);
+            return status ? status.order_status : 'Unknown';
+        },
+
+        getStatusColor(statusId) {
+            switch(statusId) {
+                case 1: return 'orange';    // Brewing
+                case 2: return 'blue';      // Ready
+                case 3: return 'green';     // Served
+                default: return 'grey';     // Unknown status
+            }
+        },
+
+        getStatusIcon(statusId) {
+            switch(statusId) {
+                case 1: return 'mdi-coffee';        // Brewing
+                case 2: return 'mdi-check-circle';   // Ready
+                case 3: return 'mdi-truck-delivery'; // Served
+                default: return 'mdi-help-circle';   // Unknown
             }
         },
 
