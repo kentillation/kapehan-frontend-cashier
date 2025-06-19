@@ -6,6 +6,8 @@ export const useTransactStore = defineStore('transactionData', {
         transactionData: null,
         currentOrders: [],
         orderStatuses: [],
+        orderDtls: [],
+        orderDtlsData: [],
         loading: false,
         error: null,
         success: false
@@ -93,7 +95,10 @@ export const useTransactStore = defineStore('transactionData', {
                 }
                 const response = await TRANSACTION_API.fetchOrderDetailsApi(referenceNumber);
                 if (response && response.status === true) {
-                    return response.data;
+                    // Store both the full response and the data separately
+                    this.orderDtls = response;
+                    this.orderDtlsData = response.data;
+                    return response;
                 } else {
                     throw new Error(response?.message || 'Failed to fetch order details');
                 }

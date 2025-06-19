@@ -102,7 +102,7 @@
                     <v-data-table :headers="headersOrders" :items="currentOrders" :loading="loadingCurrentOrders" density="comfortable" height="300px">
                         <template v-slot:item.table_number="{ item }">
                             <div class="d-flex align-center justify-space-between">
-                                #{{ item.table_number }}
+                                # {{ item.table_number }}
                             </div>
                         </template>
 
@@ -126,7 +126,16 @@
                                     variant="flat" 
                                     @click="changeStatus(item)"
                                     class="text-white">
-                                    {{ getStatusName(item.order_status_id) }}
+                                    
+                                    <!-- Show typewriter effect only if Brewing -->
+                                    <span v-if="item.order_status_id === 1" class="typewriter">Brewing</span>
+                                    <span v-else>{{ getStatusName(item.order_status_id) }}</span>
+                                    <div>
+                                        <span v-if="item.order_status_id === 1" class="smoke"></span>
+                                        <span v-if="item.order_status_id === 1" class="smoke smoke2"></span>
+                                        <span v-if="item.order_status_id === 1" class="smoke smoke3"></span>
+                                        <span v-if="item.order_status_id === 1" class="smoke smoke4"></span>
+                                    </div>
                                 </v-chip>
                             </div>
                         </template>
@@ -138,7 +147,7 @@
             <v-dialog v-model="ordersDialog" max-width="800px" persistent>
                 <v-card>
                     <v-card-title class="text-h6">
-                        Order Details - Table #{{ selectedTableNumber }}
+                        Table #{{ selectedTableNumber }}
                     </v-card-title>
                     <v-card-text>
                         <v-data-table 
@@ -148,6 +157,9 @@
                             :items-per-page="5"
                             class="elevation-1"
                         >
+                            <template v-slot:item.product_name="{ item }">
+                                {{ item?.product_name || '' }}{{ item?.temp_label || '' }}{{ item?.size_label || '' }}x{{ item?.quantity }}
+                            </template>
                             <template v-slot:item.product_price="{ item }">
                                 ₱{{ item.product_price.toFixed(2) }}
                             </template>
@@ -158,14 +170,14 @@
                         
                         <v-divider class="my-4"></v-divider>
                         
-                        <div class="d-flex justify-end">
-                            <div class="text-h6 mr-4">Total Quantity: {{ totalOrderQuantity }}</div>
-                            <div class="text-h6">Total Amount: ₱{{ totalOrderAmount.toFixed(2) }}</div>
+                        <div class="d-flex flex-column">
+                            <h3>Total Quantity: {{ totalOrderQuantity }}</h3>
+                            <h3>Total Amount: ₱{{ totalOrderAmount.toFixed(2) }}</h3>
                         </div>
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn color="red" variant="tonal" @click="ordersDialog = false">Close</v-btn>
+                        <v-btn color="red" variant="tonal" prepend-icon="mdi-close" class="me-2 mb-2" @click="ordersDialog = false">Close</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
@@ -217,12 +229,11 @@ export default {
                 { title: 'Actions', value: 'actions', sortable: false, width: '40%' },
             ],
             headersOrders: [
-                { title: 'Table number', value: 'table_number', width: '50%' },
+                { title: 'Table #', value: 'table_number', width: '50%' },
                 { title: 'Status', value: 'actions', sortable: false, width: '50%' },
             ],
             headersOrderDetails: [
                 { title: 'Product', value: 'product_name' },
-                { title: 'Quantity', value: 'quantity' },
                 { title: 'Price', value: 'product_price' },
                 { title: 'Subtotal', value: 'subtotal' },
             ],
@@ -285,8 +296,8 @@ export default {
                 : 0;
         },
         selectedTableNumber() {
-            return this.orderDetails?.[0]?.table_number || 'N/A';
-        }
+            return this.transactStore.orderDtls?.data?.table_number || 'N/A';
+        },
     },
     mounted() {
         this.fetchProducts();
@@ -427,17 +438,32 @@ export default {
                 this.showError("Invalid order data!");
                 return;
             }
-            
             this.ordersDialog = true;
             try {
                 const response = await this.transactStore.fetchOrderDetailsStore(order.reference_number);
                 
-                if (response?.data?.orders) {
-                    this.orderDetails = response?.data?.orders.map(item => ({
-                        ...item,
-                        product_name: `${item.product_name}${item.temp_label}${item.size_label}`
-                    }));
-                    this.selectedTableNumber = response?.data?.table_number;
+                // Debug: Log the complete response
+                console.log("Complete API response:", response);
+                console.log("Store orderDtls:", this.transactStore.orderDtls);
+                
+                // Check response structure
+                if (response?.data?.all_orders) {
+                    this.orderDetails = response.data.all_orders;
+                    this.selectedTableNumber = response.data.table_number;
+                    console.log("Successfully loaded order details:", this.orderDetails);
+                } 
+                else if (this.transactStore.orderDtls?.data?.all_orders) {
+                    this.orderDetails = this.transactStore.orderDtls.data.all_orders;
+                    this.selectedTableNumber = this.transactStore.orderDtls.data.table_number;
+                    console.log("Successfully loaded order details from store:", this.orderDetails);
+                }
+                else {
+                    console.error('Invalid response structure:', {
+                        response: response,
+                        storeData: this.transactStore.orderDtls
+                    });
+                    this.orderDetails = [];
+                    this.showError("Failed to load order details - invalid format");
                 }
             } catch (error) {
                 console.error('Error fetching order details:', error);
@@ -484,7 +510,7 @@ export default {
 
         getStatusIcon(statusId) {
             switch(statusId) {
-                case 1: return 'mdi-radiator';        // Brewing
+                case 1: return 'mdi-coffee';        // Brewing
                 case 2: return 'mdi-human-greeting';   // Ready
                 case 3: return 'mdi-check'; // Served
                 default: return 'mdi-help-circle';   // Unknown
@@ -531,5 +557,93 @@ export default {
 
 .v-input__details {
     display: none;
+}
+
+.smoke {
+  position: absolute;
+  left: 10%;
+  bottom: 5%;
+  width: 3px;
+  height: 5;
+  background: radial-gradient(ellipse at center, #797373 60%, transparent 100%);
+  opacity: 0.5;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  animation: smokeUp 3s infinite ease-in;
+  pointer-events: none;
+  z-index: 999;
+}
+
+.smoke2 {
+  left: 13%;
+  animation-delay: 2s;
+  opacity: 0.5;
+}
+
+.smoke3 {
+  left: 16%;
+  animation-delay: 2.5s;
+  opacity: 0.5;
+}
+
+.smoke4 {
+  left: 19%;
+  animation-delay: 1s;
+  opacity: 0.5;
+}
+
+@keyframes smokeUp {
+  0% {
+    opacity: 0.7;
+    top: 10%;
+    transform: translateX(-50%) scale(1);
+  }
+  25% {
+    opacity: 0.4;
+    top: -10%;
+    transform: translateX(-50%) scale(1.2);
+  }
+  75% {
+    opacity: 0.4;
+    top: -10%;
+    transform: translateX(-50%) scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    top: -30%;
+    transform: translateX(-50%) scale(1.4);
+  }
+}
+
+.typewriter {
+  display: inline-block;
+  overflow: hidden;
+  border-right: .15em solid orange;
+  white-space: nowrap;
+  letter-spacing: .1em;
+  animation:
+    typing 2s steps(8, end) infinite,
+    blink-caret .75s step-end infinite;
+}
+
+@keyframes typing {
+  0% {
+    width: 0;
+  }
+  50% {
+    width: 8ch;
+  }
+  100% {
+    width: 0;
+  }
+}
+
+@keyframes blink-caret {
+  from, to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: orange;
+  }
 }
 </style>
