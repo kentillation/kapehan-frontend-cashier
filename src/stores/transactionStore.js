@@ -3,32 +3,47 @@ import { TRANSACTION_API } from '@/api/transactionApi';
 
 export const useTransactStore = defineStore('transactionData', {
     state: () => ({
-        transactionData: [],
+        transactionData: null,
         loading: false,
-        error: null
+        error: null,
+        success: false
     }),
 
     actions: {
-        async submitTransactStore(transactionData) {
+        async submitTransactStore(transactionData, orderedProducts) {
             this.loading = true;
             this.error = null;
+            this.success = false;
             try {
-                if (!TRANSACTION_API || typeof TRANSACTION_API.submitTransactionApi !== 'function') {
-                    throw new Error('TRANSACTION_API service is not properly initialized');
+                if (!transactionData || !Array.isArray(transactionData)) {
+                    throw new Error('Invalid transaction data');
                 }
-                const response = await TRANSACTION_API.submitTransactionApi(transactionData);
-                if (response && (response.status === true)) {
-                    return response;
-                } else {
-                    throw new Error('Failed to submit transaction');
+                if (!orderedProducts || !Array.isArray(orderedProducts)) {
+                    throw new Error('Invalid product data');
                 }
+                const payload = {
+                    transactions: transactionData,
+                    products: orderedProducts
+                };
+                const response = await TRANSACTION_API.submitTransactionApi(payload);
+                if (!response || response.status !== true) {
+                    throw new Error(response?.message || 'Failed to submit transaction');
+                }
+                this.transactionData = response.data;
+                this.success = true;
+                return response;
             } catch (error) {
-                console.error('Error in submitTransactionApi:', error);
-                this.error = 'Failed to submit transaction';
+                console.error('Transaction submission failed:', error);
+                this.error = error.message || 'Failed to submit transaction';
                 throw error;
             } finally {
                 this.loading = false;
             }
         },
+        clearState() {
+            this.transactionData = null;
+            this.error = null;
+            this.success = false;
+        }
     },
 });

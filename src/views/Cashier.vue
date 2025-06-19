@@ -95,22 +95,19 @@
                 <v-col cols="12" lg="6" md="6" sm="12" xs="12">
                     <h2>Current Orders</h2>
                     <v-data-table :headers="headersOrders" :items="currentOrders" density="comfortable" height="300px">
-                        <template v-slot:item.order_number="{ item }">
+                        <template v-slot:item.reference_number="{ item }">
                             <div class="d-flex align-center justify-space-between">
-                                ct-{{ item.order_number }}
+                                ct-{{ item.reference_number }}
                             </div>
                         </template>
 
-                        <!-- <template v-slot:item.actions="{ item }">
-                            <v-btn @click="$emit('set-status', item)" variant="tonal" size="small" prepend-icon="mdi-coffee">
-                                {{ item.actions }}
-                            </v-btn>
-                        </template> -->
-
-                        <template v-slot:item.actions="{ item }">
-                            <v-chip :color="item.actions === 'Brewing...' ? 'orange' : 'green'"
-                                    :prepend-icon="item.actions === 'Brewing...' ? 'mdi-coffee' : 'mdi-check'" size="small" variant="flat">
-                                {{ item.actions }}
+                        <template v-slot:item.status="{ item }">
+                            <v-chip :color="item.status === 'Brewing...' ? 'orange' : 'green'"
+                                    :prepend-icon="item.status === 'Brewing...' ? 'mdi-coffee' : 'mdi-check'"
+                                    size="small" 
+                                    variant="flat"
+                                    @click="changeStatus(item)">
+                                {{ item.status }}
                             </v-chip>
                         </template>
 
@@ -151,16 +148,16 @@ export default {
             selectedProducts: [],
             orders: [
                 {
-                    order_number: '001-003',
-                    actions: 'Brewing...',
+                    reference_number: '001-003',
+                    status: 'Brewing...',
                 },
                 {
-                    order_number: '001-002',
-                    actions: 'Served',
+                    reference_number: '001-002',
+                    status: 'Served',
                 },
                 {
-                    order_number: '001-001',
-                    actions: 'Served',
+                    reference_number: '001-001',
+                    status: 'Served',
                 },
             ],
             headers: [
@@ -172,8 +169,8 @@ export default {
                 { title: 'Actions', value: 'actions', sortable: false, width: '40%' },
             ],
             headersOrders: [
-                { title: 'Order number', value: 'order_number', width: '60%' },
-                { title: 'Status', value: 'actions', sortable: false, width: '40%' },
+                { title: 'Order number', value: 'reference_number', width: '60%' },
+                { title: 'Status', value: 'status', sortable: false, width: '40%' },
             ],
             discountOptions: [
                 { discount_id: 1, discount_label: '5%' },
@@ -185,9 +182,12 @@ export default {
             ],
             dataRows: [
                 {
-                    customer_cash: '',
-                    customer_change: '',
+                    reference_number: '',
                     table_number: null,
+                    total_quantity: '',
+                    customer_cash: '',
+                    customer_charge: '',
+                    customer_change: '',
                     customer_discount: '',
                 },
             ],
@@ -211,6 +211,9 @@ export default {
         }
     },
     computed: {
+        newRefNumber() {
+            return this.generateReferenceNumber();
+        },
         filteredProducts() {
             if (!this.searchProduct) {
                 return this.products;
@@ -231,8 +234,16 @@ export default {
     },
     mounted() {
         this.fetchProducts();
+        this.generateReferenceNumber();
     },
     methods: {
+        async generateReferenceNumber() {
+            // Random 10 numbers
+            const generatedNumber = "ct-01-" + Math.random().toString().slice(2, 14);
+            console.log('Generated Reference Number:', generatedNumber);
+            return generatedNumber;
+        },
+
         async fetchProducts() {
             this.loadingProducts = true;
             try {
@@ -293,10 +304,17 @@ export default {
         async submitForm() {
             try {
                 this.loading = true;
-                if (!this.$refs.transactionForm.validate()) return;
-                const payload = this.dataRows.map(row => ({
-                    order_number: '012345',
-                    reference_number: '9876543210',
+                const isValid = await this.$refs.transactionForm.validate();
+                if (!isValid) {
+                    this.loading = false;
+                    return;
+                }
+                const orderedProducts = this.selectedProducts.map(product => ({
+                    product_id: product.product_id,
+                    quantity: product.quantity,
+                }));
+                const transactionData = this.dataRows.map(row => ({
+                    reference_number: this.newRefNumber,
                     table_number: row.table_number,
                     total_quantity: this.totalQuantity,
                     customer_cash: parseFloat(row.customer_cash.replace(/[^0-9.]/g, '')) || 0,
@@ -304,16 +322,18 @@ export default {
                     customer_change: parseFloat(row.customer_change.replace(/[^0-9.]/g, '')) || 0,
                     customer_discount: row.customer_discount,
                 }));
-                await this.transactStore.submitTransactStore(payload);
-                this.loading = false;
+                await this.transactStore.submitTransactStore(transactionData, orderedProducts);
                 this.showSuccess("Transaction submitted successfully!");
                 this.$refs.transactionForm.reset();
+                this.transactStore.clearState();
             } catch (error) {
-                this.loading = false;
-                this.showError("Failed to transact. Please try again!");
                 console.error('Transaction submission error:', error);
+                this.showError(error.message || "Failed to process transaction. Please try again!");
+            } finally {
+                this.loading = false;
             }
         },
+
         showError(message) {
             this.$refs.snackbarRef.showSnackbar(message, "error");
         },

@@ -6,6 +6,9 @@ export const TRANSACTION_API = {
     },
 
     async submitTransactionApi(transactionData) {
+        if (!transactionData || !Array.isArray(transactionData)) {
+            throw new Error('Invalid transaction data');
+        }
         try {
             const authToken = localStorage.getItem('auth_token');
             if (!authToken) {
@@ -19,7 +22,7 @@ export const TRANSACTION_API = {
             };
             const response = await apiClient.post(
                 this.ENDPOINTS.SUBMIT,
-                transactionData,
+                { transactions: transactionData },
                 config
             );
             if (!response.data) {
@@ -28,15 +31,13 @@ export const TRANSACTION_API = {
             return response.data;
         } catch (error) {
             console.error('[TransactionAPI] Error submitting data:', error);
-            const enhancedError = new Error(
-                error.response?.data?.message ||
+            const errorMessage = error.response?.data?.message ||
                 error.message ||
-                'Failed to submit data'
-            );
+                'Failed to submit transaction data';
+            const enhancedError = new Error(errorMessage);
             enhancedError.response = error.response;
             enhancedError.status = error.response?.status;
             throw enhancedError;
         }
     },
-
 };
