@@ -5,6 +5,7 @@ export const TRANSACTION_API = {
         SUBMIT: '/submit-transaction',
         FETCH_CURRENT_ORDERS: '/current-orders',
         FETCH_ORDER_STATUS: '/order-status',
+        FETCH_ORDER: '/order-details',
         CHANGE_STATUS: '/update-order-status',
     },
 
@@ -92,6 +93,39 @@ export const TRANSACTION_API = {
             };
             const response = await apiClient.get(
                 `${this.ENDPOINTS.FETCH_ORDER_STATUS}`,
+                config
+            );
+            if (!response.data) {
+                throw new Error('Invalid response from server');
+            }
+            return response.data;
+        } catch (error) {
+            console.error('[TRANSACTION_API] Error fetching order status:', error);
+            const enhancedError = new Error(
+                error.response?.data?.message ||
+                error.message ||
+                'Failed to fetch order status'
+            );
+            enhancedError.response = error.response;
+            enhancedError.status = error.response?.status;
+            throw enhancedError;
+        }
+    },
+
+    async fetchOrderDetailsApi(referenceNumber) {
+        try {
+            const authToken = localStorage.getItem('auth_token');
+            if (!authToken) {
+                throw new Error('No authentication token found');
+            }
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
+                },
+            };
+            const response = await apiClient.get(
+                `${this.ENDPOINTS.FETCH_ORDER}/${referenceNumber}`,
                 config
             );
             if (!response.data) {

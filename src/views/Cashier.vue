@@ -2,6 +2,7 @@
     <v-container>
         <v-form ref="transactionForm" @submit.prevent="submitForm" v-model="isFormValid">
             <v-row>
+                <!-- Main Section -->
                 <v-col cols="12" lg="6" md="6" sm="12" xs="12">
                     <div class="trnsctn-indctn-cntnr">
                         <div class="d-flex align-items-center flex-column">
@@ -22,7 +23,7 @@
                     </div>
                     <v-data-table :headers="headers" :items="filteredProducts" :loading="loadingProducts"
                         :items-per-page="-1" height="400px" @click:row="(event, { item }) => selectProduct(item)"
-                        density="comfortable" class="hover-table" style="margin-top: 20px;">
+                        density="comfortable" class="hover-table">
                         <!-- eslint-disable vue/valid-v-slot -->
                         <template v-slot:item.product_name="{ item }">
                             <span class="small">{{ item.product_name }}{{ item.temp_label }}{{ item.size_label
@@ -33,10 +34,12 @@
                         </template>
                     </v-data-table>
                 </v-col>
+
+                <!-- Selected Products Section -->
                 <v-col cols="12" lg="6" md="6" sm="12" xs="12">
                     <v-row>
                         <v-col cols="12"> <!-- style="margin-top: 130px; margin-bottom: 300px;" -->
-                            <h2>Running Orders</h2>
+                            <h2>Selected Products</h2>
                             <v-data-table :headers="headersSelected" :items="selectedProducts" density="comfortable"
                                 height="300px">
                                 <template v-slot:item.product_name="{ item }">
@@ -82,7 +85,7 @@
                                     label="Customer name (optional)" variant="outlined" density="compact" type="text" />
                             </div>
                             <div class="d-flex justify-end">
-                                <v-btn class="bg-brown-darken-3 d-flex w-50 py-7 mt-3" variant="tonal"
+                                <v-btn class="bg-brown-darken-3 d-flex w-50 py-7 mt-3 me-2" variant="tonal"
                                     append-icon="mdi-send" type="submit" :loading="loading"
                                     :disabled="!isFormValid || loading">
                                     <v-progress-circular v-if="validatingData" color="white" label="Loading..." large />
@@ -92,12 +95,14 @@
                         </v-col>
                     </v-row>
                 </v-col>
+
+                <!-- Current Orders Section -->
                 <v-col cols="12" lg="6" md="6" sm="12" xs="12">
                     <h2>Current Orders</h2>
                     <v-data-table :headers="headersOrders" :items="currentOrders" :loading="loadingCurrentOrders" density="comfortable" height="300px">
                         <template v-slot:item.table_number="{ item }">
                             <div class="d-flex align-center justify-space-between">
-                                {{ item.table_number }}
+                                #{{ item.table_number }}
                             </div>
                         </template>
 
@@ -109,7 +114,9 @@
                                     prepend-icon="mdi-eye-outline"
                                     size="small" 
                                     variant="flat" 
-                                    class="ps-5 text-white">
+                                    class="ps-5 text-white"
+                                    @click="viewOrders(item)"
+                                    >
                                 </v-chip>
 
                                 <v-chip 
@@ -127,6 +134,41 @@
                     </v-data-table>
                 </v-col>
             </v-row>
+
+            <v-dialog v-model="ordersDialog" max-width="800px" persistent>
+                <v-card>
+                    <v-card-title class="text-h6">
+                        Order Details - Table #{{ selectedTableNumber }}
+                    </v-card-title>
+                    <v-card-text>
+                        <v-data-table 
+                            :headers="headersOrderDetails" 
+                            :items="orderDetails" 
+                            density="comfortable"
+                            :items-per-page="5"
+                            class="elevation-1"
+                        >
+                            <template v-slot:item.product_price="{ item }">
+                                ₱{{ item.product_price.toFixed(2) }}
+                            </template>
+                            <template v-slot:item.subtotal="{ item }">
+                                ₱{{ item.subtotal.toFixed(2) }}
+                            </template>
+                        </v-data-table>
+                        
+                        <v-divider class="my-4"></v-divider>
+                        
+                        <div class="d-flex justify-end">
+                            <div class="text-h6 mr-4">Total Quantity: {{ totalOrderQuantity }}</div>
+                            <div class="text-h6">Total Amount: ₱{{ totalOrderAmount.toFixed(2) }}</div>
+                        </div>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="red" variant="tonal" @click="ordersDialog = false">Close</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
         </v-form>
         <Snackbar ref="snackbarRef" />
         <LoaderUI :visible="validatingData" message="Saving..." />
@@ -160,10 +202,12 @@ export default {
             searchProduct: '',
             isFormValid: false,
             loading: false,
+            ordersDialog: false,
             products: [],
             selectedProducts: [],
             orders: [],
             order_statuses: [],
+            orderDetails: [],
             headers: [
                 { title: 'Product', value: 'product_name' },
                 { title: 'Price', value: 'product_price' },
@@ -175,6 +219,12 @@ export default {
             headersOrders: [
                 { title: 'Table number', value: 'table_number', width: '50%' },
                 { title: 'Status', value: 'actions', sortable: false, width: '50%' },
+            ],
+            headersOrderDetails: [
+                { title: 'Product', value: 'product_name' },
+                { title: 'Quantity', value: 'quantity' },
+                { title: 'Price', value: 'product_price' },
+                { title: 'Subtotal', value: 'subtotal' },
             ],
             discountOptions: [
                 { discount_id: 1, discount_label: '5%' },
@@ -223,6 +273,19 @@ export default {
         },
         currentOrders() {
             return this.orders;
+        },
+        totalOrderQuantity() {
+            return Array.isArray(this.orderDetails) 
+                ? this.orderDetails.reduce((sum, item) => sum + (item.quantity || 0), 0)
+                : 0;
+        },
+        totalOrderAmount() {
+            return Array.isArray(this.orderDetails) 
+                ? this.orderDetails.reduce((sum, item) => sum + (item.product_price * item.quantity || 0), 0)
+                : 0;
+        },
+        selectedTableNumber() {
+            return this.orderDetails?.[0]?.table_number || 'N/A';
         }
     },
     mounted() {
@@ -359,6 +422,30 @@ export default {
             }
         },
 
+        async viewOrders(order) {
+            if (!order || !order.reference_number) {
+                this.showError("Invalid order data!");
+                return;
+            }
+            
+            this.ordersDialog = true;
+            try {
+                const response = await this.transactStore.fetchOrderDetailsStore(order.reference_number);
+                
+                if (response?.data?.orders) {
+                    this.orderDetails = response?.data?.orders.map(item => ({
+                        ...item,
+                        product_name: `${item.product_name}${item.temp_label}${item.size_label}`
+                    }));
+                    this.selectedTableNumber = response?.data?.table_number;
+                }
+            } catch (error) {
+                console.error('Error fetching order details:', error);
+                this.orderDetails = [];
+                this.showError("Failed to fetch order details.");
+            }
+        },
+
         changeStatus(order) {
             if (!order || !order.reference_number) {
                 this.showError("Invalid order data!");
@@ -399,7 +486,7 @@ export default {
             switch(statusId) {
                 case 1: return 'mdi-radiator';        // Brewing
                 case 2: return 'mdi-human-greeting';   // Ready
-                case 3: return 'mdi-check-circle'; // Served
+                case 3: return 'mdi-check'; // Served
                 default: return 'mdi-help-circle';   // Unknown
             }
         },

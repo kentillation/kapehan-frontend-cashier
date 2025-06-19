@@ -84,6 +84,29 @@ export const useTransactStore = defineStore('transactionData', {
             }
         },
 
+        async fetchOrderDetailsStore(referenceNumber) {
+            this.loading = true;
+            this.error = null;
+            try {
+                if (!referenceNumber) {
+                    throw new Error('Invalid referenceNumber');
+                }
+                const response = await TRANSACTION_API.fetchOrderDetailsApi(referenceNumber);
+                if (response && response.status === true) {
+                    return response.data;
+                } else {
+                    throw new Error(response?.message || 'Failed to fetch order details');
+                }
+            } catch (error) {
+                console.error('Error fetching order details:', error);
+                this.error = error.message || 'Failed to fetch order details';
+                throw error;
+            }
+            finally {
+                this.loading = false;
+            }
+        },
+
         async updateOrderStatusStore(referenceNumber, orderStatus) {
             this.loading = true;
             this.error = null;
