@@ -111,31 +111,28 @@
                             <div class="d-flex" style="gap: 8px;">
                                 <v-chip 
                                     :color="getStatusColor(item.order_status_id)"
+                                    :prepend-icon="getStatusIcon(item.order_status_id)"
+                                    size="small" 
+                                    variant="flat" 
+                                    @click="changeStatus(item)"
+                                    class="text-white"
+                                    style="width: 80px; justify-content: flex-start;">
+                                    <span v-if="item.order_status_id === 1" class="typewriter-fixed">Brewing</span>
+                                    <span v-else>{{ getStatusName(item.order_status_id) }}</span>
+                                    <span v-if="item.order_status_id === 1" class="smoke"></span>
+                                    <span v-if="item.order_status_id === 1" class="smoke smoke2"></span>
+                                    <span v-if="item.order_status_id === 1" class="smoke smoke3"></span>
+                                    <span v-if="item.order_status_id === 1" class="smoke smoke4"></span>
+                                </v-chip>
+
+                                <v-chip 
+                                    color="gray"
                                     prepend-icon="mdi-eye-outline"
                                     size="small" 
                                     variant="flat" 
                                     class="ps-5 text-white"
                                     @click="viewOrders(item)"
                                     >
-                                </v-chip>
-
-                                <v-chip 
-                                    :color="getStatusColor(item.order_status_id)"
-                                    :prepend-icon="getStatusIcon(item.order_status_id)"
-                                    size="small" 
-                                    variant="flat" 
-                                    @click="changeStatus(item)"
-                                    class="text-white">
-                                    
-                                    <!-- Show typewriter effect only if Brewing -->
-                                    <span v-if="item.order_status_id === 1" class="typewriter">Brewing</span>
-                                    <span v-else>{{ getStatusName(item.order_status_id) }}</span>
-                                    <div>
-                                        <span v-if="item.order_status_id === 1" class="smoke"></span>
-                                        <span v-if="item.order_status_id === 1" class="smoke smoke2"></span>
-                                        <span v-if="item.order_status_id === 1" class="smoke smoke3"></span>
-                                        <span v-if="item.order_status_id === 1" class="smoke smoke4"></span>
-                                    </div>
                                 </v-chip>
                             </div>
                         </template>
@@ -615,23 +612,22 @@ export default {
   }
 }
 
-.typewriter {
+.typewriter-fixed {
   display: inline-block;
   overflow: hidden;
-  border-right: .15em solid orange;
   white-space: nowrap;
-  letter-spacing: .1em;
+  width: 70px; /* Fixed width for the animation */
   animation:
-    typing 2s steps(8, end) infinite,
+    typing-fixed 3s steps(8, end) infinite,
     blink-caret .75s step-end infinite;
 }
 
-@keyframes typing {
+@keyframes typing-fixed {
   0% {
     width: 0;
   }
   50% {
-    width: 8ch;
+    width: 70px;
   }
   100% {
     width: 0;
