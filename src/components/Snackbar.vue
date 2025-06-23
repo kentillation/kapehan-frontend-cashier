@@ -2,10 +2,10 @@
 <template>
   <v-container>
     <v-snackbar v-model="snackbar.visible" :color="snackbar.color" location="bottom" timeout="5000">
-      <div class="d-flex align-items-center py-3 px-3">
-        <span><v-icon icon="mdi-information-outline"></v-icon></span>
-        <span>&nbsp; {{ snackbar.message }}</span>
-      </div>
+        <h3 class="text-center px-2">
+          <span><v-icon icon="mdi-bell-outline"></v-icon></span>
+          <span>&nbsp; {{ snackbar.message }}</span>
+        </h3>
     </v-snackbar></v-container>
 </template>
 <script>

@@ -14,15 +14,13 @@
       <v-navigation-drawer class="h-screen pa-3" v-model="drawer" v-if="showSidebar">
         <v-list density="compact" nav>
           <v-list-subheader size="30">Menu</v-list-subheader>
-          <v-list-item prepend-icon="mdi-account-cash-outline" @click="toCashier" class="pa-3 bg-brown-darken-3"
-            style="border-radius: 30px;">Cashier</v-list-item>
-          <v-list-item prepend-icon="mdi-account-circle-outline" class="pa-3 bg-brown-darken-3"
-            style="border-radius: 30px;">Account</v-list-item>
-          <v-list-item prepend-icon="mdi-help-circle-outline" @click="toHelp" class="pa-3 bg-brown-darken-3"
+          <v-list-item prepend-icon="mdi-account-cash-outline" @click="toCashier" class="ps-5 bg-brown-darken-3"
+            style="border-radius: 30px;">Main</v-list-item>
+          <v-list-item prepend-icon="mdi-help-circle-outline" @click="toHelp" class="ps-5 bg-brown-darken-3"
             style="border-radius: 30px;">Help</v-list-item>
-          <v-list-item prepend-icon="mdi-information-outline" @click="toAbout" class="pa-3 bg-brown-darken-3"
+          <v-list-item prepend-icon="mdi-information-outline" @click="toAbout" class="ps-5 bg-brown-darken-3"
             style="border-radius: 30px;">About</v-list-item>
-          <v-list-item prepend-icon="mdi-logout" @click="showLogout" class="pa-3 bg-brown-darken-3"
+          <v-list-item prepend-icon="mdi-logout" @click="showLogout" class="ps-5 bg-brown-darken-3"
             style="border-radius: 30px;">Sign Out</v-list-item>
         </v-list>
       </v-navigation-drawer>

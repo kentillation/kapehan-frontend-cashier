@@ -21,7 +21,7 @@
                             </div>
                         </div>
                     </div>
-                    <v-data-table :headers="headers" :items="filteredProducts" :loading="loadingProducts"
+                    <v-data-table :headers="headersDisplay" :items="filteredProducts" :loading="loadingProducts"
                         :items-per-page="-1" height="400px" @click:row="(event, { item }) => selectProduct(item)"
                         density="comfortable" class="hover-table">
                         <!-- eslint-disable vue/valid-v-slot -->
@@ -38,6 +38,7 @@
                 <!-- Selected Products Section -->
                 <v-col cols="12" lg="6" md="6" sm="12" xs="12">
                     <v-row>
+                        <!-- Selected Products -->
                         <v-col cols="12"> <!-- style="margin-top: 130px; margin-bottom: 300px;" -->
                             <h2>Selected Products</h2>
                             <v-data-table :headers="headersSelected" :items="selectedProducts" density="comfortable"
@@ -62,6 +63,7 @@
                                 </template>
                             </v-data-table>
                         </v-col>
+                        <!--Payment Section  -->
                         <v-col cols="12">
                             <h2>Payment Section</h2>
                             <div class="payment-section mt-3">
@@ -82,14 +84,15 @@
                                     label="Table number" variant="outlined" density="compact" type="number"
                                     :rules="[v => !!v || 'Required']" />
                                 <v-text-field class="payment-section-item me-2 mt-2" v-model="customer_name"
-                                    label="Customer name (optional)" variant="outlined" density="compact" type="text" />
+                                    label="Customer (optional)" variant="outlined" density="compact" type="text" />
                             </div>
                             <div class="d-flex justify-end">
                                 <v-btn class="bg-brown-darken-3 d-flex w-50 py-7 mt-3 me-2" variant="tonal"
                                     append-icon="mdi-send" type="submit" :loading="loading"
                                     :disabled="!isFormValid || loading">
-                                    <v-progress-circular v-if="validatingData" color="white" label="Loading..." large />
-                                    <span v-else>Submit</span>
+                                    Proceed
+                                    <!-- <v-progress-circular v-if="validatingData" color="white" label="Loading..." large /> -->
+                                    <!-- <span v-else>Submit</span> -->
                                 </v-btn>
                             </div>
                         </v-col>
@@ -102,7 +105,7 @@
                     <v-data-table :headers="headersOrders" :items="currentOrders" :loading="loadingCurrentOrders" density="comfortable" height="300px">
                         <template v-slot:item.table_number="{ item }">
                             <div class="d-flex align-center justify-space-between">
-                                # {{ item.table_number }}
+                                <h3># {{ item.table_number }}</h3>
                             </div>
                         </template>
 
@@ -123,6 +126,7 @@
                                     <span v-if="item.order_status_id === 1" class="smoke smoke2"></span>
                                     <span v-if="item.order_status_id === 1" class="smoke smoke3"></span>
                                     <span v-if="item.order_status_id === 1" class="smoke smoke4"></span>
+                                    <span v-if="item.order_status_id === 1" class="smoke smoke5"></span>
                                 </v-chip>
 
                                 <v-chip 
@@ -141,10 +145,11 @@
                 </v-col>
             </v-row>
 
+            <!-- Viewing products of current order -->
             <v-dialog v-model="ordersDialog" max-width="800px" persistent>
                 <v-card>
                     <v-card-title class="text-h6">
-                        Table #{{ selectedTableNumber }}
+                        Table #{{ this.selectedTableNumber }}
                     </v-card-title>
                     <v-card-text>
                         <v-data-table 
@@ -168,7 +173,7 @@
                         <v-divider class="my-4"></v-divider>
                         
                         <div class="d-flex flex-column">
-                            <h3>Total Quantity: {{ totalOrderQuantity }}</h3>
+                            <h3>Total Quantity: {{ totalOrderQuantity }} {{ itemIndicator }}</h3>
                             <h3>Total Amount: ₱{{ totalOrderAmount.toFixed(2) }}</h3>
                         </div>
                     </v-card-text>
@@ -180,7 +185,7 @@
             </v-dialog>
         </v-form>
         <Snackbar ref="snackbarRef" />
-        <LoaderUI :visible="validatingData" message="Saving..." />
+        <GlobalLoader :visible="validatingData" message="Informing kitchen..." />
     </v-container>
 </template>
 
@@ -188,12 +193,14 @@
 import { useProductsStore } from '@/stores/productsStore';
 import { useTransactStore } from '@/stores/transactionStore';
 import Snackbar from '@/components/Snackbar.vue';
+import GlobalLoader from '@/components/GlobalLoader.vue';
 
 export default {
     // eslint-disable-next-line vue/multi-word-component-names
     name: 'Cashier',
     components: {
-        Snackbar
+        Snackbar,
+        GlobalLoader,
     },
     data() {
         return {
@@ -203,7 +210,7 @@ export default {
             customer_cash: '',
             customer_charge: '',
             customer_change: '',
-            customer_discount: '',
+            customer_discount: '-select-',
             customer_name: '',
             loadingProducts: false,
             loadingCurrentOrders: false,
@@ -214,19 +221,20 @@ export default {
             ordersDialog: false,
             products: [],
             selectedProducts: [],
+            selectedTableNumber: null,
             orders: [],
             order_statuses: [],
             orderDetails: [],
-            headers: [
-                { title: 'Product', value: 'product_name' },
-                { title: 'Price', value: 'product_price' },
+            headersDisplay: [
+                { title: '', value: 'product_name' },
+                { title: '', value: 'product_price' },
             ],
             headersSelected: [
-                { title: 'Product', value: 'product_name', width: '60%' },
-                { title: 'Actions', value: 'actions', sortable: false, width: '40%' },
+                { title: '', value: 'product_name', width: '60%' },
+                { title: '', value: 'actions', sortable: false, width: '40%' },
             ],
             headersOrders: [
-                { title: 'Table #', value: 'table_number', width: '50%' },
+                { title: 'Table Number', value: 'table_number', width: '50%' },
                 { title: 'Status', value: 'actions', sortable: false, width: '50%' },
             ],
             headersOrderDetails: [
@@ -259,7 +267,7 @@ export default {
             if (this.customer_cash === '') {
                 this.customer_change = '';
             }
-        }
+        },
     },
     computed: {
         newRefNumber() {
@@ -287,13 +295,19 @@ export default {
                 ? this.orderDetails.reduce((sum, item) => sum + (item.quantity || 0), 0)
                 : 0;
         },
+        itemIndicator() {
+            let item_indicator = '';
+            if (this.totalOrderQuantity > 1) {
+                item_indicator = 'items';
+            } else {
+                item_indicator = 'item';
+            }
+            return item_indicator;
+        },
         totalOrderAmount() {
             return Array.isArray(this.orderDetails) 
                 ? this.orderDetails.reduce((sum, item) => sum + (item.product_price * item.quantity || 0), 0)
                 : 0;
-        },
-        selectedTableNumber() {
-            return this.transactStore.orderDtls?.data?.table_number || 'N/A';
         },
     },
     mounted() {
@@ -388,9 +402,11 @@ export default {
 
         async submitForm() {
             try {
-                this.loading = true;
+                // this.loading = true;
+                this.validatingData = true;
                 if (!this.$refs.transactionForm.validate()) {
-                    this.loading = false;
+                    // this.loading = false;
+                    this.validatingData = false;
                     return;
                 }
                 const orderedProducts = this.selectedProducts.map(p => ({
@@ -403,7 +419,8 @@ export default {
 
                 if (!refNumber || !this.table_number) {
                     this.showError("Reference number and table number are required.");
-                    this.loading = false;
+                    // this.loading = false;
+                    this.validatingData = false;
                     return;
                 }
                 const transactionData = [{
@@ -426,7 +443,8 @@ export default {
                 this.showError("Failed to transact. Please try again!");
                 console.error('Transaction submission error:', error);
             } finally {
-                this.loading = false;
+                // this.loading = false;
+                this.validatingData = false;
             }
         },
 
@@ -438,21 +456,13 @@ export default {
             this.ordersDialog = true;
             try {
                 const response = await this.transactStore.fetchOrderDetailsStore(order.reference_number);
-                
-                // Debug: Log the complete response
-                console.log("Complete API response:", response);
-                console.log("Store orderDtls:", this.transactStore.orderDtls);
-                
-                // Check response structure
                 if (response?.data?.all_orders) {
                     this.orderDetails = response.data.all_orders;
                     this.selectedTableNumber = response.data.table_number;
-                    console.log("Successfully loaded order details:", this.orderDetails);
                 } 
                 else if (this.transactStore.orderDtls?.data?.all_orders) {
                     this.orderDetails = this.transactStore.orderDtls.data.all_orders;
                     this.selectedTableNumber = this.transactStore.orderDtls.data.table_number;
-                    console.log("Successfully loaded order details from store:", this.orderDetails);
                 }
                 else {
                     console.error('Invalid response structure:', {
@@ -482,7 +492,7 @@ export default {
             this.transactStore.updateOrderStatusStore(order.reference_number, newStatus)
                 .then(() => {
                     const statusName = this.getStatusName(newStatus);
-                    this.showSuccess(`Order status updated to ${statusName}`);
+                    this.showSuccess(`Table# ${order.table_number} is ${statusName}`);
                     this.fetchCurrentOrders();
                 })
                 .catch(error => {
@@ -526,6 +536,10 @@ export default {
 </script>
 
 <style>
+table th {
+    height: 0 !important;
+}
+
 .trnsctn-indctn-cntnr {
     position: sticky;
     top: 0;
@@ -558,10 +572,10 @@ export default {
 
 .smoke {
   position: absolute;
-  left: 10%;
-  bottom: 5%;
-  width: 3px;
-  height: 5;
+  left: 20%;
+  top: 5%;
+  width: 2px;
+  height: 5px;
   background: radial-gradient(ellipse at center, #797373 60%, transparent 100%);
   opacity: 0.5;
   border-radius: 50%;
@@ -578,36 +592,42 @@ export default {
 }
 
 .smoke3 {
-  left: 16%;
+  left: 15%;
   animation-delay: 2.5s;
   opacity: 0.5;
 }
 
 .smoke4 {
-  left: 19%;
+  left: 17%;
   animation-delay: 1s;
+  opacity: 0.5;
+}
+
+.smoke5 {
+  left: 11%;
+  animation-delay: 1.5s;
   opacity: 0.5;
 }
 
 @keyframes smokeUp {
   0% {
     opacity: 0.7;
-    top: 10%;
+    top: 5%;
     transform: translateX(-50%) scale(1);
   }
   25% {
     opacity: 0.4;
-    top: -10%;
+    top: -15%;
     transform: translateX(-50%) scale(1.2);
   }
   75% {
     opacity: 0.4;
-    top: -10%;
+    top: -15%;
     transform: translateX(-50%) scale(1.2);
   }
   100% {
     opacity: 0;
-    top: -30%;
+    top: -40%;
     transform: translateX(-50%) scale(1.4);
   }
 }
