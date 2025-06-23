@@ -51,7 +51,7 @@
                                     </div>
                                 </template>
                                 <template v-slot:item.actions="{ item }">
-                                    <v-btn @click="minusQuan(item)" class="bg-brown-darken-3 mini-btn">
+                                    <v-btn @click="minusQuan(item)" class="bg-brown-darken-3 mini-btn ms-3">
                                         <v-icon>mdi-minus</v-icon>
                                     </v-btn>
                                     <v-btn @click="addQuan(item)" class="bg-brown-darken-3 mini-btn mx-1">
@@ -230,8 +230,8 @@ export default {
                 { title: '', value: 'product_price' },
             ],
             headersSelected: [
-                { title: '', value: 'product_name', width: '60%' },
-                { title: '', value: 'actions', sortable: false, width: '40%' },
+                { title: '', value: 'product_name', width: '50%' },
+                { title: '', value: 'actions', sortable: false, width: '50%' },
             ],
             headersOrders: [
                 { title: 'Table Number', value: 'table_number', width: '50%' },
