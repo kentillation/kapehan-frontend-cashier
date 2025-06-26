@@ -7,11 +7,11 @@
             <v-card-text>
                 <v-form ref="form" @submit.prevent="handleLogin" v-model="isFormValid">
                     <div class="text-subtitle-1 text-medium-emphasis">Email</div>
-                    <v-text-field v-model="email" :rules="[requiredRule, emailFormatRule]" placeholder="Type here..."
+                    <v-text-field v-model="cashier_email" :rules="[requiredRule, emailFormatRule]" placeholder="Type here..."
                         prepend-inner-icon="mdi-email-outline" variant="outlined" autocomplete="username" />
 
                     <div class="text-subtitle-1 text-medium-emphasis mt-2">Password</div>
-                    <v-text-field v-model="password" :rules="[requiredRule]" :type="showPassword ? 'text' : 'password'"
+                    <v-text-field v-model="cashier_password" :rules="[requiredRule]" :type="showPassword ? 'text' : 'password'"
                         :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye-outline'" placeholder="Type here..."
                         prepend-inner-icon="mdi-lock-outline" variant="outlined" autocomplete="current-password"
                         @click:append-inner="showPassword = !showPassword" />
@@ -36,8 +36,8 @@ export default {
     name: 'LoginPage',
     data() {
         return {
-            email: '',
-            password: '',
+            cashier_email: '',
+            cashier_password: '',
             showPassword: false,
             isFormValid: false,
             loading: false,
@@ -63,7 +63,7 @@ export default {
             this.loading = true;
             try {
                 const authStore = useAuthStore();
-                await authStore.login({ email: this.email, password: this.password });
+                await authStore.login({ cashier_email: this.cashier_email, cashier_password: this.cashier_password });
 
                 // this.$router.push('/dashboard');
                 window.location.href = '/cashier';
