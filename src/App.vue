@@ -227,15 +227,15 @@ export default {
   z-index: 9999;
 }
 .connection-banner.offline {
-  background: #b71c1c;
+  background: #8a1515;
   color: #fff;
 }
 .connection-banner.slow {
-  background: #fbc02d;
+  background: #b88d20;
   color: #333;
 }
 .connection-banner.waiting {
-  background: #1976d2;
+  background: #118aa0;
   color: #fff;
 }
 </style>
