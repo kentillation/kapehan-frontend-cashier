@@ -95,9 +95,9 @@ export default {
       this.$router.push('/cashier');
     },
     async showLogout() {
-      this.loadingStore.show('Logging out...');
       this.drawer = false;
       await this.authStore.logout();
+      this.loadingStore.show('Logging out...');
 
     },
     toHelp() {
