@@ -1,10 +1,10 @@
 {
-  "appId": "com.example.kapehan",
-  "appName": "Kapehan",
+  "appId": "com.example.poofsa",
+  "appName": "Poofsa",
   "webDir": "dist",
   "bundledWebRuntime": false,
   "server": {
-    "url": "https://kapehan.kentillation.com",
+    "url": "https://poofsa-cashier.kentillation.com",
     "cleartext": true
   }
 }
