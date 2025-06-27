@@ -1,10 +1,10 @@
 {
-  "appId": "com.example.poofsa",
-  "appName": "Poofsa",
+  "appId": "com.example.poofsa_tend",
+  "appName": "Poofsa_tend",
   "webDir": "dist",
   "bundledWebRuntime": false,
   "server": {
-    "url": "https://poofsa-cashier.kentillation.com",
+    "url": "https://poofsatend.vercel.app",
     "cleartext": true
   }
 }
