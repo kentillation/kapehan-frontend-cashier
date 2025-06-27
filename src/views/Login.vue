@@ -26,7 +26,7 @@
                     Proceed
                 </v-btn>
             </v-form>
-
+            <h6 class="text-center text-grey mt-5">Version 1.0 (UAT)</h6>
         </v-sheet>
         <!-- <v-sheet class="py-8 px-6 mx-auto ma-4 text-center" elevation="4" max-width="500" rounded="lg" width="100%">
             <h3 class="text-h5">Verification Code</h3>
