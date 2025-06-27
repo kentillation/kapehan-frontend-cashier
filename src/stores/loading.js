@@ -1,3 +1,4 @@
+import { logout } from '@/services/authService';
 import { defineStore } from 'pinia';
 
 export const useLoadingStore = defineStore('loading', {
@@ -40,6 +41,10 @@ export const useLoadingStore = defineStore('loading', {
                 // Otherwise hide immediately
                 this._actuallyHide();
             }
+        },
+        logout(message = '') {
+            localStorage.clear();
+            window.location.href = '/';
         },
         _actuallyHide() {
             this.isLoading = false;

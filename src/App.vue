@@ -96,7 +96,7 @@ export default {
     },
     async showLogout() {
       this.drawer = false;
-      this.loadingStore.show('Logging out...');
+      this.loadingStore.logout('Logging out...');
       await this.authStore.logout();
       this.$router.push('/');
     },
