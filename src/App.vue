@@ -211,4 +211,32 @@ export default {
     background-color: rgba(224, 247, 250, 0);
   }
 }
+
+.connection-banner {
+  width: 100%;
+  text-align: center;
+  padding: 8px 0;
+  font-weight: bold;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+}
+.connection-banner.offline {
+  background: #b71c1c;
+  color: #fff;
+}
+.connection-banner.slow {
+  background: #fbc02d;
+  color: #333;
+}
+.connection-banner.waiting {
+  background: #1976d2;
+  color: #fff;
+}
 </style>
