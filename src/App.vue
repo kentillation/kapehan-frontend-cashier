@@ -36,6 +36,7 @@
 import { useTheme } from 'vuetify';
 import { ref } from 'vue';
 import { useAuthStore } from '@/stores/auth';
+import { useLoadingStore } from '@/stores/loading';
 import { useBranchStore } from '@/stores/branchStore';
 import GlobalLoader from '@/components/GlobalLoader.vue';
 
@@ -48,6 +49,7 @@ export default {
   setup() {
     const theme = useTheme();
     const authStore = useAuthStore();
+    const loadingStore = useLoadingStore();
     const branchStore = useBranchStore();
 
     const toggleTheme = () => {
@@ -60,6 +62,7 @@ export default {
       theme,
       toggleTheme,
       authStore,
+      loadingStore,
       branchStore,
       drawer: ref(true),
       open: ref(false),
@@ -92,6 +95,8 @@ export default {
       this.$router.push('/cashier');
     },
     async showLogout() {
+      this.loadingStore.show('Logging out...');
+      this.drawer = false;
       await this.authStore.logout();
 
     },

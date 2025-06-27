@@ -42,6 +42,7 @@ export default {
     padding: 25px 40px;
     border-radius: 8px;
     text-align: center;
+    z-index: 9999;
 }
 
 .loader {
@@ -89,7 +90,7 @@ export default {
 
 .loader-message {
     margin-top: 15px;
-    color: var(--c1);
+    color: #eba76c;
 }
 
 @keyframes l5-0 {
