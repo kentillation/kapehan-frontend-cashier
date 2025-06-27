@@ -45,13 +45,16 @@
 
 <script>
 import { useAuthStore } from '@/stores/auth';
+import { useLoadingStore } from '@/stores/loading';
 import { shallowRef } from 'vue';
 
 export default {
     name: 'LoginPage',
     setup() {
+        const loadingStore = useLoadingStore();
         return {
             mpin: shallowRef(''),
+            loadingStore,
         };
     },
     data() {
@@ -82,12 +85,14 @@ export default {
 
             this.loading = true;
             try {
+                this.loadingStore.show('Logging in...');
                 const authStore = useAuthStore();
                 await authStore.login({ cashier_email: this.cashier_email, cashier_password: this.cashier_password });
 
                 // this.$router.push('/dashboard');
                 window.location.href = '/cashier';
             } catch (error) {
+                this.loadingStore.hide();
                 this.showSnackbar(error || 'Login failed. Please try again!', 'error');
             } finally {
                 this.loading = false;
