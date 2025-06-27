@@ -23,6 +23,14 @@
                 </v-form>
             </v-card-text>
         </v-card>
+        <!-- <v-sheet class="py-8 px-6 mx-auto ma-4 text-center" elevation="4" max-width="500" rounded="lg" width="100%">
+            <h3 class="text-h5">Verification Code</h3>
+            <div class="text-subtitle-2 font-weight-light mb-3">Enter the verification code sent to your mobile</div>
+            <v-otp-input v-model="mpin" class="mb-8" divider="•" length="4" variant="outlined"></v-otp-input>
+            <div class="text-caption">
+                <v-btn color="primary" size="x-small" text="Send New Code" variant="text" @click="mpin = ''"></v-btn>
+            </div>
+        </v-sheet> -->
         <v-snackbar v-model="snackbar.visible" :color="snackbar.color" timeout="4000" top>
             {{ snackbar.message }}
         </v-snackbar>
@@ -31,9 +39,15 @@
 
 <script>
 import { useAuthStore } from '@/stores/auth';
+import { shallowRef } from 'vue';
 
 export default {
     name: 'LoginPage',
+    setup() {
+        return {
+            mpin: shallowRef(''),
+        };
+    },
     data() {
         return {
             cashier_email: '',
@@ -88,5 +102,4 @@ export default {
     place-items: center;
     height: 100vh;
 }
-
 </style>

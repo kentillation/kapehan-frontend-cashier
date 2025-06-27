@@ -4,21 +4,19 @@
             <v-row>
                 <!-- Main Section -->
                 <v-col cols="12" lg="6" md="6" sm="12" xs="12">
-                    <div class="trnsctn-indctn-cntnr">
-                        <div class="d-flex align-items-center flex-column">
-                            <div class="indication pa-2 text-white" style="background: #696969;">
-                                <h3 class="me-13">Quantity: <span>{{ totalQuantity }}</span></h3>
-                                <h3 class="ms-15">Charge: ₱ <span>{{ totalCharge.toFixed() }}</span></h3>
-                            </div>
-                            <div class="d-flex align-items-center justify-content-center">
-                                <v-text-field v-model="searchProduct" class="prdct-txt text-white w-50"
-                                    style="background: #696969;" label="FIND PRODUCT..." outlined>
-                                </v-text-field>
-                                <v-btn class="bg-brown-darken-3 d-flex align-items-center py-7 w-50 rounded-0"
-                                    variant="tonal" large>
-                                    <v-icon>mdi-magnify</v-icon>&nbsp; Category
-                                </v-btn>
-                            </div>
+                    <div class="d-flex align-items-center flex-column">
+                        <div class="indication pa-2 text-white trnsct-head">
+                            <h3 class="me-13">Quantity: <span>{{ totalQuantity }}</span></h3>
+                            <h3 class="ms-15">Charge: ₱ <span>{{ totalCharge.toFixed() }}</span></h3>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-center">
+                            <v-text-field v-model="searchProduct" class="prdct-txt text-white w-50"
+                                style="background: #696969;" label="FIND PRODUCT..." outlined>
+                            </v-text-field>
+                            <v-btn class="bg-brown-darken-3 d-flex align-items-center py-7 w-50 rounded-0"
+                                variant="tonal" large>
+                                <v-icon>mdi-magnify</v-icon>&nbsp; Category
+                            </v-btn>
                         </div>
                     </div>
                     <v-data-table :headers="headersDisplay" :items="filteredProducts" :loading="loadingProducts"
@@ -69,32 +67,40 @@
                             <div class="payment-section mt-3">
                                 <v-text-field class="payment-section-item me-2 mt-2" v-model="customer_charge"
                                     label="Total charge" variant="outlined" density="compact" type="number"
-                                    :model-value="this.totalCharge.toFixed(2)" readonly />
-                                <v-text-field class="payment-section-item me-2 mt-2" v-model="customer_cash"
+                                    :model-value="this.totalCharge.toFixed(2)" prepend-inner-icon="mdi-cash" readonly />
+                                <v-text-field class="payment-section-item me-2 mt-2" v-model.number="customer_cash"
                                     label="Cash render" variant="outlined" density="compact" type="number"
-                                    :rules="[v => !isNaN(parseFloat(v)) || 'Required' || 'Must be a valid number']"
-                                    @input="e => customer_cash = e.target.value.replace(/[^0-9.]/g, '')" />
+                                    :rules="[v => !isNaN(parseFloat(v)) || 'Required', v => parseFloat(v) >= 0 || 'Must be greater than or equal to cash']"
+                                    @input="e => customer_cash = e.target.value.replace(/[^0-9.]/g, '')"
+                                    prepend-inner-icon="mdi-cash-plus" placeholder="Enter cash amount" />
                                 <v-text-field class="payment-section-item me-2 mt-2" v-model="customer_change"
-                                    label="Change" variant="outlined" density="compact" type="number" readonly />
+                                    label="Change" variant="outlined" density="compact"
+                                    prepend-inner-icon="mdi-cash-refund" readonly />
                                 <v-autocomplete class="payment-section-item me-2 mt-2" v-model="customer_discount"
                                     label="Discount" :items="discountOptions" :rules="[v => !!v || 'Required']"
                                     item-title="discount_label" item-value="discount_id" variant="outlined"
-                                    density="compact" />
+                                    density="compact" prepend-inner-icon="mdi-sale-outline" clearable />
                                 <v-text-field class="payment-section-item me-2 mt-2" v-model="table_number"
                                     label="Table number" variant="outlined" density="compact" type="number"
-                                    :rules="[v => !!v || 'Required']" />
+                                    :rules="[v => !!v || 'Required']" prepend-inner-icon="mdi-table-chair"
+                                    placeholder="Enter table number" />
                                 <v-text-field class="payment-section-item me-2 mt-2" v-model="customer_name"
-                                    label="Customer (optional)" variant="outlined" density="compact" type="text" />
+                                    label="Customer (optional)" variant="outlined" density="compact" type="text"
+                                    prepend-inner-icon="mdi-account" placeholder="Enter customer name" />
                             </div>
-                            <div class="d-flex justify-end">
-                                <v-btn class="bg-brown-darken-3 d-flex w-50 py-7 mt-3 me-2" variant="tonal"
-                                    append-icon="mdi-send" type="submit" :loading="loading"
-                                    :disabled="!isFormValid || loading">
-                                    Proceed
-                                    <!-- <v-progress-circular v-if="validatingData" color="white" label="Loading..." large /> -->
-                                    <!-- <span v-else>Submit</span> -->
+
+                            <div class="d-flex justify-end me-2 ms-1">
+                                <v-btn class="bg-red-lighten-2 d-flex w-50 py-6 mt-3" variant="tonal"
+                                    prepend-icon="mdi-refresh" @click="resetPaymentSection" :disabled="loading">
+                                    Reset
+                                </v-btn>&nbsp;
+                                <v-btn class="bg-brown-darken-3 d-flex w-50 py-6 mt-3" variant="tonal"
+                                    append-icon="mdi-send" type="submit" :loading="loading" :disabled="!isFormValid || loading ||
+                                        Number(customer_cash) < totalCharge || Number(customer_change) < 0">
+                                    Submit
                                 </v-btn>
                             </div>
+
                         </v-col>
                     </v-row>
                 </v-col>
@@ -102,7 +108,8 @@
                 <!-- Current Orders Section -->
                 <v-col cols="12" lg="6" md="6" sm="12" xs="12">
                     <h2>Current Orders</h2>
-                    <v-data-table :headers="headersOrders" :items="currentOrders" :loading="loadingCurrentOrders" density="comfortable" height="300px">
+                    <v-data-table :headers="headersOrders" :items="currentOrders" :loading="loadingCurrentOrders"
+                        density="comfortable" height="300px">
                         <template v-slot:item.table_number="{ item }">
                             <div class="d-flex align-center justify-space-between">
                                 <h3># {{ item.table_number }}</h3>
@@ -112,13 +119,9 @@
                         <!--eslint-disable-next-line -->
                         <template v-slot:item.actions="{ item }">
                             <div class="d-flex" style="gap: 8px;">
-                                <v-chip 
-                                    :color="getStatusColor(item.order_status_id)"
-                                    :prepend-icon="getStatusIcon(item.order_status_id)"
-                                    size="small" 
-                                    variant="flat" 
-                                    @click="changeStatus(item)"
-                                    class="text-white"
+                                <v-chip :color="getStatusColor(item.order_status_id)"
+                                    :prepend-icon="getStatusIcon(item.order_status_id)" size="small" variant="flat"
+                                    @click="changeStatus(item)" class="text-white"
                                     style="width: 80px; justify-content: flex-start;">
                                     <span v-if="item.order_status_id === 1" class="typewriter-fixed">Brewing</span>
                                     <span v-else>{{ getStatusName(item.order_status_id) }}</span>
@@ -129,14 +132,8 @@
                                     <span v-if="item.order_status_id === 1" class="smoke smoke5"></span>
                                 </v-chip>
 
-                                <v-chip 
-                                    color="gray"
-                                    prepend-icon="mdi-eye-outline"
-                                    size="small" 
-                                    variant="flat" 
-                                    class="ps-5 text-white"
-                                    @click="viewOrders(item)"
-                                    >
+                                <v-chip color="gray" prepend-icon="mdi-eye-outline" size="small" variant="flat"
+                                    class="ps-5 text-white" @click="viewOrders(item)">
                                 </v-chip>
                             </div>
                         </template>
@@ -152,15 +149,11 @@
                         Table #{{ this.selectedTableNumber }}
                     </v-card-title>
                     <v-card-text>
-                        <v-data-table 
-                            :headers="headersOrderDetails" 
-                            :items="orderDetails" 
-                            density="comfortable"
-                            :items-per-page="5"
-                            class="elevation-1"
-                        >
+                        <v-data-table :headers="headersOrderDetails" :items="orderDetails" density="comfortable"
+                            :items-per-page="5" class="elevation-1">
                             <template v-slot:item.product_name="{ item }">
-                                {{ item?.product_name || '' }}{{ item?.temp_label || '' }}{{ item?.size_label || '' }}x{{ item?.quantity }}
+                                {{ item?.product_name || '' }}{{ item?.temp_label || '' }}{{ item?.size_label || ''
+                                }}x{{ item?.quantity }}
                             </template>
                             <template v-slot:item.product_price="{ item }">
                                 ₱{{ item.product_price.toFixed(2) }}
@@ -169,9 +162,9 @@
                                 ₱{{ item.subtotal.toFixed(2) }}
                             </template>
                         </v-data-table>
-                        
+
                         <v-divider class="my-4"></v-divider>
-                        
+
                         <div class="d-flex flex-column">
                             <h3>Total Quantity: {{ totalOrderQuantity }} {{ itemIndicator }}</h3>
                             <h3>Total Amount: ₱{{ totalOrderAmount.toFixed(2) }}</h3>
@@ -179,7 +172,8 @@
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn color="red" variant="tonal" prepend-icon="mdi-close" class="me-2 mb-2" @click="ordersDialog = false">Close</v-btn>
+                        <v-btn color="red" variant="tonal" prepend-icon="mdi-close" class="me-2 mb-2"
+                            @click="ordersDialog = false">Close</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
@@ -238,9 +232,10 @@ export default {
                 { title: 'Status', value: 'actions', sortable: false, width: '50%' },
             ],
             headersOrderDetails: [
-                { title: 'Product', value: 'product_name' },
+                { title: '______PRODUCT_NAME______', value: 'product_name' },
                 { title: 'Price', value: 'product_price' },
                 { title: 'Subtotal', value: 'subtotal' },
+                { title: '_______ORDER_DATE_______', value: 'created_at' },
             ],
             discountOptions: [
                 { discount_id: 1, discount_label: '5%' },
@@ -261,11 +256,11 @@ export default {
         customer_cash() {
             const customerCharge = this.customer_cash - this.totalCharge;
             this.customer_change = customerCharge.toFixed(2);
-            if (this.totalCharge == '') {
-                this.customer_change = '';
+            if (this.totalCharge == 0) {
+                this.customer_change = 0;
             }
             if (this.customer_cash === '') {
-                this.customer_change = '';
+                this.customer_change = 0;
             }
         },
     },
@@ -291,7 +286,7 @@ export default {
             return this.orders;
         },
         totalOrderQuantity() {
-            return Array.isArray(this.orderDetails) 
+            return Array.isArray(this.orderDetails)
                 ? this.orderDetails.reduce((sum, item) => sum + (item.quantity || 0), 0)
                 : 0;
         },
@@ -305,7 +300,7 @@ export default {
             return item_indicator;
         },
         totalOrderAmount() {
-            return Array.isArray(this.orderDetails) 
+            return Array.isArray(this.orderDetails)
                 ? this.orderDetails.reduce((sum, item) => sum + (item.product_price * item.quantity || 0), 0)
                 : 0;
         },
@@ -318,7 +313,7 @@ export default {
     methods: {
         async generateReferenceNumber() {
             // Random 10 numbers
-            const generatedNumber = "ct-01-" + Math.random().toString().slice(2, 14);
+            const generatedNumber = Math.random().toString().slice(2, 14);
             console.log('Generated Reference Number:', generatedNumber);
             return generatedNumber;
         },
@@ -456,12 +451,13 @@ export default {
             this.ordersDialog = true;
             try {
                 const response = await this.transactStore.fetchOrderDetailsStore(order.reference_number);
+                let allOrders = [];
                 if (response?.data?.all_orders) {
-                    this.orderDetails = response.data.all_orders;
+                    allOrders = response.data.all_orders;
                     this.selectedTableNumber = response.data.table_number;
-                } 
+                }
                 else if (this.transactStore.orderDtls?.data?.all_orders) {
-                    this.orderDetails = this.transactStore.orderDtls.data.all_orders;
+                    allOrders = this.transactStore.orderDtls.data.all_orders;
                     this.selectedTableNumber = this.transactStore.orderDtls.data.table_number;
                 }
                 else {
@@ -472,6 +468,7 @@ export default {
                     this.orderDetails = [];
                     this.showError("Failed to load order details - invalid format");
                 }
+                this.orderDetails = allOrders.map(order => this.formatOrder(order));
             } catch (error) {
                 console.error('Error fetching order details:', error);
                 this.orderDetails = [];
@@ -507,7 +504,7 @@ export default {
         },
 
         getStatusColor(statusId) {
-            switch(statusId) {
+            switch (statusId) {
                 case 1: return 'orange';    // Brewing
                 case 2: return 'blue';      // Ready
                 case 3: return 'green';     // Served
@@ -516,12 +513,40 @@ export default {
         },
 
         getStatusIcon(statusId) {
-            switch(statusId) {
+            switch (statusId) {
                 case 1: return 'mdi-coffee';        // Brewing
                 case 2: return 'mdi-human-greeting';   // Ready
                 case 3: return 'mdi-check'; // Served
                 default: return 'mdi-help-circle';   // Unknown
             }
+        },
+
+        formatOrder(order) {
+            return {
+                ...order,
+                created_at: this.formatDateTime(order.created_at),
+            };
+        },
+
+        formatDateTime(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleString('en-PH', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                timeZone: 'Asia/Manila'
+            });
+        },
+
+        resetPaymentSection() {
+            this.customer_cash = '';
+            this.customer_change = '';
+            this.customer_discount = '-select-';
+            this.table_number = null;
+            this.customer_name = '';
         },
 
         showError(message) {
@@ -536,13 +561,17 @@ export default {
 </script>
 
 <style>
-table th {
-    height: 0 !important;
+.trnsct-head {
+    border-radius: 10px 10px 0 0 !important;
+    background: #696969;
 }
 
-.trnsctn-indctn-cntnr {
-    position: sticky;
-    top: 0;
+.v-data-table {
+    border-radius: 0 0 10px 10px !important;
+}
+
+table th {
+    height: 0 !important;
 }
 
 .indication {
@@ -552,9 +581,9 @@ table th {
 }
 
 .mini-btn {
-    font-size: 13px;
-    width: 32px !important;
-    height: 23px !important;
+    font-size: 15px;
+    width: 35px !important;
+    height: 27px !important;
 }
 
 .payment-section {
@@ -571,95 +600,104 @@ table th {
 }
 
 .smoke {
-  position: absolute;
-  left: 20%;
-  top: 5%;
-  width: 2px;
-  height: 5px;
-  background: radial-gradient(ellipse at center, #797373 60%, transparent 100%);
-  opacity: 0.5;
-  border-radius: 50%;
-  transform: translateX(-50%);
-  animation: smokeUp 3s infinite ease-in;
-  pointer-events: none;
-  z-index: 999;
+    position: absolute;
+    left: 20%;
+    top: 5%;
+    width: 2px;
+    height: 5px;
+    background: radial-gradient(ellipse at center, #797373 60%, transparent 100%);
+    opacity: 0.5;
+    border-radius: 50%;
+    transform: translateX(-50%);
+    animation: smokeUp 3s infinite ease-in;
+    pointer-events: none;
+    z-index: 999;
 }
 
 .smoke2 {
-  left: 13%;
-  animation-delay: 2s;
-  opacity: 0.5;
+    left: 13%;
+    animation-delay: 2s;
+    opacity: 0.5;
 }
 
 .smoke3 {
-  left: 15%;
-  animation-delay: 2.5s;
-  opacity: 0.5;
+    left: 15%;
+    animation-delay: 2.5s;
+    opacity: 0.5;
 }
 
 .smoke4 {
-  left: 17%;
-  animation-delay: 1s;
-  opacity: 0.5;
+    left: 17%;
+    animation-delay: 1s;
+    opacity: 0.5;
 }
 
 .smoke5 {
-  left: 11%;
-  animation-delay: 1.5s;
-  opacity: 0.5;
+    left: 11%;
+    animation-delay: 1.5s;
+    opacity: 0.5;
 }
 
 @keyframes smokeUp {
-  0% {
-    opacity: 0.7;
-    top: 5%;
-    transform: translateX(-50%) scale(1);
-  }
-  25% {
-    opacity: 0.4;
-    top: -15%;
-    transform: translateX(-50%) scale(1.2);
-  }
-  75% {
-    opacity: 0.4;
-    top: -15%;
-    transform: translateX(-50%) scale(1.2);
-  }
-  100% {
-    opacity: 0;
-    top: -40%;
-    transform: translateX(-50%) scale(1.4);
-  }
+    0% {
+        opacity: 0.7;
+        top: 5%;
+        transform: translateX(-50%) scale(1);
+    }
+
+    25% {
+        opacity: 0.4;
+        top: -15%;
+        transform: translateX(-50%) scale(1.2);
+    }
+
+    75% {
+        opacity: 0.4;
+        top: -15%;
+        transform: translateX(-50%) scale(1.2);
+    }
+
+    100% {
+        opacity: 0;
+        top: -40%;
+        transform: translateX(-50%) scale(1.4);
+    }
 }
 
 .typewriter-fixed {
-  display: inline-block;
-  overflow: hidden;
-  white-space: nowrap;
-  width: 70px; /* Fixed width for the animation */
-  animation:
-    typing-fixed 3s steps(8, end) infinite,
-    blink-caret .75s step-end infinite;
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 70px;
+    /* Fixed width for the animation */
+    animation:
+        typing-fixed 3s steps(8, end) infinite,
+        blink-caret .75s step-end infinite;
 }
 
 @keyframes typing-fixed {
-  0% {
-    width: 0;
-  }
-  50% {
-    width: 70px;
-  }
-  100% {
-    width: 0;
-  }
+    0% {
+        width: 0;
+    }
+
+    50% {
+        width: 70px;
+    }
+
+    100% {
+        width: 0;
+    }
 }
 
 @keyframes blink-caret {
-  from, to {
-    border-color: transparent;
-  }
-  50% {
-    border-color: orange;
-  }
+
+    from,
+    to {
+        border-color: transparent;
+    }
+
+    50% {
+        border-color: orange;
+    }
 }
 </style>
