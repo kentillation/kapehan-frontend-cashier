@@ -215,9 +215,8 @@ export default {
 .connection-banner {
   width: 100%;
   text-align: center;
-  padding: 8px 0;
-  font-weight: bold;
-  font-size: 15px;
+  padding: 6px 0;
+  font-size: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
