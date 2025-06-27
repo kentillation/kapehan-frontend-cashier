@@ -42,11 +42,6 @@ export const useLoadingStore = defineStore('loading', {
                 this._actuallyHide();
             }
         },
-        logout(message = '') {
-            this.message = message;
-            localStorage.clear();
-            window.location.href = '/';
-        },
         _actuallyHide() {
             this.isLoading = false;
             this.message = '';
