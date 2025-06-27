@@ -217,7 +217,7 @@ export default {
   text-align: center;
   padding: 8px 0;
   font-weight: bold;
-  font-size: 1.1rem;
+  font-size: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
