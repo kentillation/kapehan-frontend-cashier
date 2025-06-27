@@ -263,6 +263,10 @@ export default {
                 this.customer_change = 0;
             }
         },
+        customer_discount() {
+            // Get result for total charge after selecting discount
+
+        }
     },
     computed: {
         newRefNumber() {
@@ -568,6 +572,10 @@ export default {
 
 .v-data-table {
     border-radius: 0 0 10px 10px !important;
+}
+
+.v-field__input {
+    padding: 15px;
 }
 
 table th {

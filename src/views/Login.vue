@@ -22,8 +22,7 @@
                     :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye-outline'" 
                     @click:append-inner="showPassword = !showPassword" />
 
-                <v-btn type="submit" color="brown-darken-3" block
-                    size="large" class="mt-5" height="45" rounded>
+                <v-btn type="submit" color="brown-darken-3" size="large" class="mt-5" height="45" block rounded>
                     Proceed
                 </v-btn>
             </v-form>
@@ -112,5 +111,6 @@ export default {
     display: grid;
     place-items: center;
     height: 100vh;
+    background-color: var(--v-theme-background);
 }
 </style>

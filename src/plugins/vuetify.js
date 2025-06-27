@@ -4,7 +4,7 @@ import { mdi } from 'vuetify/iconsets/mdi';
 
 const vuetify = createVuetify({
   theme: {
-    defaultTheme: 'light',
+    defaultTheme: 'dark',
     themes: {
       dark: {
         dark: true,
