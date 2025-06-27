@@ -2,7 +2,7 @@
     <div class="loader-overlay" v-if="visible">
         <div class="loader-content">
             <div class="loader"></div>
-            <h4 v-if="message" class="loader-message">{{ message }}</h4>
+            <p v-if="message" class="loader-message">{{ message }}</p>
         </div>
     </div>
 </template>
@@ -116,7 +116,7 @@ export default {
     }
 }
 
-h4 {
+p {
     font-family: 'Poppins', Arial;
 }
 </style>
