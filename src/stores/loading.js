@@ -43,6 +43,7 @@ export const useLoadingStore = defineStore('loading', {
             }
         },
         logout(message = '') {
+            this.message = message;
             localStorage.clear();
             window.location.href = '/';
         },
