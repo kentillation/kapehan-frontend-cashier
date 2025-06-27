@@ -22,7 +22,7 @@
                     :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye-outline'" 
                     @click:append-inner="showPassword = !showPassword" />
 
-                <v-btn type="submit" color="brown-darken-3" :loading="loading" :disabled="!isFormValid || loading" block
+                <v-btn type="submit" color="brown-darken-3" :disabled="!isFormValid" block
                     size="large" class="mt-5" height="45" rounded>
                     Proceed
                 </v-btn>
