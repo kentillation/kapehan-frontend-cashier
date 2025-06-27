@@ -1,28 +1,34 @@
 <template>
     <v-container>
-        <v-card justify="center" class="pa-10" elevation="3" rounded="lg">
-            <v-card-title>
-                <h1>Cashier</h1>
-            </v-card-title>
-            <v-card-text>
-                <v-form ref="form" @submit.prevent="handleLogin" v-model="isFormValid">
-                    <div class="text-subtitle-1 text-medium-emphasis">Email</div>
-                    <v-text-field v-model="cashier_email" :rules="[requiredRule, emailFormatRule]" placeholder="Type here..."
-                        prepend-inner-icon="mdi-email-outline" variant="outlined" autocomplete="username" />
+        <v-sheet class="py-8 px-6 mx-auto ma-4" elevation="3" max-width="500" rounded="lg" width="100%">
+            <h1 class="text-center">Poofsa .tend</h1>
+            <v-form ref="form" @submit.prevent="handleLogin" v-model="isFormValid" class="pa-4">
+                <div class="text-subtitle-1 text-medium-emphasis">Email</div>
+                <v-text-field v-model="cashier_email" 
+                    :rules="[requiredRule, emailFormatRule]"
+                    placeholder="Type here..."
+                    prepend-inner-icon="mdi-email-outline"
+                    variant="outlined"
+                    autocomplete="username" />
 
-                    <div class="text-subtitle-1 text-medium-emphasis mt-2">Password</div>
-                    <v-text-field v-model="cashier_password" :rules="[requiredRule]" :type="showPassword ? 'text' : 'password'"
-                        :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye-outline'" placeholder="Type here..."
-                        prepend-inner-icon="mdi-lock-outline" variant="outlined" autocomplete="current-password"
-                        @click:append-inner="showPassword = !showPassword" />
+                <div class="text-subtitle-1 text-medium-emphasis mt-2">Password</div>
+                <v-text-field v-model="cashier_password" 
+                    :rules="[requiredRule]"
+                    placeholder="Type here..."
+                    prepend-inner-icon="mdi-lock-outline" 
+                    variant="outlined" 
+                    autocomplete="current-password"
+                    :type="showPassword ? 'text' : 'password'"
+                    :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye-outline'" 
+                    @click:append-inner="showPassword = !showPassword" />
 
-                    <v-btn type="submit" color="brown-darken-3" :loading="loading" :disabled="!isFormValid || loading"
-                        block size="large" class="mt-5" height="45" rounded>
-                        Proceed
-                    </v-btn>
-                </v-form>
-            </v-card-text>
-        </v-card>
+                <v-btn type="submit" color="brown-darken-3" :loading="loading" :disabled="!isFormValid || loading" block
+                    size="large" class="mt-5" height="45" rounded>
+                    Proceed
+                </v-btn>
+            </v-form>
+
+        </v-sheet>
         <!-- <v-sheet class="py-8 px-6 mx-auto ma-4 text-center" elevation="4" max-width="500" rounded="lg" width="100%">
             <h3 class="text-h5">Verification Code</h3>
             <div class="text-subtitle-2 font-weight-light mb-3">Enter the verification code sent to your mobile</div>
