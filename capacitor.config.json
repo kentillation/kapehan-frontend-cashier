@@ -1,6 +1,6 @@
 {
   "appId": "com.example.poofsa_tend",
-  "appName": "Poofsa_tend",
+  "appName": "poofsa_tend",
   "webDir": "dist",
   "bundledWebRuntime": false,
   "server": {
