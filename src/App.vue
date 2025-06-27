@@ -1,5 +1,11 @@
 <template>
   <v-app dark>
+    <div v-if="connectionStatus !== 'online'" class="connection-banner" :class="connectionStatus">
+      <v-icon left>
+        {{ connectionStatusIcon }}
+      </v-icon>
+      <span>{{ connectionStatusText }}</span>
+    </div>
     <v-main>
       <v-app-bar v-if="showSidebar" prominent>
         <v-app-bar-nav-icon v-if="showMenu" variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
@@ -33,8 +39,8 @@
 </template>
 
 <script>
+import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useTheme } from 'vuetify';
-import { ref } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useLoadingStore } from '@/stores/loading';
 import { useBranchStore } from '@/stores/branchStore';
@@ -51,6 +57,7 @@ export default {
     const authStore = useAuthStore();
     const loadingStore = useLoadingStore();
     const branchStore = useBranchStore();
+    const connectionStatus = ref('online'); // 'online', 'offline', 'slow', 'waiting'
 
     const toggleTheme = () => {
       const newTheme = theme.global.name.value === 'light' ? 'dark' : 'light';
@@ -58,8 +65,80 @@ export default {
       localStorage.setItem('theme', newTheme);
     };
 
+    // Simple network check
+    const updateStatus = () => {
+      if (!navigator.onLine) {
+        connectionStatus.value = 'offline';
+      } else {
+        connectionStatus.value = 'online';
+      }
+    };
+
+    // Optional: Simulate slow/waiting (replace with real logic as needed)
+    let waitingTimeout;
+    const simulateWaiting = () => {
+      connectionStatus.value = 'waiting';
+      waitingTimeout = setTimeout(() => {
+        connectionStatus.value = navigator.onLine ? 'online' : 'offline';
+      }, 3000);
+    };
+
+    onMounted(() => {
+      window.addEventListener('online', updateStatus);
+      window.addEventListener('offline', updateStatus);
+
+      // Example: simulate waiting for connection on mount
+      simulateWaiting();
+
+      // Optional: Check for slow connection using Network Information API
+      if ('connection' in navigator) {
+        navigator.connection.addEventListener('change', () => {
+          if (navigator.connection.downlink < 1) {
+            connectionStatus.value = 'slow';
+          } else if (navigator.onLine) {
+            connectionStatus.value = 'online';
+          }
+        });
+      }
+    });
+
+    onBeforeUnmount(() => {
+      window.removeEventListener('online', updateStatus);
+      window.removeEventListener('offline', updateStatus);
+      if (waitingTimeout) clearTimeout(waitingTimeout);
+    });
+
+    const connectionStatusText = computed(() => {
+      switch (connectionStatus.value) {
+        case 'offline':
+          return 'No internet connection';
+        case 'slow':
+          return 'Low internet connection';
+        case 'waiting':
+          return 'Waiting for connection...';
+        default:
+          return '';
+      }
+    });
+
+    const connectionStatusIcon = computed(() => {
+      switch (connectionStatus.value) {
+        case 'offline':
+          return 'mdi-wifi-off';
+        case 'slow':
+          return 'mdi-wifi-alert';
+        case 'waiting':
+          return 'mdi-timer-sand';
+        default:
+          return '';
+      }
+    });
+
     return {
       theme,
+      connectionStatus,
+      connectionStatusText,
+      connectionStatusIcon,
       toggleTheme,
       authStore,
       loadingStore,

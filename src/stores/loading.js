@@ -1,4 +1,3 @@
-import { logout } from '@/services/authService';
 import { defineStore } from 'pinia';
 
 export const useLoadingStore = defineStore('loading', {
