@@ -26,7 +26,7 @@
                     Proceed
                 </v-btn>
             </v-form>
-            <h6 class="text-center text-grey mt-5">Version 1.0 (UAT)</h6>
+            <h6 class="text-center text-grey mt-5">Poofsa UAT Version v1.0.0</h6>
         </v-sheet>
         <v-snackbar v-model="snackbar.visible" :color="snackbar.color" timeout="4000" top>
             {{ snackbar.message }}
