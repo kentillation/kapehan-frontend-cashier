@@ -2,12 +2,16 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import apiClient from '@/axios';
 import { useRouter } from 'vue-router';
+// import { get } from 'core-js/core/dict';
 
 export const useAuthStore = defineStore('auth', () => {
     const router = useRouter();
 
     // State
     const shopName = ref(localStorage.getItem('shop_name') || null);
+    const branchName = ref(localStorage.getItem('branch_name') || null);
+    const branchLocation = ref(localStorage.getItem('branch_location') || null);
+    const branchContact = ref(localStorage.getItem('contact') || null);
     const token = ref(localStorage.getItem('auth_token') || null);
     const shopId = ref(localStorage.getItem('shop_id') || null);
     const error = ref(null);
@@ -15,6 +19,9 @@ export const useAuthStore = defineStore('auth', () => {
     // Getters
     const isAuthenticated = computed(() => !!token.value);
     const getShopName = computed(() => shopName.value);
+    const getBranchName = computed(() => branchName.value);
+    const getBranchLocation = computed(() => branchLocation.value);
+    const getBranchContact = computed(() => branchContact.value);
 
     // Actions
     const login = async (credentials) => {
@@ -26,10 +33,16 @@ export const useAuthStore = defineStore('auth', () => {
                 token.value = response.data.access_token;
                 shopId.value = response.data.shop_id;
                 shopName.value = response.data.shop_name;
+                branchName.value = response.data.branch_name;
+                branchLocation.value = response.data.branch_location;
+                branchContact.value = response.data.contact;
 
                 localStorage.setItem('auth_token', token.value);
                 localStorage.setItem('shop_id', shopId.value);
                 localStorage.setItem('shop_name', shopName.value);
+                localStorage.setItem('branch_name', branchName.value);
+                localStorage.setItem('branch_location', branchLocation.value);
+                localStorage.setItem('contact', branchContact.value);
 
                 router.push('/cashier');
             }
@@ -49,6 +62,9 @@ export const useAuthStore = defineStore('auth', () => {
         token.value = null;
         shopId.value = null;
         shopName.value = null;
+        branchName.value = null;
+        branchLocation.value = null;
+        branchContact.value = null;
         error.value = null;
         localStorage.clear();
 
@@ -82,9 +98,15 @@ export const useAuthStore = defineStore('auth', () => {
         token,
         shopId,
         shopName,
-        error,
-        isAuthenticated,
+        branchName,
+        branchLocation,
+        branchContact,
         getShopName,
+        getBranchName,
+        getBranchLocation,
+        getBranchContact,
+        isAuthenticated,
+        error,
         login,
         logout,
         checkAuth,

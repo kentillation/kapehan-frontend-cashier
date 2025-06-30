@@ -134,6 +134,9 @@
                                 <v-chip color="gray" prepend-icon="mdi-eye-outline" size="small" variant="flat"
                                     class="ps-5 text-white" @click="viewOrders(item)">
                                 </v-chip>
+                                <v-chip color="gray" prepend-icon="mdi-printer" size="small" variant="flat"
+                                    class="ps-5 text-white" @click="printOrders(item)">
+                                </v-chip>
                             </div>
                         </template>
 
@@ -504,69 +507,6 @@ export default {
                 this.selectedProducts = [];
 
                 // Print receipt
-                // await this.transactStore.fetchOrderDetailsStore(refNumber);
-                // const allOrders = this.transactStore.orderDtls?.data?.all_orders || [];
-                // console.log('All Orders:', allOrders);
-                // if (allOrders.length === 0) {
-                //     alert('No transaction available to print.');
-                //     return;
-                // }
-                // const printWindow = window.open('', '_blank');
-                // if (!printWindow) {
-                //     alert('Please allow popups for this website to print the report.');
-                //     return;
-                // }
-                // printWindow.document.write(`
-                // <html>
-                //     <head>
-                //         <title>Receipt</title>
-                //         <style>
-                //             body { font-family: Arial, sans-serif; }
-                //             table { width: 100%; border-collapse: collapse; }
-                //             th { background-color: #f2f2f2; }
-                //             h2 { margin: 0; }
-                //             h2, h4, h5 { text-align: center; }
-                //             h4, h5 { font-weight: normal; margin: 5px; }
-                //             .headings { display: flex; align-items: center; justify-content: space-between;}
-                //         </style>
-                //     </head>
-                //     <body>
-                //         <div class="headings">
-                //             <img src="" alt="Logo" style="width: 200px; height: auto;">
-                //             <div>
-                //                 <h2>${this.authStore.shopName}</h2>
-                //                 <h2>${this.branchStore.branches.branch_name[0]} Branch</h2>
-                //                 <h2>${this.branchStore.branches.branch_location[0]}</h2>
-                //                 <h2>${this.branchStore.branches.contact[0]}</h2>
-                //             </div>
-                //             <h5>${this.formatCurrentDate}</h5>
-                //         </div>
-                //         <table>
-                //             <tr>
-                //                 <th>Product</th>
-                //                 <th>Price</th>
-                //                 <th>Quantity</th>
-                //                 <th>Subtotal</th>
-                //                 <th>Date</th>
-                //             </tr>
-                //             ${allOrders.map(oD => `
-                //             <tr>
-                //                 <td>${oD.product_name || ''}${oD.temp_label || ''}${oD.size_label || ''}</td>
-                //                 <td>₱${oD.product_price?.toFixed ? oD.product_price.toFixed(2) : oD.product_price || ''}</td>
-                //                 <td>${oD.quantity || ''}</td>
-                //                 <td>₱${oD.subtotal?.toFixed ? oD.subtotal.toFixed(2) : oD.subtotal || ''}</td>
-                //                 <td>${this.formatDateTime(oD.created_at)}</td>
-                //             </tr>`).join('')}
-                //         </table>
-                //         <footer>
-                //             <p style="margin-top: 30px;">
-                //                 Date and time: ${this.formatCurrentDate}<br>
-                //             </p>
-                //         </footer>
-                //     </body>
-                // </html>`);
-                // printWindow.document.close();
-                // printWindow.print();
 
             } catch (error) {
                 this.showError("Failed to transact. Please try again!");
@@ -609,6 +549,93 @@ export default {
                 this.showError("Failed to fetch order details.");
             }
         },
+
+        async printOrders(order) {
+            if (!order || !order.reference_number) {
+                this.showError("Invalid order data!");
+                return;
+            }
+            try {
+                const response = await this.transactStore.fetchOrderDetailsStore(order.reference_number);
+                let allOrders = [];
+                if (response?.data?.all_orders) {
+                    allOrders = response.data.all_orders;
+                    this.selectedTableNumber = response.data.table_number;
+                }
+                else if (this.transactStore.orderDtls?.data?.all_orders) {
+                    allOrders = this.transactStore.orderDtls.data.all_orders;
+                    this.selectedTableNumber = this.transactStore.orderDtls.data.table_number;
+                }
+                else {
+                    console.error('Invalid response structure:', {
+                        response: response,
+                        storeData: this.transactStore.orderDtls
+                    });
+                    this.orderDetails = [];
+                    this.showError("Failed to load order details - invalid format");
+                }
+                this.orderDetails = allOrders.map(order => this.formatOrder(order));
+                if (allOrders.length === 0) {
+                    alert('No transaction available to print.');
+                    return;
+                }
+                const printWindow = window.open('', '_blank');
+                if (!printWindow) {
+                    alert('Please allow popups for this website to print the report.');
+                    return;
+                }
+                printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Receipt</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; }
+                            table { width: 100%; border-collapse: collapse; }
+                            .headings { 
+                                display: flex; 
+                                flex-direction: column; 
+                                align-items: center; 
+                                justify-content: center; 
+                                margin-bottom: 20px;
+                            }
+                            h2, h4 { margin: 0; }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="headings">
+                            <h2>${this.authStore.shopName}</h2>
+                            <h4>${this.authStore.branchName} Branch</h4>
+                            <h4>${this.authStore.branchLocation}</h4>
+                            <h4>${this.authStore.branchContact}</h4>
+                        </div>
+                        <table>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                            ${allOrders.map(oD => `
+                            <tr>
+                                <td><h4>${oD.product_name || ''}${oD.temp_label || ''}${oD.size_label || ''}x${oD.quantity || ''}</h4></td>
+                                <td><h4>₱${oD.product_price?.toFixed ? oD.product_price.toFixed(2) : oD.product_price || ''}</h4></td>
+                            </tr>`).join('')}
+                        </table>
+                        <footer>
+                            <h5 style="margin-top: 30px;">
+                                Reference number: ${order.reference_number}<br>
+                                Date and time: ${this.formatCurrentDate}<br>
+                            </h5>
+                        </footer>
+                    </body>
+                </html>`);
+                printWindow.document.close();
+                printWindow.print();
+            } catch (error) {
+                console.error('Error fetching order details:', error);
+                this.orderDetails = [];
+                this.showError("Failed to fetch order details.");
+            }
+        },
+
 
         changeStatus(order) {
             if (!order || !order.reference_number) {
