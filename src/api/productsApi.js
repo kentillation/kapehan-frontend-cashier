@@ -2,7 +2,8 @@ import apiClient from '../axios';
 
 export const PRODUCTS_API = {
     ENDPOINTS: {
-        FETCH: '/products',
+        FETCH_PRODUCTS: '/products',
+        FETCH_CATEGORIES: 'product-category-option',
         SAVE: '/save-product',
         SAVE_PRODUCT_INGREDIENTS: '/save-product-ingredients',
         UPDATE: '/update-product'
@@ -27,7 +28,7 @@ export const PRODUCTS_API = {
                 },
             };
             const response = await apiClient.get(
-                `${this.ENDPOINTS.FETCH}`,
+                `${this.ENDPOINTS.FETCH_PRODUCTS}`,
                 config
             );
 
@@ -47,8 +48,8 @@ export const PRODUCTS_API = {
             throw enhancedError;
         }
     },
-    
-    async saveProductsApi(products) {
+
+    async fetchAllCategoriesApi() {
         try {
             const authToken = localStorage.getItem('auth_token');
             if (!authToken) {
@@ -58,99 +59,21 @@ export const PRODUCTS_API = {
                 headers: {
                     Authorization: `Bearer ${authToken}`,
                     'Content-Type': 'application/json'
-                }
+                },
             };
-            const response = await apiClient.post(
-                this.ENDPOINTS.SAVE,
-                products,
+            const response = await apiClient.get(
+                this.ENDPOINTS.FETCH_CATEGORIES,
                 config
             );
-
             if (!response.data) {
                 throw new Error('Invalid response from server');
             }
             return response.data;
         } catch (error) {
-            console.error('[PRODUCTS_API] Error saving products:', error);
-            const enhancedError = new Error(
-                error.response?.data?.message ||
-                error.message ||
-                'Failed to save products'
-            );
-            enhancedError.response = error.response;
-            enhancedError.status = error.response?.status;
+            console.error('[API] Error fetching stocks:', error);
+
+            const enhancedError = new Error('Failed to fetch categpries');
             throw enhancedError;
         }
     },
-
-    async saveProductIngredientsApi(products) {
-        try {
-            const authToken = localStorage.getItem('auth_token');
-            if (!authToken) {
-                throw new Error('No authentication token found');
-            }
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${authToken}`,
-                    'Content-Type': 'application/json'
-                }
-            };
-            const response = await apiClient.post(
-                this.ENDPOINTS.SAVE_PRODUCT_INGREDIENTS,
-                products,
-                config
-            );
-            if (!response.data) {
-                throw new Error('Invalid response from server');
-            }
-            return response.data;
-        } catch (error) {
-            console.error('[PRODUCTS_API] Error saving products:', error);
-            const enhancedError = new Error(
-                error.response?.data?.message ||
-                error.message ||
-                'Failed to save products'
-            );
-            enhancedError.response = error.response;
-            enhancedError.status = error.response?.status;
-            throw enhancedError;
-        }
-    },
-
-    async updateProductApi(product) {
-        try {
-            const authToken = localStorage.getItem('auth_token');
-            if (!authToken) {
-                throw new Error('No authentication token found');
-            }
-            if (!product.product_id) {
-                throw new Error('Product ID is required for update');
-            }
-            const config = {
-                headers: {
-                    Authorization: `Bearer ${authToken}`,
-                    'Content-Type': 'application/json'
-                }
-            };
-            const response = await apiClient.put(
-                `${this.ENDPOINTS.UPDATE}/${product.product_id}`,
-                product,
-                config
-            );
-            if (!response.data) {
-                throw new Error('Invalid response from server');
-            }
-            return response.data;
-        } catch (error) {
-            console.error('[PRODUCTS_API] Error updating product:', error);
-            const enhancedError = new Error(
-                error.response?.data?.message ||
-                error.message ||
-                'Failed to update product'
-            );
-            enhancedError.response = error.response;
-            enhancedError.status = error.response?.status;
-            throw enhancedError;
-        }
-    }
 };

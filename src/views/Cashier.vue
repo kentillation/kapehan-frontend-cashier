@@ -14,14 +14,14 @@
                                 style="background: #696969;" label="FIND PRODUCT..." outlined>
                             </v-text-field>
                             <v-btn class="bg-brown-darken-3 d-flex align-items-center py-7 w-50 rounded-0"
-                                variant="tonal" large>
+                                variant="tonal" @click="showCategoriesDialog" large>
                                 <v-icon>mdi-magnify</v-icon>&nbsp; Category
                             </v-btn>
                         </div>
                     </div>
                     <v-data-table :headers="headersDisplay" :items="filteredProducts" :loading="loadingProducts"
                         :items-per-page="-1" height="400px" @click:row="(event, { item }) => selectProduct(item)"
-                        density="comfortable" class="hover-table">
+                        density="comfortable" class="hover-table mt-2">
                         <!-- eslint-disable vue/valid-v-slot -->
                         <template v-slot:item.product_name="{ item }">
                             <span class="small">{{ item.product_name }}{{ item.temp_label }}{{ item.size_label
@@ -65,28 +65,58 @@
                         <v-col cols="12">
                             <h2>Payment Section</h2>
                             <div class="payment-section mt-3">
-                                <v-text-field class="payment-section-item me-2 mt-2" v-model="customer_charge"
-                                    label="Total charge" variant="outlined" density="compact" type="number"
-                                    :model-value="this.totalCharge.toFixed(2)" prepend-inner-icon="mdi-cash" readonly />
-                                <v-text-field class="payment-section-item me-2 mt-2" v-model.number="customer_cash"
-                                    label="Cash render" variant="outlined" density="compact" type="number"
-                                    :rules="[v => !isNaN(parseFloat(v)) || 'Required', v => parseFloat(v) >= 0 || 'Must be greater than or equal to cash']"
+                                <v-text-field class="payment-section-item me-2 mt-2" 
+                                    v-model="customer_charge"
+                                    label="Total charge" 
+                                    variant="outlined" 
+                                    density="compact" 
+                                    type="number"
+                                    :model-value="this.totalCharge.toFixed(2)" 
+                                    prepend-inner-icon="mdi-cash" 
+                                    readonly />
+                                <v-text-field class="payment-section-item me-2 mt-2" 
+                                    v-model.number="customer_cash"
+                                    label="Cash render" 
+                                    variant="outlined" 
+                                    density="compact" 
+                                    type="number"
+                                    :rules="[v => !isNaN(parseFloat(v)) || 'Required', v => parseFloat(v) >= this.totalCharge || 'Must be greater than or equal to total charge']"
                                     @input="e => customer_cash = e.target.value.replace(/[^0-9.]/g, '')"
-                                    prepend-inner-icon="mdi-cash-plus" placeholder="Enter cash amount" />
-                                <v-text-field class="payment-section-item me-2 mt-2" v-model="customer_change"
-                                    label="Change" variant="outlined" density="compact"
-                                    prepend-inner-icon="mdi-cash-refund" readonly />
-                                <v-autocomplete class="payment-section-item me-2 mt-2" v-model="customer_discount"
-                                    label="Discount" :items="discountOptions" :rules="[v => !!v || 'Required']"
-                                    item-title="discount_label" item-value="discount_id" variant="outlined"
-                                    density="compact" prepend-inner-icon="mdi-sale-outline" clearable />
-                                <v-text-field class="payment-section-item me-2 mt-2" v-model="table_number"
-                                    label="Table number" variant="outlined" density="compact" type="number"
-                                    :rules="[v => !!v || 'Required']" prepend-inner-icon="mdi-table-chair"
+                                    prepend-inner-icon="mdi-cash-plus" 
+                                    placeholder="Enter cash amount" />
+                                <v-text-field class="payment-section-item me-2 mt-2" 
+                                    v-model="customer_change"
+                                    label="Change" 
+                                    variant="outlined" 
+                                    density="compact"
+                                    :rules="[v => parseFloat(v) >= 0]"
+                                    prepend-inner-icon="mdi-cash-refund" 
+                                    readonly />
+                                <v-text-field class="payment-section-item me-2 mt-2" 
+                                    v-model="customer_discount"
+                                    label="Discount" 
+                                    variant="outlined"
+                                    :rules="[v => !!v || 'Required']"
+                                    density="compact" 
+                                    prepend-inner-icon="mdi-percent" 
+                                    clearable />
+                                <v-text-field class="payment-section-item me-2 mt-2" 
+                                    v-model="table_number"
+                                    label="Table number" 
+                                    variant="outlined" 
+                                    density="compact" 
+                                    type="number"
+                                    :rules="[v => !!v || 'Required']" 
+                                    prepend-inner-icon="mdi-table-chair"
                                     placeholder="Enter table number" />
-                                <v-text-field class="payment-section-item me-2 mt-2" v-model="customer_name"
-                                    label="Customer (optional)" variant="outlined" density="compact" type="text"
-                                    prepend-inner-icon="mdi-account" placeholder="Enter customer name" />
+                                <v-text-field class="payment-section-item me-2 mt-2" 
+                                    v-model="customer_name"
+                                    label="Customer (optional)" 
+                                    variant="outlined" 
+                                    density="compact" 
+                                    type="text"
+                                    prepend-inner-icon="mdi-account" 
+                                    placeholder="Enter customer name" />
                             </div>
 
                             <div class="d-flex justify-end me-2 ms-1">
@@ -141,6 +171,28 @@
                     </v-data-table>
                 </v-col>
             </v-row>
+
+            <v-dialog v-model="categoriesDialog" max-width="400">
+                <v-card>
+                    <v-card-title class="d-flex justify-space-between">
+                        <h3>Select categories</h3>
+                        <v-btn prepend-icon="mdi-close-circle-outline" 
+                            @click="categoriesDialog = false" 
+                            class="pa-1"
+                            size="medium"></v-btn>
+                    </v-card-title>
+                    <v-card-text class="d-flex align-center flex-column">
+                        <v-list-item v-for="(category, i) in productsStore.getCategories" 
+                            :key="i"
+                            :prepend-icon="category.icon" 
+                            class="bg-brown-darken-3 mt-2 w-100"
+                            style="border-radius: 30px !important; font-size: 14px;"
+                            @click="handleCategorySelect(category)">
+                            <span>{{  category.label }}</span>
+                        </v-list-item>
+                    </v-card-text>
+                </v-card>
+            </v-dialog>
 
             <!-- Viewing products of current order -->
             <v-dialog v-model="ordersDialog" max-width="800px" persistent>
@@ -204,7 +256,7 @@ export default {
             customer_cash: '',
             customer_charge: '',
             customer_change: '',
-            customer_discount: '-select-',
+            customer_discount: null,
             customer_name: '',
             loadingProducts: false,
             loadingCurrentOrders: false,
@@ -213,6 +265,9 @@ export default {
             isFormValid: false,
             loading: false,
             ordersDialog: false,
+            categories: [],
+            loadingCategories: false,
+            categoriesDialog: false,
             products: [],
             selectedProducts: [],
             selectedTableNumber: null,
@@ -237,14 +292,15 @@ export default {
                 { title: 'Subtotal', value: 'subtotal' },
                 { title: '_______ORDER_DATE_______', value: 'created_at' },
             ],
-            discountOptions: [
-                { discount_id: 1, discount_label: '5%' },
-                { discount_id: 2, discount_label: '10%' },
-                { discount_id: 3, discount_label: '15%' },
-                { discount_id: 4, discount_label: '20%' },
-                { discount_id: 5, discount_label: '30%' },
-                { discount_id: 6, discount_label: '-' },
-            ],
+            // discountOptions: [
+            //     { discount_id: 1, discount_label: '-' },
+            //     { discount_id: 2, discount_label: '3' },
+            //     { discount_id: 3, discount_label: '5' },
+            //     { discount_id: 4, discount_label: '7' },
+            //     { discount_id: 5, discount_label: '9' },
+            //     { discount_id: 6, discount_label: '11' },
+            //     { discount_id: 7, discount_label: '13' },
+            // ],
         };
     },
     setup() {
@@ -313,6 +369,7 @@ export default {
         this.fetchProducts();
         this.fetchOrderStatus();
         this.fetchCurrentOrders();
+        this.fetchCategories();
     },
     methods: {
         async generateReferenceNumber() {
@@ -357,6 +414,40 @@ export default {
                 this.showError("Error fetching current orders!");
             } finally {
                 this.loadingCurrentOrders = false;
+            }
+        },
+
+        async fetchCategories() {
+            this.loadingCategories = true;
+            try {
+                await this.productsStore.fetchAllCategoriesStore();
+                this.categories = this.productsStore.categories;
+                this.loadingCategories = false;
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+                this.showError("Error fetching categories!");
+            } finally {
+                this.loadingCategories = false;
+            }
+        },
+
+        showCategoriesDialog() {
+            this.categoriesDialog = true;
+        },
+
+        handleCategorySelect(category) {
+            this.categoriesDialog = false;
+            if (!category || !category.label) {
+                this.showError("Invalid category selected!");
+                return;
+            }
+            this.products = this.productsStore.products.filter(
+                product => product.category_label === category.label
+            );
+            if (this.products.length === 0) {
+                this.showError(`No products in ${category.label} category`);
+            } else {
+                this.searchProduct = '';
             }
         },
 
