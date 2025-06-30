@@ -1,10 +1,12 @@
 <template>
   <v-app dark>
-    <div v-if="connectionStatus !== 'online'" class="connection-banner" :class="connectionStatus">
-      <v-icon left>
-        {{ connectionStatusIcon }}
-      </v-icon>
-      <span>{{ connectionStatusText }}</span>
+    <div v-if="connectionStatus !== 'online'" class="connection-container">
+      <div class="connection-banner" :class="connectionStatus">
+        <v-icon left>
+          {{ connectionStatusIcon }}
+        </v-icon>
+        <span>&nbsp;{{ connectionStatusText }}</span>
+      </div>
     </div>
     <v-main>
       <v-app-bar v-if="showSidebar" prominent>
@@ -208,30 +210,36 @@ export default {
   }
 }
 
-.connection-banner {
+.connection-container {
+  position: fixed;
+  top: 0;
   width: 100%;
-  text-align: center;
-  padding: 6px 0;
-  font-size: 12px;
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.connection-banner {
+  text-align: center;
+  padding: 6px 30px;
+  border-radius: 0 0 30px 30px;
+  font-size: 12px;
   gap: 8px;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .connection-banner.offline {
   background: #8a1515;
-  color: #fff;
+  color: #fffafa;
 }
 .connection-banner.slow {
   background: #b88d20;
-  color: #333;
+  color: #fffafa;
 }
 .connection-banner.waiting {
   background: #118aa0;
-  color: #fff;
+  color: #fffafa;
 }
 </style>

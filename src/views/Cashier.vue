@@ -65,58 +65,27 @@
                         <v-col cols="12">
                             <h2>Payment Section</h2>
                             <div class="payment-section mt-3">
-                                <v-text-field class="payment-section-item me-2 mt-2" 
-                                    v-model="customer_charge"
-                                    label="Total charge" 
-                                    variant="outlined" 
-                                    density="compact" 
-                                    type="number"
-                                    :model-value="this.totalCharge.toFixed(2)" 
-                                    prepend-inner-icon="mdi-cash" 
-                                    readonly />
-                                <v-text-field class="payment-section-item me-2 mt-2" 
-                                    v-model.number="customer_cash"
-                                    label="Cash render" 
-                                    variant="outlined" 
-                                    density="compact" 
-                                    type="number"
+                                <v-text-field class="payment-section-item me-2 mt-2" v-model="customer_charge"
+                                    label="Total charge" variant="outlined" density="compact" type="number"
+                                    :model-value="this.totalCharge.toFixed(2)" prepend-inner-icon="mdi-cash" readonly />
+                                <v-text-field class="payment-section-item me-2 mt-2" v-model.number="customer_cash"
+                                    label="Cash render" variant="outlined" density="compact" type="number"
                                     :rules="[v => !isNaN(parseFloat(v)) || 'Required', v => parseFloat(v) >= this.totalCharge || 'Must be greater than or equal to total charge']"
                                     @input="e => customer_cash = e.target.value.replace(/[^0-9.]/g, '')"
-                                    prepend-inner-icon="mdi-cash-plus" 
-                                    placeholder="Enter cash amount" />
-                                <v-text-field class="payment-section-item me-2 mt-2" 
-                                    v-model="customer_change"
-                                    label="Change" 
-                                    variant="outlined" 
-                                    density="compact"
-                                    :rules="[v => parseFloat(v) >= 0]"
-                                    prepend-inner-icon="mdi-cash-refund" 
-                                    readonly />
-                                <v-text-field class="payment-section-item me-2 mt-2" 
-                                    v-model="customer_discount"
-                                    label="Discount" 
-                                    variant="outlined"
-                                    :rules="[v => !!v || 'Required']"
-                                    density="compact" 
-                                    prepend-inner-icon="mdi-percent" 
-                                    clearable />
-                                <v-text-field class="payment-section-item me-2 mt-2" 
-                                    v-model="table_number"
-                                    label="Table number" 
-                                    variant="outlined" 
-                                    density="compact" 
-                                    type="number"
-                                    :rules="[v => !!v || 'Required']" 
-                                    prepend-inner-icon="mdi-table-chair"
+                                    prepend-inner-icon="mdi-cash-plus" placeholder="Enter cash amount" />
+                                <v-text-field class="payment-section-item me-2 mt-2" v-model="customer_change"
+                                    label="Change" variant="outlined" density="compact"
+                                    :rules="[v => parseFloat(v) >= 0]" prepend-inner-icon="mdi-cash-refund" readonly />
+                                <v-text-field class="payment-section-item me-2 mt-2" v-model="customer_discount"
+                                    label="Discount" variant="outlined" :rules="[v => !!v || 'Required']"
+                                    density="compact" prepend-inner-icon="mdi-percent" clearable />
+                                <v-text-field class="payment-section-item me-2 mt-2" v-model="table_number"
+                                    label="Table number" variant="outlined" density="compact" type="number"
+                                    :rules="[v => !!v || 'Required']" prepend-inner-icon="mdi-table-chair"
                                     placeholder="Enter table number" />
-                                <v-text-field class="payment-section-item me-2 mt-2" 
-                                    v-model="customer_name"
-                                    label="Customer (optional)" 
-                                    variant="outlined" 
-                                    density="compact" 
-                                    type="text"
-                                    prepend-inner-icon="mdi-account" 
-                                    placeholder="Enter customer name" />
+                                <v-text-field class="payment-section-item me-2 mt-2" v-model="customer_name"
+                                    label="Customer (optional)" variant="outlined" density="compact" type="text"
+                                    prepend-inner-icon="mdi-account" placeholder="Enter customer name" />
                             </div>
 
                             <div class="d-flex justify-end me-2 ms-1">
@@ -176,19 +145,15 @@
                 <v-card>
                     <v-card-title class="d-flex justify-space-between">
                         <h3>Select categories</h3>
-                        <v-btn prepend-icon="mdi-close-circle-outline" 
-                            @click="categoriesDialog = false" 
-                            class="pa-1"
+                        <v-btn prepend-icon="mdi-close-circle-outline" @click="categoriesDialog = false" class="pa-1"
                             size="medium"></v-btn>
                     </v-card-title>
                     <v-card-text class="d-flex align-center flex-column">
-                        <v-list-item v-for="(category, i) in productsStore.getCategories" 
-                            :key="i"
-                            :prepend-icon="category.icon" 
-                            class="bg-brown-darken-3 mt-2 w-100"
+                        <v-list-item v-for="(category, i) in productsStore.getCategories" :key="i"
+                            :prepend-icon="category.icon" class="bg-brown-darken-3 mt-2 w-100"
                             style="border-radius: 30px !important; font-size: 14px;"
                             @click="handleCategorySelect(category)">
-                            <span>{{  category.label }}</span>
+                            <span>{{ category.label }}</span>
                         </v-list-item>
                     </v-card-text>
                 </v-card>
@@ -236,6 +201,8 @@
 </template>
 
 <script>
+import { useAuthStore } from '@/stores/auth';
+import { useBranchStore } from '@/stores/branchStore';
 import { useProductsStore } from '@/stores/productsStore';
 import { useTransactStore } from '@/stores/transactionStore';
 import Snackbar from '@/components/Snackbar.vue';
@@ -304,9 +271,20 @@ export default {
         };
     },
     setup() {
+        const authStore = useAuthStore();
+        const branchStore = useBranchStore();
         const productsStore = useProductsStore();
         const transactStore = useTransactStore();
-        return { productsStore, transactStore };
+        const currentDate = new Date().toLocaleDateString('en-PH', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+        });
+        const formatCurrentDate = currentDate.replace(/,/g, '');
+        return { authStore, branchStore, productsStore, transactStore, formatCurrentDate };
     },
     watch: {
         customer_cash() {
@@ -492,10 +470,8 @@ export default {
 
         async submitForm() {
             try {
-                // this.loading = true;
                 this.validatingData = true;
                 if (!this.$refs.transactionForm.validate()) {
-                    // this.loading = false;
                     this.validatingData = false;
                     return;
                 }
@@ -503,13 +479,11 @@ export default {
                     product_id: p.product_id,
                     quantity: p.quantity
                 }));
-                const refNumber = typeof this.newRefNumber === 'function' || typeof this.newRefNumber?.then === 'function'
+                let refNumber = typeof this.newRefNumber === 'function' || typeof this.newRefNumber?.then === 'function'
                     ? await this.newRefNumber
                     : this.newRefNumber;
-
                 if (!refNumber || !this.table_number) {
                     this.showError("Reference number and table number are required.");
-                    // this.loading = false;
                     this.validatingData = false;
                     return;
                 }
@@ -524,11 +498,76 @@ export default {
                 }];
                 await this.transactStore.submitTransactStore(transactionData, orderedProducts);
                 this.fetchCurrentOrders();
-                this.showSuccess("Transaction submitted successfully!");
                 this.$refs.transactionForm.reset();
                 this.totalCharge = 0;
                 this.totalQuantity = 0;
                 this.selectedProducts = [];
+
+                // Print receipt
+                // await this.transactStore.fetchOrderDetailsStore(refNumber);
+                // const allOrders = this.transactStore.orderDtls?.data?.all_orders || [];
+                // console.log('All Orders:', allOrders);
+                // if (allOrders.length === 0) {
+                //     alert('No transaction available to print.');
+                //     return;
+                // }
+                // const printWindow = window.open('', '_blank');
+                // if (!printWindow) {
+                //     alert('Please allow popups for this website to print the report.');
+                //     return;
+                // }
+                // printWindow.document.write(`
+                // <html>
+                //     <head>
+                //         <title>Receipt</title>
+                //         <style>
+                //             body { font-family: Arial, sans-serif; }
+                //             table { width: 100%; border-collapse: collapse; }
+                //             th { background-color: #f2f2f2; }
+                //             h2 { margin: 0; }
+                //             h2, h4, h5 { text-align: center; }
+                //             h4, h5 { font-weight: normal; margin: 5px; }
+                //             .headings { display: flex; align-items: center; justify-content: space-between;}
+                //         </style>
+                //     </head>
+                //     <body>
+                //         <div class="headings">
+                //             <img src="" alt="Logo" style="width: 200px; height: auto;">
+                //             <div>
+                //                 <h2>${this.authStore.shopName}</h2>
+                //                 <h2>${this.branchStore.branches.branch_name[0]} Branch</h2>
+                //                 <h2>${this.branchStore.branches.branch_location[0]}</h2>
+                //                 <h2>${this.branchStore.branches.contact[0]}</h2>
+                //             </div>
+                //             <h5>${this.formatCurrentDate}</h5>
+                //         </div>
+                //         <table>
+                //             <tr>
+                //                 <th>Product</th>
+                //                 <th>Price</th>
+                //                 <th>Quantity</th>
+                //                 <th>Subtotal</th>
+                //                 <th>Date</th>
+                //             </tr>
+                //             ${allOrders.map(oD => `
+                //             <tr>
+                //                 <td>${oD.product_name || ''}${oD.temp_label || ''}${oD.size_label || ''}</td>
+                //                 <td>₱${oD.product_price?.toFixed ? oD.product_price.toFixed(2) : oD.product_price || ''}</td>
+                //                 <td>${oD.quantity || ''}</td>
+                //                 <td>₱${oD.subtotal?.toFixed ? oD.subtotal.toFixed(2) : oD.subtotal || ''}</td>
+                //                 <td>${this.formatDateTime(oD.created_at)}</td>
+                //             </tr>`).join('')}
+                //         </table>
+                //         <footer>
+                //             <p style="margin-top: 30px;">
+                //                 Date and time: ${this.formatCurrentDate}<br>
+                //             </p>
+                //         </footer>
+                //     </body>
+                // </html>`);
+                // printWindow.document.close();
+                // printWindow.print();
+
             } catch (error) {
                 this.showError("Failed to transact. Please try again!");
                 console.error('Transaction submission error:', error);
