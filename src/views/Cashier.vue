@@ -134,9 +134,9 @@
                                 <v-chip color="gray" prepend-icon="mdi-eye-outline" size="small" variant="flat"
                                     class="ps-5 text-white" @click="viewOrders(item)">
                                 </v-chip>
-                                <v-chip color="gray" prepend-icon="mdi-printer" size="small" variant="flat"
+                                <!---<v-chip color="gray" prepend-icon="mdi-printer" size="small" variant="flat"
                                     class="ps-5 text-white" @click="printOrders(item)">
-                                </v-chip>
+                                </v-chip>-->
                             </div>
                         </template>
 
@@ -493,6 +493,7 @@ export default {
                 const transactionData = [{
                     reference_number: refNumber,
                     table_number: this.table_number,
+                    // customer_name: this.customer_name,
                     total_quantity: this.totalQuantity,
                     customer_cash: parseFloat(this.customer_cash.replace(/[^0-9.]/g, '')) || 0,
                     customer_charge: this.totalCharge,
@@ -590,7 +591,8 @@ export default {
                         <title>Receipt</title>
                         <style>
                             body { font-family: Arial, sans-serif; }
-                            table { width: 100%; border-collapse: collapse; }
+                            table { width: 100%; border-collapse: collapse; margin-bottom: 20px;}
+                            th, td { text-align: left; }
                             .headings { 
                                 display: flex; 
                                 flex-direction: column; 
@@ -598,7 +600,10 @@ export default {
                                 justify-content: center; 
                                 margin-bottom: 20px;
                             }
-                            h2, h4 { margin: 0; }
+                            .left-content { 
+                                margin-bottom: 20px;
+                            }
+                            h2, h3, h4, tr { margin: 0; }
                         </style>
                     </head>
                     <body>
@@ -606,25 +611,51 @@ export default {
                             <h2>${this.authStore.shopName}</h2>
                             <h4>${this.authStore.branchName} Branch</h4>
                             <h4>${this.authStore.branchLocation}</h4>
+                            <h4>VAT Reg. TIN: 000-111-222-333</h4>
                             <h4>${this.authStore.branchContact}</h4>
+                        </div>
+                        <div class="left-content">
+                            <h4>Date and time: ${this.formatCurrentDate}</h4>
+                            <h2>Reference number: ${order.reference_number}</h2>
+                            <h4>Number of items: ${this.totalOrderQuantity} ${this.itemIndicator}</h4>
                         </div>
                         <table>
                             <tr>
-                                <th></th>
-                                <th></th>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Sub Total</th>
+                            </tr>
+                            <tr>
+                                <td><div></div></td>
                             </tr>
                             ${allOrders.map(oD => `
                             <tr>
-                                <td><h4>${oD.product_name || ''}${oD.temp_label || ''}${oD.size_label || ''}x${oD.quantity || ''}</h4></td>
-                                <td><h4>₱${oD.product_price?.toFixed ? oD.product_price.toFixed(2) : oD.product_price || ''}</h4></td>
+                                <td><p>${oD.product_name || ''}${oD.temp_label || ''}${oD.size_label || ''}x${oD.quantity || ''}</p></td>
+                                <td><p>₱${oD.product_price?.toFixed ? oD.product_price.toFixed(2) : oD.product_price || ''}</p></td>
+                                <td><p>₱${(oD.product_price * oD.quantity || 0).toFixed(2)}</p></td>
                             </tr>`).join('')}
+                            <tr>
+                                <td><div class="left-content"></div></td>
+                            </tr>
+                            <tr>
+                                <td><h4>Total Amount:</h4></td>
+                                <td></td>
+                                <td><h3>₱${this.totalOrderAmount.toFixed(2)}</h3></td>
+                            </tr>
+                            <tr>
+                                <td><h4>Cash render:</td>
+                                <td></td>
+                                <td><h4>₱${response?.data?.customer_cash}</h4></td>
+                            </tr>
+                                <td><h4>Change:</h4></td>
+                                <td></td>
+                                <td><h4>₱${response?.data?.customer_change}</h4></td>
+                            </tr>
                         </table>
-                        <footer>
-                            <h5 style="margin-top: 30px;">
-                                Reference number: ${order.reference_number}<br>
-                                Date and time: ${this.formatCurrentDate}<br>
-                            </h5>
-                        </footer>
+                        <div class="headings">
+                            <img src="${this.generatedQRCode(order.reference_number)}" alt="QR Code">
+                            <h4>Scan to view your order</h4>
+                        </div>
                     </body>
                 </html>`);
                 printWindow.document.close();
@@ -716,6 +747,13 @@ export default {
 
         showSuccess(message) {
             this.$refs.snackbarRef.showSnackbar(message, "success");
+        },
+
+        generatedQRCode(referenceNumber) {
+            const baseUrl = 'https://poofsa-yals.vercel.app/v1/qr-code/';
+            const size = '150x150';
+            const data = `Reference Number: ${referenceNumber}`;
+            return `${baseUrl}?size=${size}&data=${encodeURIComponent(data)}`;
         },
     }
 };
