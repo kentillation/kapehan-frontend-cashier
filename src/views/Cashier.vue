@@ -131,10 +131,11 @@
                                     <span v-if="item.order_status_id === 1" class="smoke smoke5"></span>
                                 </v-chip>
 
-                                <!---<v-chip color="gray" prepend-icon="mdi-printer" size="small" variant="flat"
+                                <v-chip color="gray" prepend-icon="mdi-printer" size="small" variant="flat"
                                     class="ps-5 text-white" @click="printOrders(item)">
-                                </v-chip>-->
-                                <v-chip color="gray" prepend-icon="mdi-eye-outline" size="small" variant="flat"
+                                </v-chip>
+
+                                <v-chip color="gray" prepend-icon="mdi-qrcode" size="small" variant="flat"
                                     class="ps-5 text-white" @click="toReference(item.reference_number)">
                                 </v-chip>
                             </div>
@@ -222,7 +223,7 @@ export default {
     },
     data() {
         return {
-            reference_number: '',
+            referenceNumber: '',
             table_number: null,
             total_quantity: '',
             customer_cash: '',
@@ -246,6 +247,17 @@ export default {
             customerName: '',
             orders: [],
             order_statuses: [],
+            totalAmount: 0,
+            totalItems: 0,
+            customerCash: 0,
+            customerChange: 0,
+            createdAt: '',
+            updatedAt: '',
+            tableNumber: 'N/A',
+            tempLabel: '',
+            sizeLabel: '',
+            totalQuan: 0,
+            imgSrc: null,
             orderDetails: [],
             headersDisplay: [
                 { title: '', value: 'product_name' },
@@ -274,6 +286,11 @@ export default {
             //     { discount_id: 7, discount_label: '13' },
             // ],
         };
+    },
+    beforeUnmount() {
+        if (this.imgSrc) {
+            URL.revokeObjectURL(this.imgSrc);
+        }
     },
     setup() {
         const authStore = useAuthStore();
@@ -531,10 +548,12 @@ export default {
                 if (response?.data?.all_orders) {
                     allOrders = response.data.all_orders;
                     this.selectedTableNumber = response.data.table_number;
+                    this.customerName = response.data.customer_name;
                 }
                 else if (this.transactStore.orderDtls?.data?.all_orders) {
                     allOrders = this.transactStore.orderDtls.data.all_orders;
                     this.selectedTableNumber = this.transactStore.orderDtls.data.table_number;
+                    this.customerName = this.transactStore.orderDtls.data.customer_name;
                 }
                 else {
                     console.error('Invalid response structure:', {
@@ -544,7 +563,17 @@ export default {
                     this.orderDetails = [];
                     this.showError("Failed to load order details - invalid format");
                 }
+                await this.fetchQRCode(order.reference_number);
                 this.orderDetails = allOrders.map(order => this.formatOrder(order));
+                this.referenceNumber = response?.data?.reference_number || 'N/A';
+                this.totalItems = response?.data?.total_quantity ? parseFloat(response.data.total_quantity) : 0;
+                this.totalAmount = response?.data?.total_amount ? parseFloat(response.data.total_amount) : 0;
+                this.customerCash = response?.data?.customer_cash ? parseFloat(response.data.customer_cash) : 0;
+                this.customerChange = response?.data?.customer_change ? parseFloat(response.data.customer_change) : 0;
+                this.createdAt = response?.data?.created_at ? this.formatDateTime(response.data.created_at) : 'N/A';
+                this.updatedAt = response?.data?.updated_at ? this.formatDateTime(response.data.updated_at) : 'N/A';
+                this.tableNumber = response?.data?.table_number || 'N/A';
+                this.totalQuan = response?.data?.total_quantity ? parseInt(response.data.total_quantity, 10) : 0;
                 if (allOrders.length === 0) {
                     alert('No transaction available to print.');
                     return;
@@ -559,71 +588,119 @@ export default {
                     <head>
                         <title>Receipt</title>
                         <style>
-                            body { font-family: Arial, sans-serif; }
-                            table { width: 100%; border-collapse: collapse; margin-bottom: 20px;}
-                            th, td { text-align: left; }
-                            .headings { 
-                                display: flex; 
-                                flex-direction: column; 
-                                align-items: center; 
-                                justify-content: center; 
-                                margin-bottom: 20px;
+                            body {
+                                font-family: Arial, sans-serif;
                             }
-                            .left-content { 
-                                margin-bottom: 20px;
+                            .v-table, .v-container {
+                                background-color: #fdfeff;
+                                color: #080808;
                             }
-                            h2, h3, h4, tr { margin: 0; }
+                            .v-table > .v-table__wrapper > table > tbody > tr > td {
+                                padding: 0;
+                                text-align: left;
+                            }
+                            .v-table--density-compact {
+                                --v-table-row-height: 0;
+                            }
+                            .centered {
+                                display: flex;
+                                flex-direction: column;
+                                align-items: center;
+                                justify-content: center;
+                            }
+                            .left-content {
+                                margin-bottom: 25px;
+                            }
+                            .item-head {
+                                font-weight: bold;
+                            }
+                            .orders {
+                                display: flex;
+                                flex-direction: column;
+                            }
+                            .orders-item {
+                                display: flex;
+                                justify-content: space-between;
+                                text-align: left;
+                            }
+                            .orders-item-twin {
+                                margin-left: 15px;
+                            }
+                            h4, h5 {
+                                margin: 0 !important;
+                                font-weight: normal;
+                            }
+                            .main-heading {
+                                margin-bottom: 0;
+                            }
+                            .payment {
+                                display: flex;
+                                flex-direction: column;
+                                margin-top: 25px;
+                            }
+                            span {
+                                font-size: 14px !important;
+                                margin-top: 3px !important;
+                            }
                         </style>
                     </head>
                     <body>
-                        <div class="headings">
-                            <h2>${this.authStore.shopName}</h2>
-                            <h4>${this.authStore.branchName} Branch</h4>
-                            <h4>${this.authStore.branchLocation}</h4>
-                            <h4>VAT Reg. TIN: 000-111-222-333</h4>
-                            <h4>${this.authStore.branchContact}</h4>
+                        <div class="centered">
+                            <h3 class="main-heading">${this.authStore.shopName}</h3>
+                            <h5>${this.authStore.branchName} Branch</h5>
+                            <h5>${this.authStore.branchLocation}</h5>
+                            <h5>VAT Reg. TIN: 000-111-222-333</h5>
+                            <h3>Reference #: ${this.referenceNumber}</h3>
                         </div>
                         <div class="left-content">
-                            <h4>Date and time: ${this.formatCurrentDate}</h4>
-                            <h2>Reference number: ${order.reference_number}</h2>
-                            <h4>Number of items: ${this.totalOrderQuantity} ${this.itemIndicator}</h4>
+                            <span>Date & time: ${this.formatCurrentDate}</span><br />
+                            <span>Customer name: ${this.customerName}</span><br />
+                            <span>Number of items: ${this.totalItems}</span><br />
+                            <span>Table #: ${this.selectedTableNumber}</span>
                         </div>
-                        <table>
-                            <tr>
-                                <th>Product</th>
-                                <th>Price</th>
-                                <th>Sub Total</th>
-                            </tr>
-                            <tr>
-                                <td><div></div></td>
-                            </tr>
+                        <div class="orders">
+                            <div class="orders-item">
+                                <span class="item-head">Item</span>
+                                <span class="orders-item">
+                                    <span class="orders-item-twin item-head">Price</span>
+                                    <span class="orders-item-twin item-head">Subtotal</span>
+                                <span>
+                            </div>
                             ${allOrders.map(oD => `
-                            <tr>
-                                <td><p>${oD.product_name || ''}${oD.temp_label || ''}${oD.size_label || ''}x${oD.quantity || ''}</p></td>
-                                <td><p>₱${oD.product_price?.toFixed ? oD.product_price.toFixed(2) : oD.product_price || ''}</p></td>
-                                <td><p>₱${(oD.product_price * oD.quantity || 0).toFixed(2)}</p></td>
-                            </tr>`).join('')}
-                            <tr>
-                                <td><div class="left-content"></div></td>
-                            </tr>
-                            <tr>
-                                <td><h4>Total charge:</h4></td>
-                                <td></td>
-                                <td><h3>₱${this.totalOrderAmount.toFixed(2)}</h3></td>
-                            </tr>
-                            <tr>
-                                <td><h4>Cash render:</td>
-                                <td></td>
-                                <td><h4>₱${response?.data?.customer_cash}</h4></td>
-                            </tr>
-                                <td><h4>Change:</h4></td>
-                                <td></td>
-                                <td><h4>₱${response?.data?.customer_change}</h4></td>
-                            </tr>
-                        </table>
-                        <div class="headings">
-                            <img src="${this.generatedQRCode(order.reference_number)}" alt="QR Code">
-                            <h4>Scan to view your order</h4>
+                            <div class="orders-item">
+                                <span>${oD.product_name || ''}${oD.temp_label || ''}${oD.size_label || ''}x${oD.quantity || ''}</span>
+                                <span class="orders-item">
+                                    <span class="orders-item-twin">₱${oD.product_price?.toFixed ? oD.product_price.toFixed(2) : oD.product_price || ''}</span>
+                                    <span class="orders-item-twin">₱${(oD.product_price * oD.quantity || 0).toFixed(2)}</span>
+                                <span>
+                            </div>
+                            `).join('')}
+                        </div>
+                        <div class="payment">
+                            <div class="orders-item">
+                                <span>Total charge</span>
+                                <span>₱${ this.totalAmount }</span>
+                            </div>
+                            <div class="orders-item">
+                                <span>Cash render:</span>
+                                <span>₱${ this.customerCash }</span>
+                            </div>
+                            <div class="orders-item">
+                                <span>Change:</span>
+                                <span>₱${ this.customerChange }</span>
+                            </div>
+                        </div>
+                        <div class="centered mt-10">
+                            <img v-if="${this.imgSrc}" src="${this.imgSrc}" width="120" height="120" alt="Order QR Code">
+                            <span>Scan the QR Code to view order</span><br />
+                        </div>
+
+                        <div class="centered mt-6">
+                            <span>Thank you for purchasing!</span><br />
+                            <span>You may follow us in our socials</span>
+                            <span>FB: @KapehanPH</span>
+                            <span>IG: @kapehan_ph</span><br />
+                            <span>This serve as official receipt.</span>
                         </div>
                     </body>
                 </html>`);
@@ -633,6 +710,19 @@ export default {
                 console.error('Error fetching order details:', error);
                 this.orderDetails = [];
                 this.showError("Failed to fetch order details.");
+            }
+        },
+
+        async fetchQRCode(reference) {
+            try {
+                const qrCodeBlob = await this.transactStore.fetchQRcodeStore(reference);
+                this.imgSrc = URL.createObjectURL(qrCodeBlob);
+                if (!this.imgSrc) {
+                    console.error('Failed to create image URL from blob');
+                }
+            } catch (error) {
+                console.error('Error fetching order details:', error);
+                this.imgSrc = '';
             }
         },
 
@@ -689,7 +779,19 @@ export default {
         formatOrder(order) {
             return {
                 ...order,
-                // created_at: this.formatDateTime(order.created_at),
+                product_name: order.product_name || '',
+                product_price: order.product_price ? parseFloat(order.product_price) : 0,
+                subtotal: order.subtotal ? parseFloat(order.subtotal) : 0,
+                quantity: order.quantity ? parseInt(order.quantity, 10) : 0,
+                temp_label: order.temp_label || '',
+                size_label: order.size_label || '',
+                total_quantity: order.total_quantity ? parseInt(order.total_quantity, 10) : 0,
+                total_amount: order.total_amount ? parseFloat(order.total_amount) : 0,
+                customer_cash: order.customer_cash ? parseFloat(order.customer_cash) : 0,
+                customer_change: order.customer_change ? parseFloat(order.customer_change) : 0,
+                table_number: order.table_number || 'N/A',
+                created_at: order.created_at ? this.formatDateTime(order.created_at) : 'N/A',
+                updated_at: order.updated_at ? this.formatDateTime(order.updated_at) : 'N/A',
             };
         },
 
