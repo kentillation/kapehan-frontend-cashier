@@ -2,7 +2,6 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import apiClient from '@/axios';
 import { useRouter } from 'vue-router';
-// import { get } from 'core-js/core/dict';
 
 export const useAuthStore = defineStore('auth', () => {
     const router = useRouter();
@@ -28,7 +27,6 @@ export const useAuthStore = defineStore('auth', () => {
         error.value = null;
         try {
             const response = await apiClient.post('/login', credentials);
-
             if (response.status === 200) {
                 token.value = response.data.access_token;
                 shopId.value = response.data.shop_id;
@@ -50,15 +48,12 @@ export const useAuthStore = defineStore('auth', () => {
             error.value = err.response?.data?.message ||
                 err.message ||
                 'Login failed. Please try again.';
-            throw error.value; // Re-throw for component handling
+            throw error.value;
         }
     };
 
     const logout = async () => {
-        // Store token temporarily for the API call
         const currentToken = token.value;
-
-        // Immediately clear client-side state
         token.value = null;
         shopId.value = null;
         shopName.value = null;
@@ -67,27 +62,21 @@ export const useAuthStore = defineStore('auth', () => {
         branchContact.value = null;
         error.value = null;
         localStorage.clear();
-
         try {
             if (currentToken) {
-                // Use the stored token for the API call
                 await apiClient.post('/logout', null, {
                     headers: {
                         Authorization: `Bearer ${currentToken}`
                     },
-                    timeout: 3000 // 3-second timeout
+                    timeout: 1000
                 });
             }
         } catch (err) {
             console.error('Logout API error:', err);
-            // Continue regardless of API success
         }
-
-        // Hard redirect - prevents any Vue/Pinia state issues
         window.location.href = '/';
     };
 
-    // Auto-logout if token expires
     const checkAuth = () => {
         if (!isAuthenticated.value && router.currentRoute.value.meta.requiresAuth) {
             logout();

@@ -318,10 +318,27 @@ export default {
             if (this.customer_cash === '') {
                 this.customer_change = 0;
             }
+            
+            // const charge = parseFloat(this.customer_charge) || 0;
+            // const cash = parseFloat(this.customer_cash) || 0;
+            // const customerChange = cash - charge;
+            // this.customer_change = customerChange.toFixed(2);
+            // if (charge === 0 || this.customer_cash === '') {
+            //     this.customer_change = 0;
+            // }
         },
         customer_discount() {
-            // Get result for total charge after selecting discount
-
+            let discount = parseFloat(this.customer_discount);
+            if (isNaN(discount) || discount <= 0) {
+                this.customer_charge = this.totalCharge.toFixed(2);
+                return;
+            }
+            // If discount is a whole number (e.g., 10 for 10%), convert to decimal
+            if (discount > 1) {
+                discount = discount / 100;
+            }
+            const newTotalCharge = this.totalCharge - (this.totalCharge * discount);
+            this.customer_charge = newTotalCharge.toFixed(2);
         }
     },
     computed: {

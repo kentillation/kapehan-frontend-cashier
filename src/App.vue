@@ -41,7 +41,6 @@ import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useTheme } from 'vuetify';
 import { useAuthStore } from '@/stores/auth';
 import { useLoadingStore } from '@/stores/loading';
-import { useBranchStore } from '@/stores/branchStore';
 import GlobalLoader from '@/components/GlobalLoader.vue';
 
 
@@ -54,7 +53,6 @@ export default {
     const theme = useTheme();
     const authStore = useAuthStore();
     const loadingStore = useLoadingStore();
-    const branchStore = useBranchStore();
     const connectionStatus = ref('online'); // 'online', 'offline', 'slow', 'waiting'
 
     const toggleTheme = () => {
@@ -140,7 +138,6 @@ export default {
       toggleTheme,
       authStore,
       loadingStore,
-      branchStore,
       drawer: ref(true),
       open: ref(false),
     };
@@ -156,18 +153,7 @@ export default {
       return this.theme.global.name.value === 'light' ? 'Dark Mode' : 'Light Mode';
     }
   },
-  mounted() {
-    this.fetchBranches();
-  },
   methods: {
-    async fetchBranches() {
-      try {
-        this.fetchingBranches = true;
-        await this.branchStore.fetchAllBranch();
-      } catch (error) {
-        console.error('Error fetching branches:', error);
-      }
-    },
     toCashier() {
       this.$router.push('/cashier');
     },
