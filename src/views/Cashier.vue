@@ -135,9 +135,9 @@
                                     class="ps-5 text-white" @click="printOrders(item)">
                                 </v-chip>
 
-                                <v-chip color="gray" prepend-icon="mdi-qrcode" size="small" variant="flat"
+                                <!-- <v-chip color="gray" prepend-icon="mdi-qrcode" size="small" variant="flat"
                                     class="ps-5 text-white" @click="toReference(item.reference_number)">
-                                </v-chip>
+                                </v-chip> -->
                             </div>
                         </template>
 
