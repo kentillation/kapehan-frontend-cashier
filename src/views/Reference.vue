@@ -2,7 +2,7 @@
 <template>
     <v-container>
         <div class="centered">
-            <h5>{{ authStore.shopName }}</h5>
+            <h3>{{ authStore.shopName }}</h3>
             <h5>{{ authStore.branchName }} Branch</h5>
             <h5>{{ authStore.branchLocation }}</h5>
             <h5>VAT Reg. TIN: 000-111-222-333</h5>
@@ -11,7 +11,7 @@
         <div class="left-content">
             <span>Date & Time: {{ this.formatCurrentDate }}</span><br />
             <span>Customer name: {{ this.customerName }}</span><br />
-            <span>Number of items: {{ this.totalItems }}</span>
+            <span>Number of items: {{ this.totalItems }}</span><br />
             <span>Table #: {{ this.tableNumber }}</span><br />
         </div>
 
@@ -34,10 +34,19 @@
             </template>
         </v-data-table>
 
-        <div class="d-flex flex-column mt-5 me-5 pe-5">
-            <h4>Total charge: ₱{{ this.totalAmount }}</h4>
-            <h4>Cash render: ₱{{ this.customerCash }}</h4>
-            <h4>Change: ₱{{ this.customerChange }}</h4>
+        <div class="payment">
+            <div class="d-flex justify-space-between">
+                <h4>Total charge: </h4>
+                <h4>₱{{ this.totalAmount }}</h4>
+            </div>
+            <div class="d-flex justify-space-between">
+                <h4>Cash render:</h4>
+                <h4>₱{{ this.customerCash }}</h4>
+            </div>
+            <div class="d-flex justify-space-between">
+                <h4>Change:</h4>
+                <h4>₱{{ this.customerChange }}</h4>
+            </div>
         </div>
 
         <div class="centered mt-10">
@@ -230,5 +239,16 @@ h2,
 h3,
 h4 {
     margin: 0;
+}
+
+.payment {
+    display: flex;
+    flex-direction: column;
+    margin-top: 25px;
+    padding: 10px 10px 0 0;
+}
+
+span {
+    font-size: 14px;
 }
 </style>
