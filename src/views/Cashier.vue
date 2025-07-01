@@ -67,7 +67,7 @@
                             <div class="payment-section mt-3">
                                 <v-text-field class="payment-section-item me-2 mt-2" v-model="customer_charge"
                                     label="Total charge" variant="outlined" density="compact" type="number"
-                                    :model-value="this.totalCharge.toFixed(2)" prepend-inner-icon="mdi-cash" readonly />
+                                    :model-value="this.discountedTotalCharge.toFixed(2)" prepend-inner-icon="mdi-cash" readonly />
                                 <v-text-field class="payment-section-item me-2 mt-2" v-model.number="customer_cash"
                                     label="Cash render" variant="outlined" density="compact" type="number"
                                     :rules="[v => !isNaN(parseFloat(v)) || 'Required', v => parseFloat(v) >= this.totalCharge || 'Must be greater than or equal to total charge']"
@@ -276,15 +276,6 @@ export default {
                 { title: 'Price', value: 'product_price' },
                 { title: 'Subtotal', value: 'subtotal' },
             ],
-            // discountOptions: [
-            //     { discount_id: 1, discount_label: '-' },
-            //     { discount_id: 2, discount_label: '3' },
-            //     { discount_id: 3, discount_label: '5' },
-            //     { discount_id: 4, discount_label: '7' },
-            //     { discount_id: 5, discount_label: '9' },
-            //     { discount_id: 6, discount_label: '11' },
-            //     { discount_id: 7, discount_label: '13' },
-            // ],
         };
     },
     beforeUnmount() {
@@ -310,35 +301,21 @@ export default {
     },
     watch: {
         customer_cash() {
-            const customerCharge = this.customer_cash - this.totalCharge;
+            const customerCharge = parseFloat(this.customer_cash) - this.discountedTotalCharge;
             this.customer_change = customerCharge.toFixed(2);
-            if (this.totalCharge == 0) {
+            if (this.discountedTotalCharge == 0) {
                 this.customer_change = 0;
             }
             if (this.customer_cash === '') {
                 this.customer_change = 0;
             }
-            
-            // const charge = parseFloat(this.customer_charge) || 0;
-            // const cash = parseFloat(this.customer_cash) || 0;
-            // const customerChange = cash - charge;
-            // this.customer_change = customerChange.toFixed(2);
-            // if (charge === 0 || this.customer_cash === '') {
-            //     this.customer_change = 0;
-            // }
         },
         customer_discount() {
-            let discount = parseFloat(this.customer_discount);
-            if (isNaN(discount) || discount <= 0) {
-                this.customer_charge = this.totalCharge.toFixed(2);
-                return;
+            this.customer_charge = this.discountedTotalCharge.toFixed(2);
+            if (this.customer_cash) {
+                const customerCharge = parseFloat(this.customer_cash) - this.discountedTotalCharge;
+                this.customer_change = customerCharge.toFixed(2);
             }
-            // If discount is a whole number (e.g., 10 for 10%), convert to decimal
-            if (discount > 1) {
-                discount = discount / 100;
-            }
-            const newTotalCharge = this.totalCharge - (this.totalCharge * discount);
-            this.customer_charge = newTotalCharge.toFixed(2);
         }
     },
     computed: {
@@ -381,6 +358,13 @@ export default {
                 ? this.orderDetails.reduce((sum, item) => sum + (item.product_price * item.quantity || 0), 0)
                 : 0;
         },
+        discountedTotalCharge() {
+            if (!this.customer_discount || isNaN(this.customer_discount) || this.customer_discount <= 0) {
+                return this.totalCharge;
+            }
+            const discountDecimal = parseFloat(this.customer_discount) / 100;
+            return this.totalCharge * (1 - discountDecimal);
+        }
     },
     mounted() {
         this.fetchProducts();
