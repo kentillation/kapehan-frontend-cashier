@@ -177,13 +177,28 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 body,
 .v-main,
 .v-data-table {
     font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-    background-color: #f5f5f5 !important;
     color: #0f0800 !important;
+}
+
+.v-data-table__th {
+    color: #0f0800 !important;
+}
+
+.v-data-table__tr {
+    border-color: none !important;
+}
+
+.v-data-table__td {
+    border-bottom: transparent !important;
+}
+
+.v-table > .v-table__wrapper > table > thead > tr > th {
+    padding: 0;
 }
 
 thead .v-data-table__th .v-data-table-header__content {
