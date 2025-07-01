@@ -113,6 +113,56 @@ export const useTransactStore = defineStore('transactionData', {
             }
         },
 
+        async fetchOrderDetailsTempStore(referenceNumber) {
+            this.loading = true;
+            this.error = null;
+            try {
+                if (!referenceNumber) {
+                    throw new Error('Invalid referenceNumber');
+                }
+                const response = await TRANSACTION_API.fetchOrderDetailsTempApi(referenceNumber);
+                if (response && response.status === true) {
+                    // Store both the full response and the data separately
+                    this.orderDtls = response;
+                    this.orderDtlsData = response.data;
+                    return response;
+                } else {
+                    throw new Error(response?.message || 'Failed to fetch order details');
+                }
+            } catch (error) {
+                console.error('Error fetching order details:', error);
+                this.error = error.message || 'Failed to fetch order details';
+                throw error;
+            }
+            finally {
+                this.loading = false;
+            }
+        },
+
+        async fetchQRcodeTempStore(referenceNumber) {
+            this.loading = true;
+            this.error = null;
+            try {
+                if (!referenceNumber) {
+                    throw new Error('Invalid referenceNumber');
+                }
+                const qrCodeBlob = await TRANSACTION_API.fetchOrderQRcodeTempApi(referenceNumber);
+                if (qrCodeBlob) {
+                    this.orderQRCode = qrCodeBlob;  // Store the blob directly
+                    return qrCodeBlob;  // Return the blob directly
+                } else {
+                    throw new Error('Failed to fetch QR Code');
+                }
+            } catch (error) {
+                console.error('Error fetching QR Code:', error);
+                this.error = error.message || 'Failed to fetch QR Code';
+                throw error;
+            }
+            finally {
+                this.loading = false;
+            }
+        },
+
         async fetchQRcodeStore(referenceNumber) {
             this.loading = true;
             this.error = null;

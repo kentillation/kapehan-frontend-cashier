@@ -2,9 +2,9 @@
 <template>
     <v-container>
         <div class="centered">
-            <h3>{{ authStore.shopName }}</h3>
-            <h5>{{ authStore.branchName }} Branch</h5>
-            <h5>{{ authStore.branchLocation }}</h5>
+            <h3>{{ this.shopName }}</h3>
+            <h5>{{ this.branchName }} Branch</h5>
+            <h5>{{ this.branchLocation }}</h5>
             <h5>VAT Reg. TIN: 000-111-222-333</h5>
             <h3 class="mt-4">Reference #: {{ this.reference }}</h3>
         </div>
@@ -66,9 +66,6 @@
 </template>
 
 <script>
-import { useAuthStore } from '@/stores/auth';
-import { useBranchStore } from '@/stores/branchStore';
-import { useProductsStore } from '@/stores/productsStore';
 import { useTransactStore } from '@/stores/transactionStore';
 
 export default {
@@ -81,6 +78,9 @@ export default {
             product_price: 0,
             subtotal: 0,
             selectedTableNumber: '',
+            shopName: '',
+            branchName: '',
+            branchLocation: '',
             customerName: '',
             totalAmount: 0,
             totalItems: 0,
@@ -102,9 +102,6 @@ export default {
         };
     },
     setup() {
-        const authStore = useAuthStore();
-        const branchStore = useBranchStore();
-        const productsStore = useProductsStore();
         const transactStore = useTransactStore();
         const currentDate = new Date().toLocaleDateString('en-PH', {
             year: 'numeric',
@@ -115,7 +112,7 @@ export default {
             hour12: true,
         });
         const formatCurrentDate = currentDate.replace(/,/g, '');
-        return { authStore, branchStore, productsStore, transactStore, formatCurrentDate };
+        return { transactStore, formatCurrentDate };
     },
     mounted() {
         this.fetchCustomerOrders(this.reference);
@@ -129,7 +126,8 @@ export default {
     methods: {
         async fetchCustomerOrders(reference) {
             try {
-                const response = await this.transactStore.fetchOrderDetailsStore(reference);
+                // const response = await this.transactStore.fetchOrderDetailsStore(reference);
+                const response = await this.transactStore.fetchOrderDetailsTempStore(reference);
                 let allOrders = [];
                 if (response?.data?.all_orders) {
                     allOrders = response.data.all_orders;
@@ -149,6 +147,9 @@ export default {
                     this.orderDetails = [];
                 }
                 this.orderDetails = allOrders.map(order => this.formatOrder(order));
+                this.shopName = response?.data?.shop_name || 'N/A';
+                this.branchName = response?.data?.branch_name || 'N/A';
+                this.branchLocation = response?.data?.branch_location || 'N/A';
                 this.totalItems = response?.data?.total_quantity ? parseFloat(response.data.total_quantity) : 0;
                 this.totalAmount = response?.data?.total_amount ? parseFloat(response.data.total_amount) : 0;
                 this.customerCash = response?.data?.customer_cash ? parseFloat(response.data.customer_cash) : 0;
@@ -165,7 +166,7 @@ export default {
 
         async fetchQRCode(reference) {
             try {
-                const qrCodeBlob = await this.transactStore.fetchQRcodeStore(reference);
+                const qrCodeBlob = await this.transactStore.fetchQRcodeTempStore(reference);
                 this.imgSrc = URL.createObjectURL(qrCodeBlob);  // qrCodeBlob is already the blob data
                 if (!this.imgSrc) {
                     console.error('Failed to create image URL from blob');
