@@ -6,6 +6,7 @@ export const TRANSACTION_API = {
         FETCH_CURRENT_ORDERS: '/current-orders',
         FETCH_ORDER_STATUS: '/order-status',
         FETCH_ORDER: '/order-details',
+        FETCH_QR: '/get-qr',
         CHANGE_STATUS: '/update-order-status',
     },
 
@@ -126,6 +127,39 @@ export const TRANSACTION_API = {
             };
             const response = await apiClient.get(
                 `${this.ENDPOINTS.FETCH_ORDER}/${referenceNumber}`,
+                config
+            );
+            if (!response.data) {
+                throw new Error('Invalid response from server');
+            }
+            return response.data;
+        } catch (error) {
+            console.error('[TRANSACTION_API] Error fetching order status:', error);
+            const enhancedError = new Error(
+                error.response?.data?.message ||
+                error.message ||
+                'Failed to fetch order status'
+            );
+            enhancedError.response = error.response;
+            enhancedError.status = error.response?.status;
+            throw enhancedError;
+        }
+    },
+
+    async fetchOrderQRcodeApi(referenceNumber) {
+        try {
+            const authToken = localStorage.getItem('auth_token');
+            if (!authToken) {
+                throw new Error('No authentication token found');
+            }
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                },
+                responseType: 'blob',
+            };
+            const response = await apiClient.get(
+                `${this.ENDPOINTS.FETCH_QR}/${referenceNumber}`,
                 config
             );
             if (!response.data) {

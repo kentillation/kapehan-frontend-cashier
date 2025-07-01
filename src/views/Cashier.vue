@@ -131,13 +131,10 @@
                                     <span v-if="item.order_status_id === 1" class="smoke smoke5"></span>
                                 </v-chip>
 
-                                <v-chip color="gray" prepend-icon="mdi-eye-outline" size="small" variant="flat"
-                                    class="ps-5 text-white" @click="viewOrders(item)">
-                                </v-chip>
                                 <!---<v-chip color="gray" prepend-icon="mdi-printer" size="small" variant="flat"
                                     class="ps-5 text-white" @click="printOrders(item)">
                                 </v-chip>-->
-                                <v-chip color="gray" prepend-icon="mdi-qrcode" size="small" variant="flat"
+                                <v-chip color="gray" prepend-icon="mdi-eye-outline" size="small" variant="flat"
                                     class="ps-5 text-white" @click="toReference(item.reference_number)">
                                 </v-chip>
                             </div>
@@ -168,13 +165,14 @@
             <!-- Viewing products of current order -->
             <v-dialog v-model="ordersDialog" max-width="800px" persistent>
                 <v-card>
-                    <v-card-title>
-                        <h4>Table #{{ this.selectedTableNumber }}</h4>
-                        <h4>Customer name: {{ this.customerName }}</h4>
-                    </v-card-title>
                     <v-card-text>
+                        <div class="d-flex flex-column">
+                            <h4>Table #{{ this.selectedTableNumber }}</h4>
+                            <h4>Customer name: {{ this.customerName }}</h4>
+                        </div>
+
                         <v-data-table :headers="headersOrderDetails" :items="orderDetails" density="comfortable"
-                            :items-per-page="5" class="elevation-1">
+                            :items-per-page="5" class="elevation-1 mt-3">
                             <template v-slot:item.product_name="{ item }">
                                 {{ item?.product_name || '' }}{{ item?.temp_label || '' }}{{ item?.size_label || ''
                                 }}x{{ item?.quantity }}
@@ -265,7 +263,6 @@ export default {
                 { title: '______PRODUCT_NAME______', value: 'product_name' },
                 { title: 'Price', value: 'product_price' },
                 { title: 'Subtotal', value: 'subtotal' },
-                { title: '_______ORDER_DATE_______', value: 'created_at' },
             ],
             // discountOptions: [
             //     { discount_id: 1, discount_label: '-' },
@@ -523,41 +520,6 @@ export default {
             }
         },
 
-        async viewOrders(order) {
-            if (!order || !order.reference_number) {
-                this.showError("Invalid order data!");
-                return;
-            }
-            this.ordersDialog = true;
-            try {
-                const response = await this.transactStore.fetchOrderDetailsStore(order.reference_number);
-                let allOrders = [];
-                if (response?.data?.all_orders) {
-                    allOrders = response.data.all_orders;
-                    this.selectedTableNumber = response.data.table_number;
-                    this.customerName = response.data.customer_name;
-                }
-                else if (this.transactStore.orderDtls?.data?.all_orders) {
-                    allOrders = this.transactStore.orderDtls.data.all_orders;
-                    this.selectedTableNumber = this.transactStore.orderDtls.data.table_number;
-                    this.customerName = this.transactStore.orderDtls.data.customer_name;
-                }
-                else {
-                    console.error('Invalid response structure:', {
-                        response: response,
-                        storeData: this.transactStore.orderDtls
-                    });
-                    this.orderDetails = [];
-                    this.showError("Failed to load order details - invalid format");
-                }
-                this.orderDetails = allOrders.map(order => this.formatOrder(order));
-            } catch (error) {
-                console.error('Error fetching order details:', error);
-                this.orderDetails = [];
-                this.showError("Failed to fetch order details.");
-            }
-        },
-
         async printOrders(order) {
             if (!order || !order.reference_number) {
                 this.showError("Invalid order data!");
@@ -675,7 +637,8 @@ export default {
         },
 
         async toReference(reference) {
-            this.$router.push({ name: 'Reference', params: { reference } });
+            // this.$router.push({ name: 'Reference', params: { reference } });
+            window.open(`/reference/${reference}`, '_blank');
         },
 
         changeStatus(order) {
@@ -726,7 +689,7 @@ export default {
         formatOrder(order) {
             return {
                 ...order,
-                created_at: this.formatDateTime(order.created_at),
+                // created_at: this.formatDateTime(order.created_at),
             };
         },
 

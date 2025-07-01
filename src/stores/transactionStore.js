@@ -8,6 +8,7 @@ export const useTransactStore = defineStore('transactionData', {
         orderStatuses: [],
         orderDtls: [],
         orderDtlsData: [],
+        orderQRCode: null,
         loading: false,
         error: null,
         success: false
@@ -105,6 +106,30 @@ export const useTransactStore = defineStore('transactionData', {
             } catch (error) {
                 console.error('Error fetching order details:', error);
                 this.error = error.message || 'Failed to fetch order details';
+                throw error;
+            }
+            finally {
+                this.loading = false;
+            }
+        },
+
+        async fetchQRcodeStore(referenceNumber) {
+            this.loading = true;
+            this.error = null;
+            try {
+                if (!referenceNumber) {
+                    throw new Error('Invalid referenceNumber');
+                }
+                const qrCodeBlob = await TRANSACTION_API.fetchOrderQRcodeApi(referenceNumber);
+                if (qrCodeBlob) {
+                    this.orderQRCode = qrCodeBlob;  // Store the blob directly
+                    return qrCodeBlob;  // Return the blob directly
+                } else {
+                    throw new Error('Failed to fetch QR Code');
+                }
+            } catch (error) {
+                console.error('Error fetching QR Code:', error);
+                this.error = error.message || 'Failed to fetch QR Code';
                 throw error;
             }
             finally {

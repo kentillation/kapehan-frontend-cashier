@@ -2,17 +2,17 @@
 <template>
     <v-container>
         <div class="centered">
-            <span>{{ authStore.shopName }}</span>
-            <span>{{ authStore.branchName }} Branch</span>
-            <span>{{ authStore.branchLocation }}</span>
-            <span>VAT Reg. TIN: 000-111-222-333</span>
-            <h3 class="mt-4">Table #: {{ this.tableNumber }}</h3>
+            <h5>{{ authStore.shopName }}</h5>
+            <h5>{{ authStore.branchName }} Branch</h5>
+            <h5>{{ authStore.branchLocation }}</h5>
+            <h5>VAT Reg. TIN: 000-111-222-333</h5>
+            <h3 class="mt-4">Reference #: {{ this.reference }}</h3>
         </div>
         <div class="left-content">
-            <span>Date&time: {{ this.formatCurrentDate }}</span><br />
-            <span>Reference #: {{ reference }}</span><br />
+            <span>Date & Time: {{ this.formatCurrentDate }}</span><br />
             <span>Customer name: {{ this.customerName }}</span><br />
             <span>Number of items: {{ this.totalItems }}</span>
+            <span>Table #: {{ this.tableNumber }}</span><br />
         </div>
 
         <v-data-table :headers="headersOrderDetails" 
@@ -34,17 +34,20 @@
             </template>
         </v-data-table>
 
-        <span>__________________</span>
-        <div class="d-flex flex-column mt-3 me-5 pe-5">
-            <span>Total charge: ₱{{ this.totalAmount }}</span>
-            <span>Cash render: ₱{{ this.customerCash }}</span>
-            <span>Change: ₱{{ this.customerChange }}</span>
+        <div class="d-flex flex-column mt-5 me-5 pe-5">
+            <h4>Total charge: ₱{{ this.totalAmount }}</h4>
+            <h4>Cash render: ₱{{ this.customerCash }}</h4>
+            <h4>Change: ₱{{ this.customerChange }}</h4>
         </div>
-        <span>__________________</span>
-        <div class="centered mt-4">
-            <span>Thank you for purchasing!</span>
+
+        <div class="centered mt-10">
+            <!-- Fetch QR from backend -->
+             <img v-if="imgSrc" :src="imgSrc" width="120" height="120" alt="Order QR Code">
+            <span>Scan the QR Code to view order</span><br />
         </div>
-        <div class="centered mt-4">
+
+        <div class="centered mt-6">
+            <span>Thank you for purchasing!</span><br />
             <span>You may follow us in our socials</span>
             <span>FB: @KapehanPH</span>
             <span>IG: @kapehan_ph</span><br />
@@ -86,6 +89,7 @@ export default {
                 { title: 'Price', value: 'product_price' },
                 { title: 'Amount', value: 'subtotal' },
             ],
+            imgSrc: null,
         };
     },
     setup() {
@@ -106,6 +110,12 @@ export default {
     },
     mounted() {
         this.fetchCustomerOrders(this.reference);
+        this.fetchQRCode(this.reference);
+    },
+    beforeUnmount() {
+        if (this.imgSrc) {
+            URL.revokeObjectURL(this.imgSrc);
+        }
     },
     methods: {
         async fetchCustomerOrders(reference) {
@@ -143,6 +153,20 @@ export default {
                 this.orderDetails = [];
             }
         },
+
+        async fetchQRCode(reference) {
+            try {
+                const qrCodeBlob = await this.transactStore.fetchQRcodeStore(reference);
+                this.imgSrc = URL.createObjectURL(qrCodeBlob);  // qrCodeBlob is already the blob data
+                if (!this.imgSrc) {
+                    console.error('Failed to create image URL from blob');
+                }
+            } catch (error) {
+                console.error('Error fetching order details:', error);
+                this.imgSrc = '';
+            }
+        },
+
         formatOrder(order) {
             return {
                 ...order,
@@ -178,32 +202,13 @@ export default {
 </script>
 
 <style scoped>
-body,
-.v-main,
-.v-data-table {
-    font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-    color: #0f0800 !important;
+.v-table, .v-container {
+    background-color: #fdfeff;
+    color: #080808;
 }
 
-.v-data-table__th {
-    color: #0f0800 !important;
-}
-
-.v-data-table__tr {
-    border-color: none !important;
-}
-
-.v-data-table__td {
-    border-bottom: transparent !important;
-}
-
-.v-table > .v-table__wrapper > table > thead > tr > th {
+.v-table > .v-table__wrapper > table > tbody > tr > td {
     padding: 0;
-}
-
-thead .v-data-table__th .v-data-table-header__content {
-    color: #0f0800 !important;
-    font-weight: bold;
 }
 
 .v-table--density-compact {
@@ -215,17 +220,15 @@ thead .v-data-table__th .v-data-table-header__content {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    margin-bottom: 20px;
 }
 
-.left-content {
-    margin-bottom: 20px;
+.centered, .left-content {
+    margin-bottom: 25px;
 }
 
 h2,
 h3,
-h4,
-tr {
+h4 {
     margin: 0;
 }
 </style>
