@@ -14,7 +14,7 @@ const routes = [
     { path: '/cashier', name: 'Cashier', component: Cashier, meta: { requiresAuth: true } },
     { path: '/help', name: 'Help', component: Help, meta: { requiresAuth: true } },
     { path: '/about', name: 'About', component: About, meta: { requiresAuth: true } },
-    { path: '/reference/:reference', name: 'Reference', component: Reference, meta: { requiresAuth: true } },
+    { path: '/reference/:reference', name: 'Reference', component: Reference },
     { path: '/loader', name: 'LoaderUI', component: LoaderUI, meta: { requiresAuth: true } },
 ];
 
