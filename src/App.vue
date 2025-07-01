@@ -147,10 +147,10 @@ export default {
   },
   computed: {
     showSidebar() {
-      return this.$route.name !== 'LoginPage';
+      return this.$route.name !== 'LoginPage' && this.$route.name !== 'Reference';
     },
     showMenu() {
-      return this.$route.name !== 'LoginPage';
+      return this.$route.name !== 'LoginPage' && this.$route.name !== 'Reference';
     },
     themeText() {
       return this.theme.global.name.value === 'light' ? 'Dark Mode' : 'Light Mode';

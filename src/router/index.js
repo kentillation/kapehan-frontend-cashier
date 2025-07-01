@@ -4,6 +4,7 @@ import Register from '../views/Register.vue';
 import Cashier from '../views/Cashier.vue';
 import Help from '../views/Help.vue';
 import About from '../views/About.vue';
+import Reference from '../views/Reference.vue';
 import LoaderUI from '../components/LoaderUI.vue';
 import { useAuthStore } from '@/stores/auth';
 
@@ -13,6 +14,7 @@ const routes = [
     { path: '/cashier', name: 'Cashier', component: Cashier, meta: { requiresAuth: true } },
     { path: '/help', name: 'Help', component: Help, meta: { requiresAuth: true } },
     { path: '/about', name: 'About', component: About, meta: { requiresAuth: true } },
+    { path: '/reference/:reference', name: 'Reference', component: Reference, meta: { requiresAuth: true } },
     { path: '/loader', name: 'LoaderUI', component: LoaderUI, meta: { requiresAuth: true } },
 ];
 

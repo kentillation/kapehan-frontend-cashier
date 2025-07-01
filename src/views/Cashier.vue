@@ -137,6 +137,9 @@
                                 <!---<v-chip color="gray" prepend-icon="mdi-printer" size="small" variant="flat"
                                     class="ps-5 text-white" @click="printOrders(item)">
                                 </v-chip>-->
+                                <v-chip color="gray" prepend-icon="mdi-qrcode" size="small" variant="flat"
+                                    class="ps-5 text-white" @click="toReference(item.reference_number)">
+                                </v-chip>
                             </div>
                         </template>
 
@@ -165,8 +168,9 @@
             <!-- Viewing products of current order -->
             <v-dialog v-model="ordersDialog" max-width="800px" persistent>
                 <v-card>
-                    <v-card-title class="text-h6">
-                        Table #{{ this.selectedTableNumber }}
+                    <v-card-title>
+                        <h4>Table #{{ this.selectedTableNumber }}</h4>
+                        <h4>Customer name: {{ this.customerName }}</h4>
                     </v-card-title>
                     <v-card-text>
                         <v-data-table :headers="headersOrderDetails" :items="orderDetails" density="comfortable"
@@ -186,8 +190,8 @@
                         <v-divider class="my-4"></v-divider>
 
                         <div class="d-flex flex-column">
-                            <h3>Total Quantity: {{ totalOrderQuantity }} {{ itemIndicator }}</h3>
-                            <h3>Total Amount: ₱{{ totalOrderAmount.toFixed(2) }}</h3>
+                            <h4>Total Quantity: {{ totalOrderQuantity }} {{ itemIndicator }}</h4>
+                            <h4>Total Amount: ₱{{ totalOrderAmount.toFixed(2) }}</h4>
                         </div>
                     </v-card-text>
                     <v-card-actions>
@@ -241,6 +245,7 @@ export default {
             products: [],
             selectedProducts: [],
             selectedTableNumber: null,
+            customerName: '',
             orders: [],
             order_statuses: [],
             orderDetails: [],
@@ -322,7 +327,7 @@ export default {
         },
         totalCharge() {
             return this.selectedProducts.reduce((sum, p) => sum + (p.product_price * p.quantity), 0);
-        },
+        }, 
         currentOrders() {
             return this.orders;
         },
@@ -493,7 +498,7 @@ export default {
                 const transactionData = [{
                     reference_number: refNumber,
                     table_number: this.table_number,
-                    // customer_name: this.customer_name,
+                    customer_name: this.customer_name,
                     total_quantity: this.totalQuantity,
                     customer_cash: parseFloat(this.customer_cash.replace(/[^0-9.]/g, '')) || 0,
                     customer_charge: this.totalCharge,
@@ -530,10 +535,12 @@ export default {
                 if (response?.data?.all_orders) {
                     allOrders = response.data.all_orders;
                     this.selectedTableNumber = response.data.table_number;
+                    this.customerName = response.data.customer_name;
                 }
                 else if (this.transactStore.orderDtls?.data?.all_orders) {
                     allOrders = this.transactStore.orderDtls.data.all_orders;
                     this.selectedTableNumber = this.transactStore.orderDtls.data.table_number;
+                    this.customerName = this.transactStore.orderDtls.data.customer_name;
                 }
                 else {
                     console.error('Invalid response structure:', {
@@ -638,7 +645,7 @@ export default {
                                 <td><div class="left-content"></div></td>
                             </tr>
                             <tr>
-                                <td><h4>Total Amount:</h4></td>
+                                <td><h4>Total charge:</h4></td>
                                 <td></td>
                                 <td><h3>₱${this.totalOrderAmount.toFixed(2)}</h3></td>
                             </tr>
@@ -667,6 +674,9 @@ export default {
             }
         },
 
+        async toReference(reference) {
+            this.$router.push({ name: 'Reference', params: { reference } });
+        },
 
         changeStatus(order) {
             if (!order || !order.reference_number) {
