@@ -132,14 +132,14 @@ export default {
 
     return {
       theme,
-      connectionStatus,
-      connectionStatusText,
-      connectionStatusIcon,
       toggleTheme,
       authStore,
       loadingStore,
       drawer: ref(true),
       open: ref(false),
+      connectionStatus,
+      connectionStatusText,
+      connectionStatusIcon,
     };
   },
   computed: {

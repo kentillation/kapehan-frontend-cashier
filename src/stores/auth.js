@@ -27,6 +27,7 @@ export const useAuthStore = defineStore('auth', () => {
         error.value = null;
         try {
             const response = await apiClient.post('/cashier/login', credentials);
+            
             if (response.status === 200) {
                 token.value = response.data.access_token;
                 shopId.value = response.data.shop_id;
@@ -42,7 +43,8 @@ export const useAuthStore = defineStore('auth', () => {
                 localStorage.setItem('branch_location', branchLocation.value);
                 localStorage.setItem('contact', branchContact.value);
 
-                router.push('/cashier');
+                // router.push('/cashier');
+                return true;
             }
         } catch (err) {
             error.value = err.response?.data?.message ||
