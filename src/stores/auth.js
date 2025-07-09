@@ -26,7 +26,7 @@ export const useAuthStore = defineStore('auth', () => {
     const login = async (credentials) => {
         error.value = null;
         try {
-            const response = await apiClient.post('/login', credentials);
+            const response = await apiClient.post('/cashier/login', credentials);
             if (response.status === 200) {
                 token.value = response.data.access_token;
                 shopId.value = response.data.shop_id;
