@@ -755,7 +755,7 @@ export default {
         },
 
         getStatusName(statusId) {
-            const status = this.order_statuses.find(s => s.order_status_id === statusId);
+            const status = this.order_statuses.find(s => Number(s.order_status_id) === Number(statusId));
             return status ? status.order_status : 'Unknown';
         },
 
