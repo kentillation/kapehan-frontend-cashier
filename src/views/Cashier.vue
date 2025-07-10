@@ -122,13 +122,13 @@
                                     :prepend-icon="getStatusIcon(item.order_status_id)" size="small" variant="flat"
                                     @click="changeStatus(item)" class="text-white"
                                     style="width: 80px; justify-content: flex-start;">
-                                    <span v-if="item.order_status_id === 1" class="typewriter-fixed">Brewing</span>
+                                    <span v-if="item.order_status_id === '1'" class="typewriter-fixed">Brewing</span>
                                     <span v-else>{{ getStatusName(item.order_status_id) }}</span>
-                                    <span v-if="item.order_status_id === 1" class="smoke"></span>
-                                    <span v-if="item.order_status_id === 1" class="smoke smoke2"></span>
-                                    <span v-if="item.order_status_id === 1" class="smoke smoke3"></span>
-                                    <span v-if="item.order_status_id === 1" class="smoke smoke4"></span>
-                                    <span v-if="item.order_status_id === 1" class="smoke smoke5"></span>
+                                    <span v-if="item.order_status_id === '1'" class="smoke"></span>
+                                    <span v-if="item.order_status_id === '1'" class="smoke smoke2"></span>
+                                    <span v-if="item.order_status_id === '1'" class="smoke smoke3"></span>
+                                    <span v-if="item.order_status_id === '1'" class="smoke smoke4"></span>
+                                    <span v-if="item.order_status_id === '1'" class="smoke smoke5"></span>
                                 </v-chip>
 
                                 <v-chip color="gray" prepend-icon="mdi-printer" size="small" variant="flat"
