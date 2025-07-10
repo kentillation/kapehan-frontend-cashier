@@ -760,7 +760,7 @@ export default {
         },
 
         getStatusColor(statusId) {
-            switch (statusId) {
+            switch (Number(statusId)) {
                 case 1: return 'orange';    // Brewing
                 case 2: return 'blue';      // Ready
                 case 3: return 'green';     // Served
@@ -769,7 +769,7 @@ export default {
         },
 
         getStatusIcon(statusId) {
-            switch (statusId) {
+            switch (Number(statusId)) {
                 case 1: return 'mdi-coffee';        // Brewing
                 case 2: return 'mdi-human-greeting';   // Ready
                 case 3: return 'mdi-check'; // Served
