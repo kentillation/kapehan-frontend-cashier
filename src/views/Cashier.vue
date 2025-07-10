@@ -122,13 +122,13 @@
                                     :prepend-icon="getStatusIcon(item.order_status_id)" size="small" variant="flat"
                                     @click="changeStatus(item)" class="text-white"
                                     style="width: 80px; justify-content: flex-start;">
-                                    <span v-if="item.order_status_id === '1'" class="typewriter-fixed">Brewing</span>
+                                    <span v-if="Number(item.order_status_id) === 1" class="typewriter-fixed">Brewing</span>
                                     <span v-else>{{ getStatusName(item.order_status_id) }}</span>
-                                    <span v-if="item.order_status_id === '1'" class="smoke"></span>
-                                    <span v-if="item.order_status_id === '1'" class="smoke smoke2"></span>
-                                    <span v-if="item.order_status_id === '1'" class="smoke smoke3"></span>
-                                    <span v-if="item.order_status_id === '1'" class="smoke smoke4"></span>
-                                    <span v-if="item.order_status_id === '1'" class="smoke smoke5"></span>
+                                    <span v-if="Number(item.order_status_id) === 1" class="smoke"></span>
+                                    <span v-if="Number(item.order_status_id) === 1" class="smoke smoke2"></span>
+                                    <span v-if="Number(item.order_status_id) === 1" class="smoke smoke3"></span>
+                                    <span v-if="Number(item.order_status_id) === 1" class="smoke smoke4"></span>
+                                    <span v-if="Number(item.order_status_id) === 1" class="smoke smoke5"></span>
                                 </v-chip>
 
                                 <v-chip color="gray" prepend-icon="mdi-printer" size="small" variant="flat"
@@ -741,7 +741,7 @@ export default {
                 status => Number(status.order_status_id) === Number(order.order_status_id)
             );
             const nextStatusIndex = (currentStatusIndex + 1) % this.order_statuses.length;
-            const newStatus = this.order_statuses[nextStatusIndex].order_status_id;
+            const newStatus = this.order_statuses[nextStatusIndex].Number(order_status_id);
             this.transactStore.updateOrderStatusStore(order.reference_number, newStatus)
                 .then(() => {
                     const statusName = this.getStatusName(newStatus);
