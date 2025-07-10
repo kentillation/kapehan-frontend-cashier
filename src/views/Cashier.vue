@@ -118,8 +118,8 @@
                         <!--eslint-disable-next-line -->
                         <template v-slot:item.actions="{ item }">
                             <div class="d-flex" style="gap: 8px;">
-                                <v-chip :color="getStatusColor(item.order_status_id)"
-                                    :prepend-icon="getStatusIcon(item.order_status_id)" size="small" variant="flat"
+                                <v-chip :color="getStatusColor(Number(item.order_status_id))"
+                                    :prepend-icon="getStatusIcon(Number(item.order_status_id))" size="small" variant="flat"
                                     @click="changeStatus(item)" class="text-white"
                                     style="width: 80px; justify-content: flex-start;">
                                     <span v-if="Number(item.order_status_id) === 1" class="typewriter-fixed">Brewing</span>
