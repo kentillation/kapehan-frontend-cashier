@@ -131,13 +131,13 @@
                                     <span v-if="Number(item.order_status_id) === 1" class="smoke smoke5"></span>
                                 </v-chip>
 
-                                <v-chip color="gray" prepend-icon="mdi-printer" size="small" variant="flat"
-                                    class="ps-5 text-white" @click="printOrders(item)">
-                                </v-chip>
-
                                 <!-- <v-chip color="gray" prepend-icon="mdi-qrcode" size="small" variant="flat"
-                                    class="ps-5 text-white" @click="toReference(item.reference_number)">
+                                    class="ps-5 text-white" @click="printOrders(item)">
                                 </v-chip> -->
+
+                                <v-chip color="gray" prepend-icon="mdi-qrcode" size="small" variant="flat"
+                                    class="ps-5 text-white" @click="toReference(item.reference_number)">
+                                </v-chip>
                             </div>
                         </template>
 

@@ -122,7 +122,6 @@ export const useTransactStore = defineStore('transactionData', {
                 }
                 const response = await TRANSACTION_API.fetchOrderDetailsTempApi(referenceNumber);
                 if (response && response.status === true) {
-                    // Store both the full response and the data separately
                     this.orderDtls = response;
                     this.orderDtlsData = response.data;
                     return response;
