@@ -738,10 +738,10 @@ export default {
                 return;
             }
             const currentStatusIndex = this.order_statuses.findIndex(
-                status => status.order_status_id === order.order_status_id
+                status => Number(status.order_status_id) === Number(order.order_status_id)
             );
             const nextStatusIndex = (currentStatusIndex + 1) % this.order_statuses.length;
-            const newStatus = this.order_statuses[nextStatusIndex].order_status_id;
+            const newStatus = Number(this.order_statuses[nextStatusIndex].order_status_id);
             this.transactStore.updateOrderStatusStore(order.reference_number, newStatus)
                 .then(() => {
                     const statusName = this.getStatusName(newStatus);
