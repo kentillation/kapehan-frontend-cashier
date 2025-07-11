@@ -516,7 +516,7 @@ export default {
                     customer_name: this.customer_name,
                     total_quantity: this.totalQuantity,
                     customer_cash: parseFloat(this.customer_cash.replace(/[^0-9.]/g, '')) || 0,
-                    customer_charge: this.totalCharge,
+                    customer_charge: this.customer_charge,
                     customer_change: parseFloat(this.customer_change.replace(/[^0-9.]/g, '')) || 0,
                     customer_discount: this.customer_discount,
                 }];

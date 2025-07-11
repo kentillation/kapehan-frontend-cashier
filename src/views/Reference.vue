@@ -44,6 +44,10 @@
                 <h4>₱{{ this.customerCash }}</h4>
             </div>
             <div class="d-flex justify-space-between">
+                <h4>Discount:</h4>
+                <h4>{{ this.customerDiscount }}%</h4>
+            </div>
+            <div class="d-flex justify-space-between">
                 <h4>Change:</h4>
                 <h4>₱{{ this.customerChange }}</h4>
             </div>
@@ -85,6 +89,7 @@ export default {
             totalAmount: 0,
             totalItems: 0,
             customerCash: 0,
+            customerDiscount: 0,
             customerChange: 0,
             createdAt: '',
             updatedAt: '',
@@ -153,6 +158,7 @@ export default {
                 this.totalItems = response?.data?.total_quantity ? parseFloat(response.data.total_quantity) : 0;
                 this.totalAmount = response?.data?.total_amount ? parseFloat(response.data.total_amount) : 0;
                 this.customerCash = response?.data?.customer_cash ? parseFloat(response.data.customer_cash) : 0;
+                this.customerDiscount = response?.data?.customer_discount ? parseFloat(response.data.customer_discount) : 0;
                 this.customerChange = response?.data?.customer_change ? parseFloat(response.data.customer_change) : 0;
                 this.createdAt = response?.data?.created_at ? this.formatDateTime(response.data.created_at) : 'N/A';
                 this.updatedAt = response?.data?.updated_at ? this.formatDateTime(response.data.updated_at) : 'N/A';
@@ -189,6 +195,7 @@ export default {
                 total_quantity: order.total_quantity ? parseInt(order.total_quantity, 10) : 0,
                 total_amount: order.total_amount ? parseFloat(order.total_amount) : 0,
                 customer_cash: order.customer_cash ? parseFloat(order.customer_cash) : 0,
+                customer_discount: order.customer_discount ? parseFloat(order.customer_discount) : 0,
                 customer_change: order.customer_change ? parseFloat(order.customer_change) : 0,
                 table_number: order.table_number || 'N/A',
                 created_at: order.created_at ? this.formatDateTime(order.created_at) : 'N/A',
