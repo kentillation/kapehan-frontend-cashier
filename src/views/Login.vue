@@ -1,7 +1,7 @@
 <template>
     <v-container>
-        <v-sheet class="py-8 px-6 mx-auto ma-4" elevation="3" max-width="500" rounded="lg" width="100%">
-            <h1 class="text-center">Poofsa .tend</h1>
+        <v-sheet class="py-8 px-6 mx-auto ma-4" max-width="500" rounded="lg" width="100%">
+            <h1 class="text-center">Poofsa <span class="text-warning">.tend</span></h1>
             <v-form ref="form" @submit.prevent="handleLogin" v-model="isFormValid" class="pa-4">
                 <div class="text-subtitle-1 text-medium-emphasis">Email</div>
                 <v-text-field v-model="cashier_email" 
@@ -22,7 +22,7 @@
                     :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye-outline'" 
                     @click:append-inner="showPassword = !showPassword" />
 
-                <v-btn type="submit" color="brown-darken-3" size="large" class="mt-5" height="45" block rounded>
+                <v-btn :disabled="!isFormValid || loading" type="submit" color="brown-darken-3" size="large" class="mt-5" height="45" block rounded>
                     Proceed
                 </v-btn>
             </v-form>
@@ -104,5 +104,8 @@ export default {
     place-items: center;
     height: 100vh;
     background-color: var(--v-theme-background);
+}
+.v-sheet {
+    border: 1.5px solid rgb(251, 140, 0);
 }
 </style>
