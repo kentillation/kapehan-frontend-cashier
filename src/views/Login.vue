@@ -9,6 +9,7 @@
                     placeholder="Type here..."
                     prepend-inner-icon="mdi-email-outline"
                     variant="outlined"
+                    density="compact"
                     autocomplete="username" />
 
                 <div class="text-subtitle-1 text-medium-emphasis mt-2">Password</div>
@@ -16,7 +17,8 @@
                     :rules="[requiredRule]"
                     placeholder="Type here..."
                     prepend-inner-icon="mdi-lock-outline" 
-                    variant="outlined" 
+                    variant="outlined"
+                    density="compact" 
                     autocomplete="current-password"
                     :type="showPassword ? 'text' : 'password'"
                     :append-inner-icon="showPassword ? 'mdi-eye-off' : 'mdi-eye-outline'" 

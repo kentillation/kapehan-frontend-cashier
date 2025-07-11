@@ -38,7 +38,7 @@
                     <v-row>
                         <!-- Selected Products -->
                         <v-col cols="12"> <!-- style="margin-top: 130px; margin-bottom: 300px;" -->
-                            <h2>Selected Products</h2>
+                            <h3>Selected Products</h3>
                             <v-data-table :headers="headersSelected" :items="selectedProducts" density="comfortable"
                                 height="300px">
                                 <template v-slot:item.product_name="{ item }">
@@ -63,7 +63,7 @@
                         </v-col>
                         <!--Payment Section  -->
                         <v-col cols="12">
-                            <h2>Payment Section</h2>
+                            <h3>Payment Section</h3>
                             <div class="payment-section mt-3">
                                 <v-text-field class="payment-section-item me-2 mt-2" v-model="customer_charge"
                                     label="Total charge" variant="outlined" density="compact" type="number"
@@ -106,7 +106,7 @@
 
                 <!-- Current Orders Section -->
                 <v-col cols="12" lg="6" md="6" sm="12" xs="12">
-                    <h2>Current Orders</h2>
+                    <h3>Current Orders</h3>
                     <v-data-table :headers="headersOrders" :items="currentOrders" :loading="loadingCurrentOrders"
                         density="comfortable" height="300px">
                         <template v-slot:item.table_number="{ item }">

@@ -1,11 +1,11 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
     <v-container>
-        <h1 class="text-brown-lighten-1">Settings</h1>
+        <h3 class="text-brown-lighten-1">Settings</h3>
         <v-card class="pa-8">
             <v-row>
                 <v-col cols="12" lg="6" md="6" sm="12">
-                    <h2><v-icon>mdi-theme-light-dark</v-icon>&nbsp; Theme</h2>
+                    <h3><v-icon>mdi-theme-light-dark</v-icon>&nbsp; Theme</h3>
                     <p class="descriptionColor mt-2">Select your preferred theme and change it later.</p>
                 </v-col>
                 <v-col cols="12" lg="6" md="6" sm="12">

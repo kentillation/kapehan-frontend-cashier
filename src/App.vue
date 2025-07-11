@@ -14,11 +14,9 @@
         <v-btn v-if="showMenu" @click.stop="drawer = !drawer" icon>
           <v-icon>mdi-hamburger</v-icon>
         </v-btn>
-        <v-toolbar-title>
-          <span>{{ authStore.shopName }}</span>
-        </v-toolbar-title>
+        <h3>{{ authStore.shopName }}</h3>
         <v-spacer></v-spacer>
-        <v-btn icon>
+        <v-btn @click="toSettings" icon>
           <v-icon>mdi-account-circle-outline</v-icon>
         </v-btn>
       </v-app-bar>
