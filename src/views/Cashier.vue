@@ -11,7 +11,7 @@
                         </div>
                         <div class="d-flex align-items-center justify-content-center">
                             <v-text-field v-model="searchProduct" class="prdct-txt text-white w-50"
-                                style="background: #696969;" label="FIND PRODUCT..." outlined>
+                                style="background: #696969;" placeholder="FIND PRODUCT..." outlined>
                             </v-text-field>
                             <v-btn class="bg-brown-darken-3 d-flex align-items-center py-7 w-50 rounded-0"
                                 variant="tonal" @click="showCategoriesDialog" large>
@@ -145,7 +145,7 @@
                 </v-col>
             </v-row>
 
-            <v-dialog v-model="categoriesDialog" max-width="400">
+            <v-dialog v-model="categoriesDialog" max-width="500">
                 <v-card>
                     <v-card-title class="d-flex justify-space-between">
                         <h3>Select categories</h3>
@@ -154,7 +154,7 @@
                     </v-card-title>
                     <v-card-text class="d-flex align-center flex-column">
                         <v-list-item v-for="(category, i) in productsStore.getCategories" :key="i"
-                            :prepend-icon="category.icon" class="bg-brown-darken-3 mt-2 w-100"
+                            :prepend-icon="category.icon" class="bg-brown-darken-3 mt-2 w-75"
                             style="border-radius: 30px !important; font-size: 14px;"
                             @click="handleCategorySelect(category)">
                             <span>{{ category.label }}</span>

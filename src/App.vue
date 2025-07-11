@@ -24,7 +24,9 @@
           <v-list-subheader size="30">Menu</v-list-subheader>
           <v-list-item prepend-icon="mdi-account-cash-outline" @click="toCashier" class="ps-5 bg-brown-darken-3"
             style="border-radius: 30px;">Main</v-list-item>
-          <v-list-item prepend-icon="mdi-logout" @click="showLogout" class="ps-5 bg-brown-darken-3"
+          <v-list-item prepend-icon="mdi-account-cog-outline" @click="toSettings" class="bg-brown-darken-3 ps-5"
+            style="border-radius: 30px;">Settings</v-list-item>
+          <v-list-item prepend-icon="mdi-door-open" @click="showLogout" class="ps-5 bg-brown-darken-3"
             style="border-radius: 30px;">Sign Out</v-list-item>
         </v-list>
       </v-navigation-drawer>
@@ -156,6 +158,9 @@ export default {
   methods: {
     toCashier() {
       this.$router.push('/cashier');
+    },
+    toSettings() {
+      this.$router.push('/settings');
     },
     async showLogout() {
       this.drawer = false;
