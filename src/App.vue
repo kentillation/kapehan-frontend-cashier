@@ -10,13 +10,16 @@
     </div>
     <v-main>
       <v-app-bar v-if="showSidebar" prominent>
-        <v-app-bar-nav-icon v-if="showMenu" variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+        <!-- <v-app-bar-nav-icon v-if="showMenu" variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon> -->
+        <v-btn v-if="showMenu" @click.stop="drawer = !drawer" icon>
+          <v-icon>mdi-hamburger</v-icon>
+        </v-btn>
         <v-toolbar-title>
           <span>{{ authStore.shopName }}</span>
         </v-toolbar-title>
         <v-spacer></v-spacer>
-        <v-btn icon @click="toggleTheme" :title="themeText">
-          <v-icon>mdi-theme-light-dark</v-icon>
+        <v-btn icon>
+          <v-icon>mdi-account-circle-outline</v-icon>
         </v-btn>
       </v-app-bar>
       <v-navigation-drawer class="h-screen pa-3" v-model="drawer" v-if="showSidebar">
@@ -24,7 +27,7 @@
           <v-list-subheader size="30">Menu</v-list-subheader>
           <v-list-item prepend-icon="mdi-account-cash-outline" @click="toCashier" class="ps-5 bg-brown-darken-3"
             style="border-radius: 30px;">Main</v-list-item>
-          <v-list-item prepend-icon="mdi-account-cog-outline" @click="toSettings" class="bg-brown-darken-3 ps-5"
+          <v-list-item prepend-icon="mdi-cog-outline" @click="toSettings" class="bg-brown-darken-3 ps-5"
             style="border-radius: 30px;">Settings</v-list-item>
           <v-list-item prepend-icon="mdi-door-open" @click="showLogout" class="ps-5 bg-brown-darken-3"
             style="border-radius: 30px;">Sign Out</v-list-item>
@@ -40,7 +43,6 @@
 
 <script>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
-import { useTheme } from 'vuetify';
 import { useAuthStore } from '@/stores/auth';
 import { useLoadingStore } from '@/stores/loading';
 import GlobalLoader from '@/components/GlobalLoader.vue';
@@ -52,16 +54,9 @@ export default {
     GlobalLoader,
   },
   setup() {
-    const theme = useTheme();
     const authStore = useAuthStore();
     const loadingStore = useLoadingStore();
     const connectionStatus = ref('online'); // 'online', 'offline', 'slow', 'waiting'
-
-    const toggleTheme = () => {
-      const newTheme = theme.global.name.value === 'light' ? 'dark' : 'light';
-      theme.global.name.value = newTheme;
-      localStorage.setItem('theme', newTheme);
-    };
 
     // Simple network check
     const updateStatus = () => {
@@ -133,8 +128,6 @@ export default {
     });
 
     return {
-      theme,
-      toggleTheme,
       authStore,
       loadingStore,
       drawer: ref(true),
@@ -151,9 +144,6 @@ export default {
     showMenu() {
       return this.$route.name !== 'LoginPage' && this.$route.name !== 'Reference';
     },
-    themeText() {
-      return this.theme.global.name.value === 'light' ? 'Dark Mode' : 'Light Mode';
-    }
   },
   methods: {
     toCashier() {
