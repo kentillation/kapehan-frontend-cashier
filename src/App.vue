@@ -167,7 +167,7 @@ export default {
 </script>
 
 <style scoped>
-::v-deep(.hover-table .v-data-table__tr) {
+/* ::v-deep(.hover-table .v-data-table__tr) {
   background-color: rgba(159, 164, 165, 0);
   transition: background-color 0.5s ease-in-out;
   cursor: pointer;
@@ -222,5 +222,5 @@ export default {
 .connection-banner.waiting {
   background: #118aa0;
   color: #fffafa;
-}
+} */
 </style>
