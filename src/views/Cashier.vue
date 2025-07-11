@@ -313,8 +313,8 @@ export default {
         customer_discount() {
             this.customer_charge = this.discountedTotalCharge.toFixed(2);
             if (this.customer_cash) {
-                const customerCharge = parseFloat(this.customer_cash) - this.discountedTotalCharge;
-                this.customer_change = customerCharge.toFixed(2);
+                const change = parseFloat(this.customer_cash) - parseFloat(this.customer_charge);
+                this.customer_change = change.toFixed(2);
             }
         }
     },
