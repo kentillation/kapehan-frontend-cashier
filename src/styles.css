@@ -59,7 +59,7 @@ thead .v-data-table__th .v-data-table-header__content {
 }
 
 ::v-deep(.hover-table .v-data-table__tr) {
-  background-color: rgba(159, 164, 165, 0);
+  background-color: rgba(65, 33, 33, 0.685);
   transition: background-color 0.5s ease-in-out;
   cursor: pointer;
 }

@@ -24,8 +24,9 @@
                         density="comfortable" class="hover-table mt-2">
                         <!-- eslint-disable vue/valid-v-slot -->
                         <template v-slot:item.product_name="{ item }">
-                            <span class="small">{{ item.product_name }}{{ item.temp_label }}{{ item.size_label
-                                }}</span>&nbsp;
+                            <span class="small">
+                                {{ item.product_name }}{{ item.temp_label }}{{ item.size_label }}
+                            </span>&nbsp;
                         </template>
                         <template v-slot:item.product_price="{ item }">
                             <span class="small">₱{{ item.product_price }}</span>
