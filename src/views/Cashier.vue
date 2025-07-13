@@ -69,8 +69,9 @@
                                     v-model="customer_charge"
                                     label="*Total charge" 
                                     variant="outlined" 
-                                    density="compact" type="number"
-                                    :model-value="this.discountedTotalCharge.toFixed(2)" 
+                                    density="compact" 
+                                    type="number"
+                                    :model-value="discountedTotalCharge.toFixed(2)" 
                                     prepend-inner-icon="mdi-cash" 
                                     readonly />
                                 <v-text-field class="payment-section-item me-2 mt-2"
@@ -258,7 +259,7 @@ export default {
             table_number: null,
             total_quantity: '',
             customer_cash: '',
-            customer_charge: '',
+            customer_charge: 0,
             customer_change: '',
             customer_discount: 0,
             customer_name: '',
@@ -331,6 +332,12 @@ export default {
         return { authStore, branchStore, productsStore, transactStore, formatCurrentDate };
     },
     watch: {
+        selectedProducts: {
+            handler() {
+                this.customer_charge = this.discountedTotalCharge.toFixed(2);
+            },
+            deep: true
+        },
         customer_cash() {
             const customerCharge = parseFloat(this.customer_cash) - this.discountedTotalCharge;
             this.customer_change = customerCharge.toFixed(2);
@@ -342,7 +349,7 @@ export default {
             }
         },
         customer_discount() {
-            this.customer_charge = this.discountedTotalCharge.toFixed(2);
+            this.customer_charge = Number(this.discountedTotalCharge.toFixed(2));
             if (this.customer_cash) {
                 const change = parseFloat(this.customer_cash) - parseFloat(this.customer_charge);
                 this.customer_change = change.toFixed(2);
@@ -545,21 +552,22 @@ export default {
                 }
                 const transactionData = [{
                     reference_number: refNumber,
-                    table_number: this.table_number,
+                    table_number: Number(this.table_number),
                     customer_name: this.customer_name,
                     total_quantity: this.totalQuantity,
                     customer_cash: parseFloat(this.customer_cash.replace(/[^0-9.]/g, '')) || 0,
-                    customer_charge: this.customer_charge,
+                    customer_charge: this.discountedTotalCharge,
                     customer_change: parseFloat(this.customer_change.replace(/[^0-9.]/g, '')) || 0,
-                    customer_discount: this.customer_discount,
+                    customer_discount: Number(this.customer_discount),
                 }];
+                console.log ("Submit: ", transactionData);
                 await this.transactStore.submitTransactStore(transactionData, orderedProducts);
                 this.fetchCurrentOrders();
                 this.$refs.transactionForm.reset();
                 this.totalCharge = 0;
                 this.totalQuantity = 0;
                 this.selectedProducts = [];
-
+                this.showSuccess("Success! Ready for next customer.");
                 // Print receipt
 
             } catch (error) {
