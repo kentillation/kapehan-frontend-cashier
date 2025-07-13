@@ -1,12 +1,19 @@
 body {
     font-family: 'Poppins', sans-serif;
 }
-
+h1 {
+    /* Change the size if every screen */
+}
+.v-field__input {
+    padding: 0 !important;
+}
 .v-btn--size-default,
 .v-icon {
     min-width: 0 !important;
 }
-
+.v-icon--size-default {
+    font-size: calc(var(--v-icon-size-multiplier) * 1.5em) !important;
+}
 .v-data-table {
     max-width: 100%;
 }
