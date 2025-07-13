@@ -13,6 +13,7 @@
             <span>Customer name: {{ this.customerName }}</span><br />
             <span>Number of items: {{ this.totalItems }}</span><br />
             <span>Table #: {{ this.tableNumber }}</span><br />
+            <span>Order status: {{ this.order_status }}</span><br />
         </div>
 
         <v-data-table :headers="headersOrderDetails" 
@@ -64,7 +65,7 @@
             <span>You may follow us in our socials</span>
             <span>FB: @KapehanPH</span>
             <span>IG: @kapehan_ph</span><br />
-            <span>This serve as official receipt.</span>
+            <span>This serve as official e-receipt.</span>
         </div>
     </v-container>
 </template>

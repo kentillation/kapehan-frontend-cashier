@@ -162,7 +162,7 @@
                                     <span v-if="Number(item.order_status_id) === 1" class="smoke smoke5"></span>
                                 </v-chip>
 
-                                <!-- <v-chip color="gray" prepend-icon="mdi-qrcode" size="small" variant="flat"
+                                <!-- <v-chip color="gray" prepend-icon="mdi-printer" size="small" variant="flat"
                                     class="ps-5 text-white" @click="printOrders(item)">
                                 </v-chip> -->
 
@@ -549,7 +549,7 @@ export default {
                     customer_name: this.customer_name,
                     total_quantity: this.totalQuantity,
                     customer_cash: parseFloat(this.customer_cash.replace(/[^0-9.]/g, '')) || 0,
-                    customer_charge: this.totalCharge,
+                    customer_charge: this.customer_charge,
                     customer_change: parseFloat(this.customer_change.replace(/[^0-9.]/g, '')) || 0,
                     customer_discount: this.customer_discount,
                 }];
