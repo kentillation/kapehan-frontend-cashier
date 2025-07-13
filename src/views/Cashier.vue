@@ -33,7 +33,7 @@
                     </v-data-table>
                 </v-col>
 
-                <!-- Selected Products Section -->
+                <!-- Selected & Payment Section -->
                 <v-col cols="12" lg="6" md="6" sm="12" xs="12">
                     <v-row>
                         <!-- Selected Products -->
@@ -65,27 +65,58 @@
                         <v-col cols="12">
                             <h3>Payment Section</h3>
                             <div class="payment-section mt-3">
-                                <v-text-field class="payment-section-item me-2 mt-2" v-model="customer_charge"
-                                    label="Total charge" variant="outlined" density="compact" type="number"
-                                    :model-value="this.discountedTotalCharge.toFixed(2)" prepend-inner-icon="mdi-cash" readonly />
-                                <v-text-field class="payment-section-item me-2 mt-2" v-model.number="customer_cash"
-                                    label="Cash render" variant="outlined" density="compact" type="number"
+                                <v-text-field class="payment-section-item me-2 mt-2" 
+                                    v-model="customer_charge"
+                                    label="*Total charge" 
+                                    variant="outlined" 
+                                    density="compact" type="number"
+                                    :model-value="this.discountedTotalCharge.toFixed(2)" 
+                                    prepend-inner-icon="mdi-cash" 
+                                    readonly />
+                                <v-text-field class="payment-section-item me-2 mt-2"
+                                    v-model.number="customer_cash"
+                                    label="*Cash render" 
+                                    variant="outlined" 
+                                    density="compact" type="number"
                                     :rules="[v => !isNaN(parseFloat(v)) || 'Required', v => parseFloat(v) >= this.totalCharge || 'Must be greater than or equal to total charge']"
                                     @input="e => customer_cash = e.target.value.replace(/[^0-9.]/g, '')"
-                                    prepend-inner-icon="mdi-cash-plus" placeholder="Enter cash amount" />
-                                <v-text-field class="payment-section-item me-2 mt-2" v-model="customer_change"
-                                    label="Change" variant="outlined" density="compact"
-                                    :rules="[v => parseFloat(v) >= 0]" prepend-inner-icon="mdi-cash-refund" readonly />
-                                <v-text-field class="payment-section-item me-2 mt-2" v-model="customer_discount"
-                                    label="Discount" variant="outlined" :rules="[v => !!v || 'Required']"
-                                    density="compact" prepend-inner-icon="mdi-percent" clearable />
-                                <v-text-field class="payment-section-item me-2 mt-2" v-model="table_number"
-                                    label="Table number" variant="outlined" density="compact" type="number"
-                                    :rules="[v => !!v || 'Required']" prepend-inner-icon="mdi-table-chair"
+                                    prepend-inner-icon="mdi-cash-plus" 
+                                    placeholder="Enter cash amount" />
+                                <v-text-field class="payment-section-item me-2 mt-2" 
+                                    v-model="customer_change"
+                                    label="*Change" 
+                                    variant="outlined" 
+                                    density="compact"
+                                    :rules="[v => parseFloat(v) >= 0]" 
+                                    prepend-inner-icon="mdi-cash-refund" 
+                                    readonly />
+                                <v-text-field class="payment-section-item me-2 mt-2" 
+                                    v-model="customer_discount"
+                                    label="Discount" 
+                                    variant="outlined" 
+                                    
+                                    @input="e => customer_discount = e.target.value.replace(/[^0-9.]/g, '')"
+                                    type="number"
+                                    density="compact" 
+                                    prepend-inner-icon="mdi-percent" 
+                                    clearable />
+                                <v-text-field class="payment-section-item me-2 mt-2" 
+                                    v-model="table_number"
+                                    label="*Table number" 
+                                    variant="outlined" 
+                                    density="compact" 
+                                    type="number"
+                                    :rules="[v => !!v || 'Required']" 
+                                    prepend-inner-icon="mdi-table-chair"
                                     placeholder="Enter table number" />
-                                <v-text-field class="payment-section-item me-2 mt-2" v-model="customer_name"
-                                    label="Customer (optional)" variant="outlined" density="compact" type="text"
-                                    prepend-inner-icon="mdi-account" placeholder="Enter customer name" />
+                                <v-text-field class="payment-section-item me-2 mt-2" 
+                                    v-model="customer_name"
+                                    label="Customer (optional)" 
+                                    variant="outlined" 
+                                    density="compact" 
+                                    type="text"
+                                    prepend-inner-icon="mdi-account" 
+                                    placeholder="Enter customer name" />
                             </div>
 
                             <div class="d-flex justify-end me-2 ms-1">
@@ -229,7 +260,7 @@ export default {
             customer_cash: '',
             customer_charge: '',
             customer_change: '',
-            customer_discount: null,
+            customer_discount: 0,
             customer_name: '',
             loadingProducts: false,
             loadingCurrentOrders: false,
@@ -463,6 +494,8 @@ export default {
             } else {
                 this.selectedProducts[index].quantity++;
             }
+            this.customer_cash = '';
+            this.customer_change = '';
         },
 
         minusQuan(product) {
@@ -516,7 +549,7 @@ export default {
                     customer_name: this.customer_name,
                     total_quantity: this.totalQuantity,
                     customer_cash: parseFloat(this.customer_cash.replace(/[^0-9.]/g, '')) || 0,
-                    customer_charge: this.customer_charge,
+                    customer_charge: this.totalCharge,
                     customer_change: parseFloat(this.customer_change.replace(/[^0-9.]/g, '')) || 0,
                     customer_discount: this.customer_discount,
                 }];
