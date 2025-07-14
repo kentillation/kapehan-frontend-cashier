@@ -788,7 +788,7 @@ export default {
                 .then(() => {
                     const statusName = this.getStatusName(newStatus);
                     this.showSuccess(`Table# ${order.table_number} is ${statusName}`);
-                    this.fetchCurrentOrders();
+                    // this.fetchCurrentOrders();
                 })
                 .catch(error => {
                     console.error('Error updating order status:', error);
