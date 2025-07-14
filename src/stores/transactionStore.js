@@ -113,6 +113,31 @@ export const useTransactStore = defineStore('transactionData', {
             }
         },
 
+        async fetchKitchenProductDetailsStore(transactionId) {
+            this.loading = true;
+            this.error = null;
+            try {
+                if (!transactionId) {
+                    throw new Error('Invalid transactionId');
+                }
+                const response = await TRANSACTION_API.fetchKitchenProductDetailsApi(transactionId);
+                if (response && response.status === true) {
+                    this.orderDtls = response;
+                    this.orderDtlsData = response.data;
+                    return response;
+                } else {
+                    throw new Error(response?.message || 'Failed to fetch kitchen product details');
+                }
+            } catch (error) {
+                console.error('Error fetching kitchen product details:', error);
+                this.error = error.message || 'Failed to fetch kitchen product details';
+                throw error;
+            }
+            finally {
+                this.loading = false;
+            }
+        },
+
         async fetchOrderDetailsTempStore(referenceNumber) {
             this.loading = true;
             this.error = null;
@@ -197,6 +222,32 @@ export const useTransactStore = defineStore('transactionData', {
                 if (response && response.status === true) {
                     this.currentOrders = this.currentOrders.map(order =>
                         order.id === referenceNumber ? { ...order, orderStatus } : order
+                    );
+                    return response;
+                } else {
+                    throw new Error(response?.message || 'Failed to update order orderStatus');
+                }
+            } catch (error) {
+                console.error('Error updating order orderStatus:', error);
+                this.error = error.message || 'Failed to update order orderStatus';
+                throw error;
+            }
+            finally {
+                this.loading = false;
+            }
+        },
+
+        async updateKitchenProductStatusStore(transactionId, orderStatus) {
+            this.loading = true;
+            this.error = null;
+            try {
+                if (!transactionId || !orderStatus) {
+                    throw new Error('Invalid transactionId or orderStatus');
+                }
+                const response = await TRANSACTION_API.updateKitchenProductStatusApi(transactionId, orderStatus);
+                if (response && response.status === true) {
+                    this.currentOrders = this.currentOrders.map(order =>
+                        order.id === transactionId ? { ...order, orderStatus } : order
                     );
                     return response;
                 } else {
