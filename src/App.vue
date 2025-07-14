@@ -9,9 +9,8 @@
       </div>
     </div>
     <v-main>
-      <v-app-bar v-if="showSidebar" prominent>
-        <!-- <v-app-bar-nav-icon v-if="showMenu" variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon> -->
-        <v-btn v-if="showMenu" @click.stop="drawer = !drawer" icon>
+      <v-app-bar v-if="showMenu" prominent>
+        <v-btn @click.stop="drawer = !drawer" icon>
           <v-icon>mdi-hamburger</v-icon>
         </v-btn>
         <h3>{{ authStore.shopName }}</h3>
@@ -25,6 +24,8 @@
           <v-list-subheader size="30">Menu</v-list-subheader>
           <v-list-item prepend-icon="mdi-account-cash-outline" @click="toCashier" class="ps-5 bg-brown-darken-3"
             style="border-radius: 30px;">Main</v-list-item>
+          <v-list-item prepend-icon="mdi-cup" @click="toBarista" class="ps-5 bg-brown-darken-3"
+            style="border-radius: 30px;">Barista</v-list-item>
           <v-list-item prepend-icon="mdi-cog-outline" @click="toSettings" class="bg-brown-darken-3 ps-5"
             style="border-radius: 30px;">Settings</v-list-item>
           <v-list-item prepend-icon="mdi-door-open" @click="showLogout" class="ps-5 bg-brown-darken-3"
@@ -144,11 +145,17 @@ export default {
     },
   },
   methods: {
+    // hideNotFoundPage() {
+    //   return this.$route.name !== 'NotFound';
+    // },
     toCashier() {
       this.$router.push('/cashier');
     },
     toSettings() {
       this.$router.push('/settings');
+    },
+    toBarista() {
+      this.$router.push('/barista');
     },
     async showLogout() {
       this.drawer = false;

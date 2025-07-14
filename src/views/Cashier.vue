@@ -38,7 +38,7 @@
                 <v-col cols="12" lg="6" md="6" sm="12" xs="12">
                     <v-row>
                         <!-- Selected Products -->
-                        <v-col cols="12"> <!-- style="margin-top: 130px; margin-bottom: 300px;" -->
+                        <v-col cols="12">
                             <h3>Selected Products</h3>
                             <v-data-table :headers="headersSelected" :items="selectedProducts" density="comfortable"
                                 height="300px">
