@@ -883,6 +883,9 @@ export default {
 </script>
 
 <style>
+.v-btn--size-default {
+    --v-btn-height: 22px;
+}
 .trnsct-head {
     border-radius: 10px 10px 0 0 !important;
     background: #696969;
