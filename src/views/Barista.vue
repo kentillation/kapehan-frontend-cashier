@@ -55,6 +55,7 @@
 import { useAuthStore } from '@/stores/auth';
 import { useBranchStore } from '@/stores/branchStore';
 import { useTransactStore } from '@/stores/transactionStore';
+import { useLoadingStore } from '@/stores/loading';
 import Snackbar from '@/components/Snackbar.vue';
 
 export default {
@@ -74,7 +75,8 @@ export default {
         const authStore = useAuthStore();
         const branchStore = useBranchStore();
         const transactStore = useTransactStore();
-        return { authStore, branchStore, transactStore };
+        const loadingStore = useLoadingStore();
+        return { authStore, branchStore, transactStore, loadingStore };
     },
     mounted() {
         this.fetchCurrentOrders();
@@ -153,11 +155,13 @@ export default {
             }
             const nextStatusIndex = (currentStatusIndex + 1) % this.order_statuses.length;
             const newStatus = this.order_statuses[nextStatusIndex].order_status_id;
+            this.loadingStore.show("Updating status...");
             try {
                 await this.transactStore.updateKitchenProductStatusStore(order.transaction_id, newStatus);
                 // const statusName = this.getStatusName(newStatus);
                 // this.showSuccess(`Table# ${order.table_number} is now ${statusName}`);
                 order.order_status_id = newStatus;
+                this.loadingStore.hide();
             } catch (error) {
                 console.error('Error updating order status:', error);
                 this.showError("Failed to update order status. Please try again!");

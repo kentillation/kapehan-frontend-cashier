@@ -786,12 +786,13 @@ export default {
             );
             const nextStatusIndex = (currentStatusIndex + 1) % this.order_statuses.length;
             const newStatus = Number(this.order_statuses[nextStatusIndex].order_status_id);
-            this.loadingStore.show("Updating order status...");
+            this.loadingStore.show("Updating status...");
             this.transactStore.updateOrderStatusStore(order.reference_number, newStatus)
                 .then(() => {
                     const statusName = this.getStatusName(newStatus);
                     this.showSuccess(`Table# ${order.table_number} is ${statusName}`);
                     // this.fetchCurrentOrders();
+                    order.order_status_id = newStatus;
                     this.loadingStore.hide();
                 })
                 .catch(error => {
