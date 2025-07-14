@@ -35,6 +35,7 @@
                                 :color="getStatusColor(item.order_status_id)" 
                                 :prepend-icon="getStatusIcon(item.order_status_id)"
                                 @click="changeStatus(item)"
+                                size="small" variant="flat"
                                 class="text-white">
                                 {{ getStatusName(item.order_status_id) }}
                             </v-chip>
