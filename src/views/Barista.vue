@@ -26,7 +26,7 @@
                             v-else
                             v-for="(item, index) in order.order_items" 
                             :key="index"
-                            class="d-flex align-center justify-space-between">
+                            class="d-flex align-center justify-space-between mt-2">
                             <p class="me-2" style="max-width: 120px;">
                                 {{ item.product_name }}{{ item.temp_label }}{{ item.size_label }}
                             </p>
