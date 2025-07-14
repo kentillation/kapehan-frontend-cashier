@@ -244,6 +244,7 @@ import { useAuthStore } from '@/stores/auth';
 import { useBranchStore } from '@/stores/branchStore';
 import { useProductsStore } from '@/stores/productsStore';
 import { useTransactStore } from '@/stores/transactionStore';
+import { useLoadingStore } from '@/stores/loading';
 import Snackbar from '@/components/Snackbar.vue';
 import GlobalLoader from '@/components/GlobalLoader.vue';
 
@@ -321,6 +322,7 @@ export default {
         const branchStore = useBranchStore();
         const productsStore = useProductsStore();
         const transactStore = useTransactStore();
+        const loadingStore = useLoadingStore();
         const currentDate = new Date().toLocaleDateString('en-PH', {
             year: 'numeric',
             month: 'long',
@@ -330,7 +332,7 @@ export default {
             hour12: true,
         });
         const formatCurrentDate = currentDate.replace(/,/g, '');
-        return { authStore, branchStore, productsStore, transactStore, formatCurrentDate };
+        return { authStore, branchStore, productsStore, transactStore, loadingStore, formatCurrentDate };
     },
     watch: {
         selectedProducts: {
@@ -784,11 +786,13 @@ export default {
             );
             const nextStatusIndex = (currentStatusIndex + 1) % this.order_statuses.length;
             const newStatus = Number(this.order_statuses[nextStatusIndex].order_status_id);
+            this.loadingStore.show("Updating order status...");
             this.transactStore.updateOrderStatusStore(order.reference_number, newStatus)
                 .then(() => {
                     const statusName = this.getStatusName(newStatus);
                     this.showSuccess(`Table# ${order.table_number} is ${statusName}`);
                     // this.fetchCurrentOrders();
+                    this.loadingStore.hide();
                 })
                 .catch(error => {
                     console.error('Error updating order status:', error);
