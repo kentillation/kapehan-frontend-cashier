@@ -15,8 +15,12 @@
         </v-btn>
         <h3>{{ authStore.shopName }}</h3>
         <v-spacer></v-spacer>
-        <v-icon class="me-2 pa-2">mdi-bell-outline</v-icon>
-        <v-icon @click="toSettings" class="me-2 pa-2">mdi-account-circle-outline</v-icon>
+        <v-btn icon>
+          <v-icon>mdi-bell-outline</v-icon>
+        </v-btn>
+        <v-btn class="ms-1" icon>
+          <v-icon @click="toSettings">mdi-account-circle-outline</v-icon>
+        </v-btn>
       </v-app-bar>
       <v-navigation-drawer class="h-screen pa-3" v-model="drawer" v-if="showSidebar">
         <v-list density="compact" nav>
