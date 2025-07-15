@@ -6,6 +6,7 @@ export const useTransactStore = defineStore('transactionData', {
         transactionData: null,
         currentOrders: [],
         orderStatuses: [],
+        stationStatuses: [],
         orderDtls: [],
         orderDtlsData: [],
         orderQRCode: null,
@@ -80,6 +81,29 @@ export const useTransactStore = defineStore('transactionData', {
                 }
             } catch (error) {
                 console.error('Error in fetchAllOrderStatusApi:', error);
+                this.error = 'Failed to fetch order status';
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        // New
+        async fetchAllStationStatusStore() {
+            this.loading = true;
+            this.error = null;
+            try {
+                if (!TRANSACTION_API || typeof TRANSACTION_API.fetchAllStationStatusApi !== 'function') {
+                    throw new Error('TRANSACTION_API service is not properly initialized');
+                }
+                const response = await TRANSACTION_API.fetchAllStationStatusApi();
+                if (response && response.status === true) {
+                    this.stationStatuses = response.data;
+                } else {
+                    throw new Error('Failed to fetch stationStatuses');
+                }
+            } catch (error) {
+                console.error('Error in fetchAllStationStatusApi:', error);
                 this.error = 'Failed to fetch order status';
                 throw error;
             } finally {

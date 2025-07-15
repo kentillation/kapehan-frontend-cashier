@@ -3,41 +3,27 @@
     <v-container>
         <h3 class="text-brown-lighten-1">Barista</h3>
         <v-row class="mt-3">
-            <v-col 
-                v-for="order in currentOrders" 
-                :key="order.reference_number"
-                cols="12" 
-                lg="4" 
-                md="6" 
-                sm="6">
+            <v-col v-for="order in currentOrders" :key="order.reference_number" cols="12" lg="4" md="6" sm="6">
                 <v-card>
                     <v-card-title>
                         <h5><v-icon>mdi-table-chair</v-icon>&nbsp; Table: {{ order.table_number }}</h5>
                         <v-spacer></v-spacer>
                     </v-card-title>
                     <v-card-text>
-                        <v-alert
-                            v-if="!order.order_items || order.order_items.length === 0"
-                            type="info"
+                        <v-alert v-if="!order.order_items || order.order_items.length === 0" type="info"
                             variant="tonal">
                             No items found for this order
                         </v-alert>
-                        <div 
-                            v-else
-                            v-for="(item, index) in order.order_items" 
-                            :key="index"
+                        <div v-else v-for="(item, index) in order.order_items" :key="index"
                             class="d-flex align-center justify-space-between mt-1">
                             <p class="me-2" style="max-width: 120px;">
                                 {{ item.product_name }}{{ item.temp_label }}{{ item.size_label }}
                             </p>
                             <p class="me-2">x{{ item.quantity }}</p>
-                            <v-chip 
-                                :color="getStatusColor(item.order_status_id)" 
-                                :prepend-icon="getStatusIcon(item.order_status_id)"
-                                @click="changeStatus(item)"
-                                size="small" variant="flat"
-                                class="text-white">
-                                {{ getStatusName(item.order_status_id) }}
+                            <v-chip :color="getStatusColor(item.station_status_id)"
+                                :prepend-icon="getStatusIcon(item.station_status_id)" @click="changeStatus(item)"
+                                size="small" variant="flat" class="text-white">
+                                {{ getStatusName(item.station_status_id) }}
                             </v-chip>
                         </div>
                     </v-card-text>
@@ -69,7 +55,7 @@ export default {
         return {
             orders: [],
             loadingCurrentOrders: false,
-            order_statuses: [],
+            station_statuses: [],
         }
     },
     setup() {
@@ -81,7 +67,8 @@ export default {
     },
     mounted() {
         this.fetchCurrentOrders();
-        this.fetchOrderStatus();
+        // this.fetchOrderStatus();
+        this.fetchStationStatus();
     },
     computed: {
         currentOrders() {
@@ -95,51 +82,88 @@ export default {
         async fetchCurrentOrders() {
             this.loadingCurrentOrders = true;
             try {
+                // Fetch the basic order list first
                 await this.transactStore.fetchAllCurrentOrdersStore();
-                this.orders = this.transactStore.currentOrders;
-                await Promise.all(this.orders.map(async order => {
+
+                // Create a fresh array to avoid mutation issues
+                const orders = [];
+
+                // Process each order in parallel
+                await Promise.all(this.transactStore.currentOrders.map(async (order) => {
                     try {
+                        // Fetch the detailed order information
                         const response = await this.transactStore.fetchKitchenProductDetailsStore(order.transaction_id);
-                        order.order_items = response?.data?.all_orders || [];
+
+                        if (response?.data) {
+                            // Extract only what we need from the detailed response
+                            orders.push({
+                                transaction_id: response.data.transaction_id,
+                                table_number: response.data.table_number,
+                                reference_number: order.reference_number, // Only from initial response
+                                order_items: response.data.all_orders || [],
+                                customer_name: response.data.customer_name,
+                                total_amount: response.data.total_amount,
+                                order_status_id: response.data.order_status_id
+                            });
+                        }
                     } catch (error) {
                         console.error(`Error fetching details for order ${order.transaction_id}:`, error);
-                        order.order_items = [];
+                        // Push minimal order data if details fail
+                        orders.push({
+                            transaction_id: order.transaction_id,
+                            table_number: order.table_number,
+                            reference_number: order.reference_number,
+                            order_items: [],
+                            error: true
+                        });
                     }
                 }));
+
+                // Assign the processed orders
+                this.orders = orders;
             } catch (error) {
                 console.error('Error fetching current orders:', error);
                 this.showError("Error fetching current orders!");
+                this.orders = []; // Clear orders on major error
             } finally {
                 this.loadingCurrentOrders = false;
             }
         },
-        async fetchOrderStatus() {
+        // async fetchOrderStatus() {
+        //     try {
+        //         await this.transactStore.fetchAllOrderStatusStore();
+        //         this.order_statuses = this.transactStore.orderStatuses;
+        //     } catch (error) {
+        //         console.error('Error fetching order status:', error);
+        //         this.showError("Error fetching order status!");
+        //     }
+        // },
+        // New
+        async fetchStationStatus() {
             try {
-                await this.transactStore.fetchAllOrderStatusStore();
-                this.order_statuses = this.transactStore.orderStatuses;
+                await this.transactStore.fetchAllStationStatusStore();
+                this.station_statuses = this.transactStore.stationStatuses;
             } catch (error) {
-                console.error('Error fetching order status:', error);
-                this.showError("Error fetching order status!");
+                console.error('Error fetching station status:', error);
+                this.showError("Error fetching station status!");
             }
         },
         getStatusName(statusId) {
-            const status = this.order_statuses.find(s => s.order_status_id === statusId);
-            return status ? status.order_status : 'Unknown';
+            const status = this.station_statuses.find(s => s.station_status_id === statusId);
+            return status ? status.station_status : 'Unknown';
         },
         getStatusColor(statusId) {
             switch (statusId) {
-                case 1: return 'orange';    // Brewing
-                case 2: return 'blue';      // Ready
-                case 3: return 'green';     // Served
-                default: return 'grey';     // Unknown status
+                case 1: return 'orange'; // Add to tray
+                case 2: return 'green';  // Added to tray
+                default: return 'grey';  // Unknown status
             }
         },
         getStatusIcon(statusId) {
             switch (statusId) {
-                case 1: return 'mdi-coffee';        // Brewing
-                case 2: return 'mdi-human-greeting'; // Ready
-                case 3: return 'mdi-check';         // Served
-                default: return 'mdi-help-circle';   // Unknown
+                case 1: return 'mdi-plus';  // Add to tray
+                case 2: return 'mdi-check'; // Added to tray
+                default: return 'mdi-help-circle'; // Unknown
             }
         },
         async changeStatus(order) {
@@ -147,25 +171,26 @@ export default {
                 this.showError("Invalid order data!");
                 return;
             }
-            const currentStatusIndex = this.order_statuses.findIndex(
-                status => status.order_status_id === order.order_status_id
+            const currentStatusIndex = this.station_statuses.findIndex(
+                status => status.station_status_id === order.station_status_id
             );
             if (currentStatusIndex === -1) {
                 this.showError("Cannot determine current order status");
                 return;
             }
-            const nextStatusIndex = (currentStatusIndex + 1) % this.order_statuses.length;
-            const newStatus = this.order_statuses[nextStatusIndex].order_status_id;
+            const nextStatusIndex = (currentStatusIndex + 1) % this.station_statuses.length;
+            const newStatus = this.station_statuses[nextStatusIndex].station_status_id;
             this.loadingStore.show("Updating status...");
             try {
                 await this.transactStore.updateKitchenProductStatusStore(order.transaction_id, newStatus);
                 // const statusName = this.getStatusName(newStatus);
                 // this.showSuccess(`Table# ${order.table_number} is now ${statusName}`);
-                order.order_status_id = newStatus;
+                order.station_status_id = newStatus;
                 this.loadingStore.hide();
             } catch (error) {
-                console.error('Error updating order status:', error);
-                this.showError("Failed to update order status. Please try again!");
+                console.error('Error updating status:', error);
+                this.showError("Failed to update. Please try again!");
+                this.loadingStore.hide();
             }
         },
         showError(message) {
