@@ -925,7 +925,7 @@ table th {
 }
 
 .v-input__details {
-    /* display: none; */
+    display: none;
 }
 
 .smoke {
