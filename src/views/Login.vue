@@ -110,4 +110,7 @@ export default {
 .v-sheet {
     border: 1.5px solid rgb(251, 140, 0);
 }
+.v-input__details {
+    display: flex;
+}
 </style>

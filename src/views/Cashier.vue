@@ -21,7 +21,7 @@
                     </div>
                     <v-data-table :headers="headersDisplay" :items="filteredProducts" :loading="loadingProducts"
                         :items-per-page="-1" height="400px" @click:row="(event, { item }) => selectProduct(item)"
-                        density="comfortable" class="hover-table mt-2">
+                        density="comfortable" class="hover-table">
                         <!-- eslint-disable vue/valid-v-slot -->
                         <template v-slot:item.product_name="{ item }">
                             <span class="small">
@@ -882,10 +882,11 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .v-btn--size-default {
     --v-btn-height: 22px;
 }
+
 .trnsct-head {
     border-radius: 10px 10px 0 0 !important;
     background: #696969;
@@ -895,12 +896,39 @@ export default {
     border-radius: 0 0 10px 10px !important;
 }
 
+::v-deep(.hover-table .v-data-table__tr) {
+  transition: background-color 0.5s ease-in-out;
+  cursor: pointer;
+}
+
+::v-deep(.hover-table .v-data-table__tr:hover) {
+  animation: backgroundFade 2s infinite;
+}
+
+@keyframes backgroundFade {
+  0% {
+    background-color: rgba(224, 247, 250, 0);
+  }
+
+  50% {
+    background-color: rgba(117, 62, 62, 0.442);
+  }
+
+  100% {
+    background-color: rgba(224, 247, 250, 0);
+  }
+}
+
 .v-field__input {
     padding: 15px;
 }
 
-table th {
-    height: 0 !important;
+.pdct-txt .v-input__details {
+  display: none !important;
+}
+
+::v-deep .v-input__details {
+  display: none;
 }
 
 .indication {

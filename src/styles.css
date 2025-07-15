@@ -1,24 +1,26 @@
 body {
     font-family: 'Poppins', sans-serif;
 }
-h1 {
-    /* Change the size if every screen */
-}
-.v-field__input {
-    /* padding: 0 !important; */
-}
-.v-btn--size-default,
-.v-icon {
+
+.v-btn--size-default, .v-icon {
     min-width: 0 !important;
 }
+
 .v-icon--size-default {
     font-size: calc(var(--v-icon-size-multiplier) * 1.5em) !important;
 }
+
+.v-btn--size-default {
+  --v-btn-height: 25px !important;
+}
+
 .v-data-table {
     max-width: 100%;
 }
 
-/*  */
+table th {
+    height: 0 !important;
+}
 
 thead .v-data-table__th .v-data-table-header__content {
     color: #a2a0a0;
@@ -56,30 +58,6 @@ thead .v-data-table__th .v-data-table-header__content {
     display: flex;
     align-items: center;
     justify-content: center;
-}
-
-::v-deep(.hover-table .v-data-table__tr) {
-  background-color: rgba(65, 33, 33, 0.685);
-  transition: background-color 0.5s ease-in-out;
-  cursor: pointer;
-}
-
-::v-deep(.hover-table .v-data-table__tr:hover) {
-  animation: backgroundFade 2s infinite;
-}
-
-@keyframes backgroundFade {
-  0% {
-    background-color: rgba(224, 247, 250, 0);
-  }
-
-  50% {
-    background-color: rgba(117, 62, 62, 0.442);
-  }
-
-  100% {
-    background-color: rgba(224, 247, 250, 0);
-  }
 }
 
 .connection-container {
