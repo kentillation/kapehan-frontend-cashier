@@ -882,7 +882,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .v-btn--size-default {
     --v-btn-height: 22px;
 }
