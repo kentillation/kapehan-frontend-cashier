@@ -178,10 +178,11 @@
                 </v-col>
             </v-row>
 
+            <!-- Categories -->
             <v-dialog v-model="categoriesDialog" max-width="500">
                 <v-card>
                     <v-card-title class="d-flex justify-space-between">
-                        <h3>Select categories</h3>
+                        <h3>Categories</h3>
                         <v-btn prepend-icon="mdi-close-circle-outline" @click="categoriesDialog = false" class="pa-1"
                             size="medium"></v-btn>
                     </v-card-title>
@@ -411,7 +412,7 @@ export default {
         this.fetchProducts();
         this.fetchOrderStatus();
         this.fetchCurrentOrders();
-        this.fetchCategories();
+        // this.fetchCategories();
     },
     methods: {
         async generateReferenceNumber() {
@@ -475,6 +476,7 @@ export default {
 
         showCategoriesDialog() {
             this.categoriesDialog = true;
+            this.fetchCategories();
         },
 
         handleCategorySelect(category) {
