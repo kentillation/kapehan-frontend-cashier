@@ -896,7 +896,7 @@ export default {
 }
 
 .v-field__input {
-    padding: 15px;
+   /* padding: 15px; */
 }
 
 table th {
