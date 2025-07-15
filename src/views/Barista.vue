@@ -82,20 +82,12 @@ export default {
         async fetchCurrentOrders() {
             this.loadingCurrentOrders = true;
             try {
-                // Fetch the basic order list first
                 await this.transactStore.fetchAllCurrentOrdersStore();
-
-                // Create a fresh array to avoid mutation issues
                 const orders = [];
-
-                // Process each order in parallel
                 await Promise.all(this.transactStore.currentOrders.map(async (order) => {
                     try {
-                        // Fetch the detailed order information
                         const response = await this.transactStore.fetchKitchenProductDetailsStore(order.transaction_id);
-
                         if (response?.data) {
-                            // Extract only what we need from the detailed response
                             orders.push({
                                 transaction_id: response.data.transaction_id,
                                 table_number: response.data.table_number,
@@ -108,7 +100,6 @@ export default {
                         }
                     } catch (error) {
                         console.error(`Error fetching details for order ${order.transaction_id}:`, error);
-                        // Push minimal order data if details fail
                         orders.push({
                             transaction_id: order.transaction_id,
                             table_number: order.table_number,
@@ -118,8 +109,6 @@ export default {
                         });
                     }
                 }));
-
-                // Assign the processed orders
                 this.orders = orders;
             } catch (error) {
                 console.error('Error fetching current orders:', error);
@@ -161,7 +150,7 @@ export default {
         },
         getStatusIcon(statusId) {
             switch (statusId) {
-                case 1: return 'mdi-plus';  // Add to tray
+                case 1: return 'mdi-information-outline';  // Add to tray
                 case 2: return 'mdi-check'; // Added to tray
                 default: return 'mdi-help-circle'; // Unknown
             }
@@ -183,8 +172,8 @@ export default {
             this.loadingStore.show("Updating status...");
             try {
                 await this.transactStore.updateKitchenProductStatusStore(order.transaction_id, newStatus);
-                // const statusName = this.getStatusName(newStatus);
-                // this.showSuccess(`Table# ${order.table_number} is now ${statusName}`);
+                const statusName = this.getStatusName(newStatus);
+                this.showSuccess(`${order.product_name}${order.temp_label}${order.size_label} is ${statusName}`);
                 order.station_status_id = newStatus;
                 this.loadingStore.hide();
             } catch (error) {
