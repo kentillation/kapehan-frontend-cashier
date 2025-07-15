@@ -244,6 +244,7 @@
 import { useAuthStore } from '@/stores/auth';
 import { useBranchStore } from '@/stores/branchStore';
 import { useProductsStore } from '@/stores/productsStore';
+import { useStocksStore } from '@/stores/stocksStore';
 import { useTransactStore } from '@/stores/transactionStore';
 import { useLoadingStore } from '@/stores/loading';
 import Snackbar from '@/components/Snackbar.vue';
@@ -258,6 +259,26 @@ export default {
     },
     data() {
         return {
+            // Products
+            products: [],
+            selectedProducts: [],
+            loadingProducts: false,
+            searchProduct: '',
+            tempLabel: '',
+            sizeLabel: '',
+
+            // Stocks
+            stocks: [],
+            loadingStocks: false,
+
+            // Categories
+            categories: [],
+            loadingCategories: false,
+            categoriesDialog: false,
+
+            // Form
+            validatingData: false,
+            isFormValid: false,
             referenceNumber: '',
             table_number: null,
             total_quantity: '',
@@ -266,34 +287,26 @@ export default {
             customer_change: '',
             customer_discount: 0,
             customer_name: '',
-            loadingProducts: false,
-            loadingCurrentOrders: false,
-            validatingData: false,
-            searchProduct: '',
-            isFormValid: false,
-            loading: false,
-            ordersDialog: false,
-            categories: [],
-            loadingCategories: false,
-            categoriesDialog: false,
-            products: [],
-            selectedProducts: [],
-            selectedTableNumber: null,
-            customerName: '',
+
+            // Orders
             orders: [],
             order_statuses: [],
+            orderDetails: [],
+            loadingCurrentOrders: false,
+            ordersDialog: false,
+            imgSrc: null,
+
+            selectedTableNumber: null,
+            customerName: '',
             totalAmount: 0,
+            totalQuan: 0,
             totalItems: 0,
             customerCash: 0,
             customerChange: 0,
             createdAt: '',
             updatedAt: '',
             tableNumber: 'N/A',
-            tempLabel: '',
-            sizeLabel: '',
-            totalQuan: 0,
-            imgSrc: null,
-            orderDetails: [],
+            loading: false,
             headersDisplay: [
                 { title: '', value: 'product_name' },
                 { title: '', value: 'product_price' },
@@ -322,6 +335,7 @@ export default {
         const authStore = useAuthStore();
         const branchStore = useBranchStore();
         const productsStore = useProductsStore();
+        const stocksStore = useStocksStore();
         const transactStore = useTransactStore();
         const loadingStore = useLoadingStore();
         const currentDate = new Date().toLocaleDateString('en-PH', {
@@ -333,7 +347,7 @@ export default {
             hour12: true,
         });
         const formatCurrentDate = currentDate.replace(/,/g, '');
-        return { authStore, branchStore, productsStore, transactStore, loadingStore, formatCurrentDate };
+        return { authStore, branchStore, productsStore, stocksStore, transactStore, loadingStore, formatCurrentDate };
     },
     watch: {
         selectedProducts: {
@@ -412,7 +426,6 @@ export default {
         this.fetchProducts();
         this.fetchOrderStatus();
         this.fetchCurrentOrders();
-        // this.fetchCategories();
     },
     methods: {
         async generateReferenceNumber() {
@@ -433,6 +446,30 @@ export default {
                 this.showError("Error fetching products!");
             } finally {
                 this.loadingProducts = false;
+            }
+        },
+
+        async fetchStocks() {
+            this.loadingStocks = true;
+            try {
+                if (!this.branchDetails.branch_id) {
+                    this.showError("Branch ID is not available!");
+                    this.stocks = [];
+                    return;
+                }
+                await this.stocksStore.fetchAllStocksStore(this.branchDetails.branch_id);
+                if (this.stocksStore.stocks.length === 0) {
+                    this.stocks = [];
+                } else {
+                    this.stocks = this.stocksStore.stocks.map(stock => this.formatStock(stock));
+                }
+                this.stocksLoaded = true;
+                this.loadingStocks = false;
+            } catch (error) {
+                console.error('Error fetching stocks:', error);
+                this.showError("Error fetching stocks!");
+            } finally {
+                this.loadingStocks = false;
             }
         },
 
