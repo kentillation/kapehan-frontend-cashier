@@ -3,7 +3,6 @@ import { createRouter, createWebHistory } from 'vue-router';
 import LoginPage from '@/views/Login.vue';
 import Register from '@/views/Register.vue';
 import Cashier from '@/views/Cashier.vue';
-import Barista from '@/views/Barista.vue';
 import Settings from '@/views/Settings.vue';
 import Help from '@/views/Help.vue';
 import About from '@/views/About.vue';
@@ -16,7 +15,6 @@ const routes = [
     { path: '/', name: 'LoginPage', component: LoginPage, meta: { requiresAuth: false } },
     { path: '/register', name: 'Register', component: Register },
     { path: '/cashier', name: 'Cashier', component: Cashier, meta: { requiresAuth: true } },
-    { path: '/barista', name: 'Barista', component: Barista, meta: { requiresAuth: true } },
     { path: '/settings', name: 'Settings', component: Settings, meta: { requiresAuth: true } },
     { path: '/help', name: 'Help', component: Help, meta: { requiresAuth: true } },
     { path: '/about', name: 'About', component: About, meta: { requiresAuth: true } },

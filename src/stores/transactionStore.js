@@ -88,7 +88,6 @@ export const useTransactStore = defineStore('transactionData', {
             }
         },
 
-        // New
         async fetchAllStationStatusStore() {
             this.loading = true;
             this.error = null;

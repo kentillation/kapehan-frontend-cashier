@@ -27,8 +27,6 @@
           <v-list-subheader size="30">Menu</v-list-subheader>
           <v-list-item prepend-icon="mdi-account-cash-outline" @click="toCashier" class="ps-5 bg-brown-darken-3"
             style="border-radius: 30px;">Main</v-list-item>
-          <v-list-item prepend-icon="mdi-cup" @click="toBarista" class="ps-5 bg-brown-darken-3"
-            style="border-radius: 30px;">Barista</v-list-item>
           <v-list-item prepend-icon="mdi-cog-outline" @click="toSettings" class="bg-brown-darken-3 ps-5"
             style="border-radius: 30px;">Settings</v-list-item>
           <v-list-item prepend-icon="mdi-door-open" @click="showLogout" class="ps-5 bg-brown-darken-3"
@@ -156,9 +154,6 @@ export default {
     },
     toSettings() {
       this.$router.push('/settings');
-    },
-    toBarista() {
-      this.$router.push('/barista');
     },
     async showLogout() {
       this.drawer = false;

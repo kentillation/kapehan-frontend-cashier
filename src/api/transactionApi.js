@@ -118,7 +118,6 @@ export const TRANSACTION_API = {
         }
     },
 
-    // New
     async fetchAllStationStatusApi() {
         try {
             const authToken = localStorage.getItem('auth_token');
