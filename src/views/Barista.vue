@@ -26,7 +26,7 @@
                             v-else
                             v-for="(item, index) in order.order_items" 
                             :key="index"
-                            class="d-flex align-center justify-space-between">
+                            class="d-flex align-center justify-space-between mt-1">
                             <p class="me-2" style="max-width: 120px;">
                                 {{ item.product_name }}{{ item.temp_label }}{{ item.size_label }}
                             </p>
@@ -35,6 +35,7 @@
                                 :color="getStatusColor(item.order_status_id)" 
                                 :prepend-icon="getStatusIcon(item.order_status_id)"
                                 @click="changeStatus(item)"
+                                size="small" variant="flat"
                                 class="text-white">
                                 {{ getStatusName(item.order_status_id) }}
                             </v-chip>

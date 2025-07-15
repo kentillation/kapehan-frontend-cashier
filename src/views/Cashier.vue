@@ -919,10 +919,6 @@ export default {
   }
 }
 
-.v-field__input {
-    padding: 15px;
-}
-
 .pdct-txt .v-input__details {
   display: none !important;
 }
