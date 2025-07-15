@@ -895,8 +895,8 @@ export default {
     border-radius: 0 0 10px 10px !important;
 }
 
-.v-input__field {
-    padding: 0 !important;
+.v-field__input {
+    /* padding: 0 !important; */
 }
 
 table th {
