@@ -46,23 +46,32 @@
 <script>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
+import { useStocksStore } from '@/stores/stocksStore';
 import { useLoadingStore } from '@/stores/loading';
 import GlobalLoader from '@/components/GlobalLoader.vue';
 import { useRoute } from 'vue-router';
 
 export default {
   name: 'App',
+  data () {
+    return {
+      stocks: [],
+    }
+  },
   components: {
     GlobalLoader,
   },
+  mounted() {
+    this.fetchStocks();
+  },
   setup() {
     const authStore = useAuthStore();
+    const stocksStore = useStocksStore();
     const loadingStore = useLoadingStore();
-    const connectionStatus = ref('online'); // 'online', 'offline', 'slow', 'waiting'
+    const connectionStatus = ref('online');
     const route = useRoute();
     const isNotFoundPage = computed(() => route.name === 'NotFound');
 
-    // Simple network check
     const updateStatus = () => {
       if (!navigator.onLine) {
         connectionStatus.value = 'offline';
@@ -71,7 +80,6 @@ export default {
       }
     };
 
-    // Optional: Simulate slow/waiting (replace with real logic as needed)
     let waitingTimeout;
     const simulateWaiting = () => {
       connectionStatus.value = 'waiting';
@@ -84,10 +92,8 @@ export default {
       window.addEventListener('online', updateStatus);
       window.addEventListener('offline', updateStatus);
 
-      // Example: simulate waiting for connection on mount
       simulateWaiting();
 
-      // Optional: Check for slow connection using Network Information API
       if ('connection' in navigator) {
         navigator.connection.addEventListener('change', () => {
           if (navigator.connection.downlink < 1) {
@@ -133,6 +139,7 @@ export default {
 
     return {
       authStore,
+      stocksStore,
       loadingStore,
       drawer: ref(true),
       open: ref(false),
@@ -166,6 +173,23 @@ export default {
     },
     toAbout() {
       this.$router.push('/about');
+    },
+    async fetchStocks() {
+      try {
+        if (!this.authStore.branchId) {
+          console.error('Error fetching stocks!');
+          this.stocks = [];
+          return;
+        }
+        await this.stocksStore.fetchAllStocksStore(this.authStore.branchId);
+        if (this.stocksStore.stocks.length === 0) {
+          this.stocks = [];
+        } else {
+          this.stocks = this.stocksStore.stocks;
+        }
+      } catch (error) {
+        console.error('Error fetching stocks:', error);
+      }
     },
   }
 };

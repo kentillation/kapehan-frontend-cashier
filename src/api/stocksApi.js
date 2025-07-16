@@ -3,8 +3,6 @@ import apiClient from '../axios';
 export const STOCK_API = {
     ENDPOINTS: {
         FETCH: '/stocks',
-        SAVE: '/save-stock',
-        UPDATE: '/update-stock'
     },
 
     /**
