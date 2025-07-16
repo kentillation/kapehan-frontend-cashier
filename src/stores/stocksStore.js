@@ -4,7 +4,7 @@ import { STOCK_API } from '@/api/stocksApi';
 export const useStocksStore = defineStore('stocks', {
     state: () => ({
         stocks: [],
-        stockNotifQty: null,
+        stock_alert_qty: null,
         loading: false,
         error: null
     }),
@@ -40,7 +40,7 @@ export const useStocksStore = defineStore('stocks', {
                 }
                 const response = await STOCK_API.fetchLowStocksApi(branchId);
                 if (response && response.status === true) {
-                    this.stockNotifQty = response.data;
+                    this.stock_alert_qty = response.count;
                 } else {
                     throw new Error('Failed to fetch stocks');
                 }

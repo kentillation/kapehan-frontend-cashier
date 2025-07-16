@@ -12,14 +12,18 @@
       <template v-if="!isNotFoundPage">
         <v-app-bar v-if="showMenu" prominent>
           <v-btn @click.stop="drawer = !drawer" icon>
-            <v-icon>mdi-hamburger</v-icon>
+            <v-icon>mdi-menu</v-icon>
           </v-btn>
-          <h3>{{ authStore.shopName }}</h3>
+          <h3 class="ms-1">{{ authStore.shopName }}</h3>
           <v-spacer></v-spacer>
+          <!-- added -->
           <v-btn icon>
-            <v-badge color="error" width="20" :content="this.stockNotifQty">
-              <v-icon>mdi-bell-outline</v-icon>
-            </v-badge>
+            <v-badge v-if="this.stockNotifQty >= 1" 
+              :content="this.stockNotifQty" 
+              class="position-absolute" 
+              style="top: 5px; right: 9px;" 
+              color="error"></v-badge>
+            <v-icon>mdi-bell-outline</v-icon>
           </v-btn>
           <v-btn class="ms-0" icon>
             <v-icon @click="toSettings">mdi-account-circle-outline</v-icon>
@@ -48,7 +52,7 @@
 <script>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
-import { useStocksStore } from '@/stores/stocksStore';
+import { useStocksStore } from '@/stores/stocksStore'; // added
 import { useLoadingStore } from '@/stores/loading';
 import GlobalLoader from '@/components/GlobalLoader.vue';
 import { useRoute } from 'vue-router';
@@ -58,18 +62,18 @@ export default {
   data () {
     return {
       stocks: [],
-      stockNotifQty: null,
+      stockNotifQty: null, // added
     }
   },
   components: {
     GlobalLoader,
   },
   mounted() {
-    this.fetchLowStocks();
+    this.fetchLowStocks(); // added
   },
   setup() {
     const authStore = useAuthStore();
-    const stocksStore = useStocksStore();
+    const stocksStore = useStocksStore(); // added
     const loadingStore = useLoadingStore();
     const connectionStatus = ref('online');
     const route = useRoute();
@@ -142,7 +146,7 @@ export default {
 
     return {
       authStore,
-      stocksStore,
+      stocksStore, // added
       loadingStore,
       drawer: ref(true),
       open: ref(false),
@@ -177,6 +181,7 @@ export default {
     toAbout() {
       this.$router.push('/about');
     },
+    // added
     async fetchLowStocks() {
       try {
         if (!this.authStore.branchId) {
@@ -185,12 +190,11 @@ export default {
           return;
         }
         await this.stocksStore.fetchLowStocksStore(this.authStore.branchId);
-        if (this.stocksStore.stockNotifQty === 0) {
-          // this.stocks = [];
+        if (this.stocksStore.stock_alert_qty === 0) {
           this.stockNotifQty = 0;
         } else {
-          // this.stocks = this.stocksStore.stocks;
-          this.stockNotifQty = this.stocksStore.stockNotifQty?.count;
+          this.stockNotifQty = this.stocksStore.stock_alert_qty;
+          console.log("Low stock qty:", this.stockNotifQty);
         }
       } catch (error) {
         console.error('Error fetching stocks:', error);

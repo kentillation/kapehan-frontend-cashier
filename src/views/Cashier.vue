@@ -270,6 +270,7 @@ export default {
             // Stocks
             stocks: [],
             loadingStocks: false,
+            stockNotifQty: null, // added
 
             // Categories
             categories: [],
@@ -449,27 +450,19 @@ export default {
             }
         },
 
-        async fetchStocks() {
-            this.loadingStocks = true;
+        // added
+        async fetchLowStocks() {
             try {
-                if (!this.branchDetails.branch_id) {
-                    this.showError("Branch ID is not available!");
-                    this.stocks = [];
-                    return;
-                }
-                await this.stocksStore.fetchAllStocksStore(this.branchDetails.branch_id);
-                if (this.stocksStore.stocks.length === 0) {
-                    this.stocks = [];
+                await this.stocksStore.fetchLowStocksStore(this.authStore.branchId);
+                if (this.stocksStore.stock_alert_qty === 0) {
+                this.stockNotifQty = 0;
                 } else {
-                    this.stocks = this.stocksStore.stocks.map(stock => this.formatStock(stock));
+                this.stockNotifQty = this.stocksStore.stock_alert_qty;
+                this.showError(`${ this.stockNotifQty } ${ this.stockNotifQty > 1 ? 'stocks' : 'stock' } has currently low quantity.`);
+                console.log("Low stock qty:", this.stockNotifQty);
                 }
-                this.stocksLoaded = true;
-                this.loadingStocks = false;
             } catch (error) {
                 console.error('Error fetching stocks:', error);
-                this.showError("Error fetching stocks!");
-            } finally {
-                this.loadingStocks = false;
             }
         },
 
@@ -605,13 +598,13 @@ export default {
                 console.log ("Submit: ", transactionData);
                 await this.transactStore.submitTransactStore(transactionData, orderedProducts);
                 this.fetchCurrentOrders();
+                this.fetchLowStocks(); // added
                 this.$refs.transactionForm.reset();
                 this.totalCharge = 0;
                 this.totalQuantity = 0;
                 this.selectedProducts = [];
                 this.showSuccess("Success! Ready for next customer.");
                 // Print receipt
-
             } catch (error) {
                 this.showError("Failed to transact. Please try again!");
                 console.error('Transaction submission error:', error);
