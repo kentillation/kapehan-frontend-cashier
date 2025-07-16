@@ -17,7 +17,9 @@
           <h3>{{ authStore.shopName }}</h3>
           <v-spacer></v-spacer>
           <v-btn icon>
-            <v-icon>mdi-bell-outline</v-icon>
+            <v-badge color="error" width="20" :content="this.stockNotifQty">
+              <v-icon>mdi-bell-outline</v-icon>
+            </v-badge>
           </v-btn>
           <v-btn class="ms-0" icon>
             <v-icon @click="toSettings">mdi-account-circle-outline</v-icon>
@@ -56,13 +58,14 @@ export default {
   data () {
     return {
       stocks: [],
+      stockNotifQty: null,
     }
   },
   components: {
     GlobalLoader,
   },
   mounted() {
-    this.fetchStocks();
+    this.fetchLowStocks();
   },
   setup() {
     const authStore = useAuthStore();
@@ -174,18 +177,20 @@ export default {
     toAbout() {
       this.$router.push('/about');
     },
-    async fetchStocks() {
+    async fetchLowStocks() {
       try {
         if (!this.authStore.branchId) {
           console.error('Error fetching stocks!');
           this.stocks = [];
           return;
         }
-        await this.stocksStore.fetchAllStocksStore(this.authStore.branchId);
-        if (this.stocksStore.stocks.length === 0) {
-          this.stocks = [];
+        await this.stocksStore.fetchLowStocksStore(this.authStore.branchId);
+        if (this.stocksStore.stockNotifQty === 0) {
+          // this.stocks = [];
+          this.stockNotifQty = 0;
         } else {
-          this.stocks = this.stocksStore.stocks;
+          // this.stocks = this.stocksStore.stocks;
+          this.stockNotifQty = this.stocksStore.stockNotifQty?.count;
         }
       } catch (error) {
         console.error('Error fetching stocks:', error);
@@ -194,3 +199,11 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.v-badge__badge {
+  font-weight: 700 !important;
+  padding: 2px 4px !important;
+  min-width: 0 !important;
+}
+</style>
