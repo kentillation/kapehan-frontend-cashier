@@ -13,13 +13,14 @@ export const useAuthStore = defineStore('auth', () => {
     const branchContact = ref(localStorage.getItem('contact') || null);
     const token = ref(localStorage.getItem('auth_token') || null);
     const shopId = ref(localStorage.getItem('shop_id') || null);
-    const branchId = ref(localStorage.getItem('branch_id') || null);
+    const branchId = ref(localStorage.getItem('branch_id') || null); //added
     const error = ref(null);
 
     // Getters
     const isAuthenticated = computed(() => !!token.value);
     const getShopName = computed(() => shopName.value);
     const getBranchName = computed(() => branchName.value);
+    const getBranchId = computed(() => branchId.value); //added
     const getBranchLocation = computed(() => branchLocation.value);
     const getBranchContact = computed(() => branchContact.value);
 
@@ -32,7 +33,7 @@ export const useAuthStore = defineStore('auth', () => {
             if (response.status === 200) {
                 token.value = response.data.access_token;
                 shopId.value = response.data.shop_id;
-                branchId.value = response.data.branch_id;
+                branchId.value = response.data.branch_id; //added
                 shopName.value = response.data.shop_name;
                 branchName.value = response.data.branch_name;
                 branchLocation.value = response.data.branch_location;
@@ -40,7 +41,7 @@ export const useAuthStore = defineStore('auth', () => {
 
                 localStorage.setItem('auth_token', token.value);
                 localStorage.setItem('shop_id', shopId.value);
-                localStorage.setItem('branch_id', branchId.value);
+                localStorage.setItem('branch_id', branchId.value); //added
                 localStorage.setItem('shop_name', shopName.value);
                 localStorage.setItem('branch_name', branchName.value);
                 localStorage.setItem('branch_location', branchLocation.value);
@@ -61,7 +62,7 @@ export const useAuthStore = defineStore('auth', () => {
         const currentToken = token.value;
         token.value = null;
         shopId.value = null;
-        branchId.value = null;
+        branchId.value = null; //added
         shopName.value = null;
         branchName.value = null;
         branchLocation.value = null;
@@ -92,12 +93,13 @@ export const useAuthStore = defineStore('auth', () => {
     return {
         token,
         shopId,
-        branchId,
+        branchId, //added
         shopName,
         branchName,
         branchLocation,
         branchContact,
         getShopName,
+        getBranchId, // added
         getBranchName,
         getBranchLocation,
         getBranchContact,
