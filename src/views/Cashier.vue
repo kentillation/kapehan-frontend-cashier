@@ -236,6 +236,7 @@
             </v-dialog>
         </v-form>
         <Snackbar ref="snackbarRef" />
+        <Alert ref="alertRef" />
         <GlobalLoader :visible="validatingData" message="Informing kitchen..." />
     </v-container>
 </template>
@@ -248,6 +249,7 @@ import { useStocksStore } from '@/stores/stocksStore';
 import { useTransactStore } from '@/stores/transactionStore';
 import { useLoadingStore } from '@/stores/loading';
 import Snackbar from '@/components/Snackbar.vue';
+import Alert from '@/components/Alert.vue';
 import GlobalLoader from '@/components/GlobalLoader.vue';
 
 export default {
@@ -255,6 +257,7 @@ export default {
     name: 'Cashier',
     components: {
         Snackbar,
+        Alert,
         GlobalLoader,
     },
     data() {
@@ -458,7 +461,7 @@ export default {
                 this.stockNotifQty = 0;
                 } else {
                 this.stockNotifQty = this.stocksStore.stock_alert_qty;
-                this.showError(`${ this.stockNotifQty } ${ this.stockNotifQty > 1 ? 'stocks' : 'stock' } has currently low quantity.`);
+                this.showAlert(`${ this.stockNotifQty } ${ this.stockNotifQty > 1 ? 'stocks' : 'stock' } has currently low quantity.`);
                 console.log("Low stock qty:", this.stockNotifQty);
                 }
             } catch (error) {
@@ -598,16 +601,17 @@ export default {
                 console.log ("Submit: ", transactionData);
                 await this.transactStore.submitTransactStore(transactionData, orderedProducts);
                 this.fetchCurrentOrders();
-                this.fetchLowStocks(); // added
+                // this.fetchLowStocks();
                 this.$refs.transactionForm.reset();
                 this.totalCharge = 0;
                 this.totalQuantity = 0;
                 this.selectedProducts = [];
-                this.showSuccess("Success! Ready for next customer.");
+                window.location.href = '/cashier';
+                // this.showSuccess("Success! Ready for next customer.");
                 // Print receipt
             } catch (error) {
-                this.showError("Failed to transact. Please try again!");
-                console.error('Transaction submission error:', error);
+                this.showError("Internal server error");
+                console.error('Internal server error:', error);
             } finally {
                 // this.loading = false;
                 this.validatingData = false;
@@ -823,7 +827,7 @@ export default {
                 .then(() => {
                     const statusName = this.getStatusName(newStatus);
                     this.showSuccess(`Table# ${order.table_number} is ${statusName}`);
-                    // this.fetchCurrentOrders();
+                    // this.fetchLowStocks(); // added
                     order.order_status_id = newStatus;
                     this.loadingStore.hide();
                 })
@@ -889,15 +893,19 @@ export default {
         },
 
         resetPaymentSection() {
-            this.customer_cash = '';
-            this.customer_change = '';
-            this.customer_discount = '-select-';
+            this.customer_cash = 0;
+            this.customer_change = 0;
+            this.customer_discount = 0;
             this.table_number = null;
             this.customer_name = '';
         },
 
         showError(message) {
             this.$refs.snackbarRef.showSnackbar(message, "error");
+        },
+
+        showAlert(message) {
+            this.$refs.alertRef.showSnackbarAlert(message, "error");
         },
 
         showSuccess(message) {
