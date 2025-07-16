@@ -6,12 +6,12 @@ export const TRANSACTION_API = {
         FETCH_ORDER_STATUS: '/open/order-status',
         FETCH_ORDER: '/open/order-details',
         FETCH_QR: '/open/get-qr',
-        FETCH_STATION_STATUS: '/open/station-status',
         FETCH_KITCHEN_PRODUCT: '/open/kitchen-product-details',
         FETCH_ORDER_TEMP: '/open/order-details-temp',
         FETCH_QR_TEMP: '/open/get-qr-temp',
         CHANGE_STATUS: '/cashier/update-order-status',
         SUBMIT: '/cashier/submit-transaction',
+        FETCH_STATION_STATUS: '/kitchen/station-status',
         CHANGE_KITCHEN_STATUS: '/kitchen/update-kitchen-product-status',
     },
 
