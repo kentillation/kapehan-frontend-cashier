@@ -3,14 +3,14 @@ import apiClient from '../axios';
 export const TRANSACTION_API = {
     ENDPOINTS: {
         SUBMIT: '/submit-transaction',
-        FETCH_CURRENT_ORDERS: '/current-orders',
-        FETCH_ORDER_STATUS: '/order-status',
+        FETCH_CURRENT_ORDERS: '/open/current-orders',
+        FETCH_ORDER_STATUS: '/open/order-status',
         FETCH_STATION_STATUS: '/station-status',
-        FETCH_ORDER: '/order-details',
+        FETCH_ORDER: '/open/order-details',
         FETCH_KITCHEN_PRODUCT: '/kitchen-product-details',
         FETCH_ORDER_TEMP: '/order-details-temp',
         FETCH_QR_TEMP: '/get-qr-temp',
-        FETCH_QR: '/get-qr',
+        FETCH_QR: '/open/get-qr',
         CHANGE_STATUS: '/update-order-status',
         CHANGE_KITCHEN_STATUS: '/update-kitchen-product-status',
     },
