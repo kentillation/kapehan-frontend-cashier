@@ -14,6 +14,7 @@
           <v-btn @click.stop="drawer = !drawer" icon>
             <v-icon>mdi-menu</v-icon>
           </v-btn>
+          <!-- <v-app-bar-nav-icon v-if="showMenu" variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon> -->
           <h3 class="ms-1">{{ authStore.shopName }}</h3>
           <v-spacer></v-spacer>
           <!-- added -->
