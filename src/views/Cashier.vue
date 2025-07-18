@@ -13,6 +13,18 @@
                             <v-text-field v-model="searchProduct" class="prdct-txt text-white w-50"
                                 style="background: #696969;" placeholder="FIND PRODUCT..." outlined>
                             </v-text-field>
+                            <div class="d-flex justify-center mt-10" style="z-index: 1;">
+                                <template v-if="this.selectedCategory">
+                                    <!-- <v-chip v-if="this.selectedCategory" color="gray" variant="flat" class="text-white position-absolute"> -->
+                                    <v-chip color="grey-darken-3" variant="flat" class="position-absolute" size="small">
+                                        {{ this.selectedCategory }}
+                                    </v-chip>
+                                    <v-icon @click="closeSelectedCategory" 
+                                        class="position-absolute text-white" 
+                                        style="top: 88px;">
+                                        mdi-close</v-icon>
+                                </template>
+                            </div>
                             <v-btn class="bg-brown-darken-3 d-flex align-items-center py-7 w-50 rounded-0"
                                 variant="tonal" @click="showCategoriesDialog" large>
                                 <v-icon>mdi-magnify</v-icon>&nbsp; Category
@@ -277,6 +289,7 @@ export default {
 
             // Categories
             categories: [],
+            selectedCategory: '',
             loadingCategories: false,
             categoriesDialog: false,
 
@@ -521,6 +534,8 @@ export default {
             this.products = this.productsStore.products.filter(
                 product => product.category_label === category.label
             );
+            this.selectedCategory = category.label;
+            console.log("Selected category: ", this.selectedCategory);
             if (this.products.length === 0) {
                 this.showError(`No products in ${category.label} category`);
             } else {
@@ -910,6 +925,11 @@ export default {
 
         showSuccess(message) {
             this.$refs.snackbarRef.showSnackbar(message, "success");
+        },
+
+        closeSelectedCategory () {
+            this.selectedCategory = '';
+            this.fetchProducts();
         },
 
         generatedQRCode(referenceNumber) {

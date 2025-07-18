@@ -2,7 +2,22 @@
 <template>
     <v-container>
         <h3 class="text-brown-lighten-1">Settings</h3>
-        <v-card class="pa-8 mt-3"> <!-- added mt-3 -->
+        <v-card class="pa-8 mt-3">
+            <v-row>
+                <v-col cols="12" lg="6" md="6" sm="12">
+                    <h3><v-icon>mdi-account-circle-outline</v-icon>&nbsp; Account</h3>
+                    <p class="descriptionColor mt-2">Change your account settings and change it later.</p>
+                </v-col>
+                <v-col cols="12" lg="6" md="6" sm="12">
+                    <v-container class="d-flex align-center justify-end">
+                        <span class="descriptionColor"></span>
+                        <v-btn class="ms-5" icon @click="openAccountDialog">
+                            <v-icon class="descriptionColor">mdi-chevron-right</v-icon>
+                        </v-btn>
+                    </v-container>
+                </v-col>
+            </v-row>
+            <v-divider class="my-4"></v-divider>
             <v-row>
                 <v-col cols="12" lg="6" md="6" sm="12">
                     <h3><v-icon>mdi-theme-light-dark</v-icon>&nbsp; Theme</h3>
@@ -54,6 +69,7 @@ export default {
     name: 'Settings',
     data() {
         return {
+            accountDialog: false,
         }
     },
     setup() {
@@ -78,6 +94,11 @@ export default {
             currentThemeName,
             applyTheme
         };
+    },
+    methods: {
+        openAccountDialog() {
+            this.accountDialog = true;
+        },
     },
 };
 </script>
