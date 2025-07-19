@@ -14,7 +14,6 @@
           <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
           <h3 class="ms-1">{{ authStore.shopName }}</h3>
           <v-spacer></v-spacer>
-          <!-- added -->
           <v-btn icon>
             <v-badge v-if="stockNotificationQty >= 1" 
               :content="stockNotificationQty" 
@@ -22,7 +21,6 @@
               style="top: 5px; right: 9px;" 
               color="error">
             </v-badge>
-              
             <v-icon>mdi-bell-outline</v-icon>
           </v-btn>
           <v-btn class="ms-0" icon>
