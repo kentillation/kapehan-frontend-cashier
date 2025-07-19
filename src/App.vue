@@ -53,7 +53,7 @@
 import { mapState } from 'pinia';
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
-import { useStocksStore } from '@/stores/stocksStore'; // added
+import { useStocksStore } from '@/stores/stocksStore';
 import { useLoadingStore } from '@/stores/loading';
 import { useRoute } from 'vue-router';
 import GlobalLoader from '@/components/GlobalLoader.vue';
@@ -63,7 +63,7 @@ export default {
   data () {
     return {
       stocks: [],
-      stockNotifQty: 0, // added
+      stockNotifQty: 0,
     }
   },
   components: {
@@ -71,7 +71,7 @@ export default {
   },
   setup() {
     const authStore = useAuthStore();
-    const stocksStore = useStocksStore(); // added
+    const stocksStore = useStocksStore();
     const loadingStore = useLoadingStore();
     const connectionStatus = ref('online');
     const route = useRoute();
@@ -144,7 +144,7 @@ export default {
 
     return {
       authStore,
-      stocksStore, // added
+      stocksStore,
       loadingStore,
       drawer: ref(true),
       open: ref(false),
@@ -183,7 +183,7 @@ export default {
     toAbout() {
       this.$router.push('/about');
     },
-    // added
+   
     async fetchLowStocks() {
       try {
         if (!this.authStore.branchId) {
