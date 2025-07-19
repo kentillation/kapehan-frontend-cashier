@@ -61,7 +61,6 @@ export default {
   data () {
     return {
       stocks: [],
-      stockNotifQty: 0,
     }
   },
   components: {
