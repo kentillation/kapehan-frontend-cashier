@@ -185,17 +185,11 @@ export default {
     async fetchLowStocks() {
       try {
         if (!this.authStore.branchId) {
-          console.error('Error fetching stocks!');
+          console.error('Error fetching low stocks!');
           this.stocks = [];
           return;
         }
         await this.stocksStore.fetchLowStocksStore(this.authStore.branchId);
-        // if (this.stocksStore.stock_alert_qty === 0) {
-        //   this.stockNotifQty = 0;
-        // } else {
-        //   this.stockNotifQty = this.stocksStore.stock_alert_qty;
-        //   console.log("Low stock qty:", this.stockNotifQty);
-        // }
       } catch (error) {
         console.error('Error fetching stocks:', error);
       }
