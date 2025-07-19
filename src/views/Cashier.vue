@@ -638,13 +638,13 @@ export default {
                 console.log ("Submit: ", transactionData);
                 await this.transactStore.submitTransactStore(transactionData, orderedProducts);
                 this.fetchCurrentOrders();
-                // this.fetchLowStocks();
+                this.fetchLowStocks();
                 this.$refs.transactionForm.reset();
                 this.subTotal = 0;
                 this.totalQuantity = 0;
                 this.selectedProducts = [];
                 window.location.href = '/cashier';
-                // this.showSuccess("Success! Ready for next customer.");
+                this.showSuccess("Success! Ready for next customer.");
                 // Print receipt
             } catch (error) {
                 this.showError("Internal server error");
@@ -857,20 +857,33 @@ export default {
             const currentStatusIndex = this.order_statuses.findIndex(
                 status => Number(status.order_status_id) === Number(order.order_status_id)
             );
+
+            // added
+            if (currentStatusIndex === -1) {
+                this.showError("Current order status not found!");
+                return;
+            }
             const nextStatusIndex = (currentStatusIndex + 1) % this.order_statuses.length;
             const newStatus = Number(this.order_statuses[nextStatusIndex].order_status_id);
+
+            // added
+            if (isNaN(newStatus)) {
+                this.showError("Next order status is invalid!");
+                return;
+            }
             this.loadingStore.show("Updating status...");
             this.transactStore.updateOrderStatusStore(order.reference_number, newStatus)
                 .then(() => {
                     const statusName = this.getStatusName(newStatus);
                     this.showSuccess(`Table# ${order.table_number} is ${statusName}`);
-                    // this.fetchLowStocks(); // added
                     order.order_status_id = newStatus;
-                    this.loadingStore.hide();
                 })
                 .catch(error => {
                     console.error('Error updating order status:', error);
                     this.showError("Failed to update order status. Please try again!");
+                })
+                .finally(() => {
+                    this.loadingStore.hide();
                 });
         },
 
