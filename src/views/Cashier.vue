@@ -7,7 +7,7 @@
                     <div class="d-flex align-items-center flex-column">
                         <div class="indication pa-2 text-white trnsct-head">
                             <h3 class="me-13">Quantity: <span>{{ totalQuantity }}</span></h3>
-                            <h3 class="ms-15">Charge: ₱ <span>{{ totalCharge.toFixed() }}</span></h3>
+                            <h3 class="ms-15">Charge: ₱ <span>{{ subTotal.toFixed() }}</span></h3>
                         </div>
                         <div class="d-flex align-items-center justify-content-center">
                             <v-text-field v-model="searchProduct" class="prdct-txt text-white w-50"
@@ -78,13 +78,31 @@
                         <v-col cols="12">
                             <h3>Payment Section</h3>
                             <div class="payment-section mt-3">
-                                <v-text-field class="payment-section-item me-2 mt-2" 
+                                <!-- <v-text-field class="payment-section-item me-2 mt-2" 
                                     v-model="customer_charge"
                                     label="*Total charge" 
                                     variant="outlined" 
                                     density="compact" 
                                     type="number"
-                                    :model-value="discountedTotalCharge.toFixed(2)" 
+                                    :model-value="discountedSubtotal.toFixed(2)" 
+                                    prepend-inner-icon="mdi-cash" 
+                                    readonly /> -->
+                                <v-text-field class="payment-section-item me-2 mt-2" 
+                                    v-model="customer_charge"
+                                    label="Sub total" 
+                                    variant="outlined" 
+                                    density="compact" 
+                                    type="number"
+                                    :model-value="subTotal.toFixed(2)" 
+                                    prepend-inner-icon="mdi-cash" 
+                                    readonly />
+                                <v-text-field class="payment-section-item me-2 mt-2" 
+                                    v-model="total_due"
+                                    label="Total due" 
+                                    variant="outlined" 
+                                    density="compact" 
+                                    type="number"
+                                    :model-value="discountedSubtotal.toFixed(2)" 
                                     prepend-inner-icon="mdi-cash" 
                                     readonly />
                                 <v-text-field class="payment-section-item me-2 mt-2"
@@ -92,7 +110,7 @@
                                     label="*Cash render" 
                                     variant="outlined" 
                                     density="compact" type="number"
-                                    :rules="[v => !isNaN(parseFloat(v)) || 'Required', v => parseFloat(v) >= this.totalCharge || 'Must be greater than or equal to total charge']"
+                                    :rules="[v => !isNaN(parseFloat(v)) || 'Required', v => parseFloat(v) >= this.subTotal || 'Must be greater than or equal to total charge']"
                                     @input="e => customer_cash = e.target.value.replace(/[^0-9.]/g, '')"
                                     prepend-inner-icon="mdi-cash-plus" 
                                     placeholder="Enter cash amount" />
@@ -108,7 +126,6 @@
                                     v-model="customer_discount"
                                     label="Discount" 
                                     variant="outlined" 
-                                    
                                     @input="e => customer_discount = e.target.value.replace(/[^0-9.]/g, '')"
                                     type="number"
                                     density="compact" 
@@ -140,7 +157,7 @@
                                 </v-btn>&nbsp;
                                 <v-btn class="bg-brown-darken-3 d-flex w-50 py-6 mt-3" variant="tonal"
                                     append-icon="mdi-send" type="submit" :loading="loading" :disabled="!isFormValid || loading ||
-                                        Number(customer_cash) < totalCharge || Number(customer_change) < 0">
+                                        Number(customer_cash) < subTotal || Number(customer_change) < 0">
                                     Submit
                                 </v-btn>
                             </div>
@@ -304,6 +321,8 @@ export default {
             customer_change: '',
             customer_discount: 0,
             customer_name: '',
+            total_due: 0,
+            computed_discount: 0,
 
             // Orders
             orders: [],
@@ -369,14 +388,14 @@ export default {
     watch: {
         selectedProducts: {
             handler() {
-                this.customer_charge = this.discountedTotalCharge.toFixed(2);
+                this.total_due = this.discountedSubtotal.toFixed(2);
             },
             deep: true
         },
         customer_cash() {
-            const customerCharge = parseFloat(this.customer_cash) - this.discountedTotalCharge;
+            const customerCharge = parseFloat(this.customer_cash) - this.discountedSubtotal;
             this.customer_change = customerCharge.toFixed(2);
-            if (this.discountedTotalCharge == 0) {
+            if (this.discountedSubtotal == 0) {
                 this.customer_change = 0;
             }
             if (this.customer_cash === '') {
@@ -384,9 +403,9 @@ export default {
             }
         },
         customer_discount() {
-            this.customer_charge = Number(this.discountedTotalCharge.toFixed(2));
+            this.total_due = Number(this.discountedSubtotal.toFixed(2));
             if (this.customer_cash) {
-                const change = parseFloat(this.customer_cash) - parseFloat(this.customer_charge);
+                const change = parseFloat(this.customer_cash) - parseFloat(this.total_due);
                 this.customer_change = change.toFixed(2);
             }
         }
@@ -406,7 +425,7 @@ export default {
         totalQuantity() {
             return this.selectedProducts.reduce((sum, p) => sum + p.quantity, 0);
         },
-        totalCharge() {
+        subTotal() {
             return this.selectedProducts.reduce((sum, p) => sum + (p.product_price * p.quantity), 0);
         }, 
         currentOrders() {
@@ -431,12 +450,12 @@ export default {
                 ? this.orderDetails.reduce((sum, item) => sum + (item.product_price * item.quantity || 0), 0)
                 : 0;
         },
-        discountedTotalCharge() {
+        discountedSubtotal() {
             if (!this.customer_discount || isNaN(this.customer_discount) || this.customer_discount <= 0) {
-                return this.totalCharge;
+                return this.subTotal;
             }
             const discountDecimal = parseFloat(this.customer_discount) / 100;
-            return this.totalCharge * (1 - discountDecimal);
+            return this.subTotal * (1 - discountDecimal);
         }
     },
     mounted() {
@@ -609,16 +628,18 @@ export default {
                     customer_name: this.customer_name,
                     total_quantity: this.totalQuantity,
                     customer_cash: parseFloat(this.customer_cash.replace(/[^0-9.]/g, '')) || 0,
-                    customer_charge: this.discountedTotalCharge,
+                    customer_charge: this.customer_charge,
                     customer_change: parseFloat(this.customer_change.replace(/[^0-9.]/g, '')) || 0,
                     customer_discount: Number(this.customer_discount),
+                    total_due: this.discountedSubtotal,
+                    computed_discount: this.customer_charge * (this.customer_discount / 100),
                 }];
                 console.log ("Submit: ", transactionData);
                 await this.transactStore.submitTransactStore(transactionData, orderedProducts);
                 this.fetchCurrentOrders();
                 // this.fetchLowStocks();
                 this.$refs.transactionForm.reset();
-                this.totalCharge = 0;
+                this.subTotal = 0;
                 this.totalQuantity = 0;
                 this.selectedProducts = [];
                 window.location.href = '/cashier';
