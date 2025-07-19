@@ -31,7 +31,7 @@
                             </v-btn>
                         </div>
                     </div>
-                    <v-data-table :headers="headersDisplay" :items="filteredProducts" :loading="loadingProducts"
+                    <v-data-table v-if="this.products.length > 0" :headers="headersDisplay" :items="filteredProducts" :loading="loadingProducts"
                         :items-per-page="-1" height="400px" @click:row="(event, { item }) => selectProduct(item)"
                         density="comfortable" class="hover-table">
                         <!-- eslint-disable vue/valid-v-slot -->
@@ -44,6 +44,9 @@
                             <span class="small">₱{{ item.product_price }}</span>
                         </template>
                     </v-data-table>
+                    <v-container v-else class="text-center">
+                        <p style="font-size: 15px;">No category selected. <span @click="this.fetchProducts" class="text-primary" style="cursor: pointer;">Tap to reload</span> </p>
+                    </v-container>
                 </v-col>
 
                 <!-- Selected & Payment Section -->
@@ -78,15 +81,6 @@
                         <v-col cols="12">
                             <h3>Payment Section</h3>
                             <div class="payment-section mt-3">
-                                <!-- <v-text-field class="payment-section-item me-2 mt-2" 
-                                    v-model="customer_charge"
-                                    label="*Total charge" 
-                                    variant="outlined" 
-                                    density="compact" 
-                                    type="number"
-                                    :model-value="discountedSubtotal.toFixed(2)" 
-                                    prepend-inner-icon="mdi-cash" 
-                                    readonly /> -->
                                 <v-text-field class="payment-section-item me-2 mt-2" 
                                     v-model="customer_charge"
                                     label="Sub total" 
@@ -462,6 +456,7 @@ export default {
         this.fetchProducts();
         this.fetchOrderStatus();
         this.fetchCurrentOrders();
+        this.fetchLowStocks();
     },
     methods: {
         async generateReferenceNumber() {
@@ -638,7 +633,6 @@ export default {
                 console.log ("Submit: ", transactionData);
                 await this.transactStore.submitTransactStore(transactionData, orderedProducts);
                 this.fetchCurrentOrders();
-                this.fetchLowStocks();
                 this.$refs.transactionForm.reset();
                 this.subTotal = 0;
                 this.totalQuantity = 0;
@@ -877,6 +871,7 @@ export default {
                     const statusName = this.getStatusName(newStatus);
                     this.showSuccess(`Table# ${order.table_number} is ${statusName}`);
                     order.order_status_id = newStatus;
+                    this.fetchLowStocks();
                 })
                 .catch(error => {
                     console.error('Error updating order status:', error);
@@ -964,7 +959,8 @@ export default {
 
         closeSelectedCategory () {
             this.selectedCategory = '';
-            this.fetchProducts();
+            this.products = [];
+            // this.fetchProducts();
         },
 
         generatedQRCode(referenceNumber) {
