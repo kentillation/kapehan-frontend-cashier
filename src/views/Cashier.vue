@@ -268,6 +268,7 @@
 </template>
 
 <script>
+import { mapState } from 'pinia';
 import { useAuthStore } from '@/stores/auth';
 import { useBranchStore } from '@/stores/branchStore';
 import { useProductsStore } from '@/stores/productsStore';
@@ -299,7 +300,6 @@ export default {
             // Stocks
             stocks: [],
             loadingStocks: false,
-            stockNotifQty: null, // added
 
             // Categories
             categories: [],
@@ -408,6 +408,7 @@ export default {
         }
     },
     computed: {
+        ...mapState(useStocksStore, ['stockNotificationQty']),
         newRefNumber() {
             return this.generateReferenceNumber();
         },
@@ -492,13 +493,7 @@ export default {
         async fetchLowStocks() {
             try {
                 await this.stocksStore.fetchLowStocksStore(this.authStore.branchId);
-                if (this.stocksStore.stock_alert_qty === 0) {
-                this.stockNotifQty = 0;
-                } else {
-                this.stockNotifQty = this.stocksStore.stock_alert_qty;
-                this.showAlert(`${ this.stockNotifQty } ${ this.stockNotifQty > 1 ? 'stocks' : 'stock' } has low quantity.`);
-                console.log("Low stock qty:", this.stockNotifQty);
-                }
+                this.showAlert(`${ this.stockNotificationQty } ${ this.stockNotificationQty > 1 ? 'stocks' : 'stock' } has low quantity.`);
             } catch (error) {
                 console.error('Error fetching stocks:', error);
             }
