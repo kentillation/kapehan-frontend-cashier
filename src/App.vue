@@ -11,19 +11,18 @@
     <v-main>
       <template v-if="!isNotFoundPage">
         <v-app-bar v-if="showMenu" prominent>
-          <v-btn @click.stop="drawer = !drawer" icon>
-            <v-icon>mdi-menu</v-icon>
-          </v-btn>
-          <!-- <v-app-bar-nav-icon v-if="showMenu" variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon> -->
+          <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
           <h3 class="ms-1">{{ authStore.shopName }}</h3>
           <v-spacer></v-spacer>
           <!-- added -->
           <v-btn icon>
-            <v-badge v-if="this.stockNotifQty >= 1" 
-              :content="this.stockNotifQty" 
+            <v-badge v-if="stockNotificationQty >= 1" 
+              :content="stockNotificationQty" 
               class="position-absolute" 
               style="top: 5px; right: 9px;" 
-              color="error"></v-badge>
+              color="error">
+            </v-badge>
+              
             <v-icon>mdi-bell-outline</v-icon>
           </v-btn>
           <v-btn class="ms-0" icon>
@@ -51,26 +50,24 @@
 </template>
 
 <script>
+import { mapState } from 'pinia';
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useStocksStore } from '@/stores/stocksStore'; // added
 import { useLoadingStore } from '@/stores/loading';
-import GlobalLoader from '@/components/GlobalLoader.vue';
 import { useRoute } from 'vue-router';
+import GlobalLoader from '@/components/GlobalLoader.vue';
 
 export default {
   name: 'App',
   data () {
     return {
       stocks: [],
-      stockNotifQty: null, // added
+      stockNotifQty: 0, // added
     }
   },
   components: {
     GlobalLoader,
-  },
-  mounted() {
-    this.fetchLowStocks(); // added
   },
   setup() {
     const authStore = useAuthStore();
@@ -158,12 +155,16 @@ export default {
     };
   },
   computed: {
+    ...mapState(useStocksStore, ['stockNotificationQty']),
     showSidebar() {
       return this.$route.name !== 'LoginPage' && this.$route.name !== 'Reference' && !this.isNotFoundPage;
     },
     showMenu() {
       return this.$route.name !== 'LoginPage' && this.$route.name !== 'Reference' && !this.isNotFoundPage;
     },
+  },
+  async mounted() {
+    await this.fetchLowStocks();
   },
   methods: {
     toCashier() {
@@ -191,12 +192,12 @@ export default {
           return;
         }
         await this.stocksStore.fetchLowStocksStore(this.authStore.branchId);
-        if (this.stocksStore.stock_alert_qty === 0) {
-          this.stockNotifQty = 0;
-        } else {
-          this.stockNotifQty = this.stocksStore.stock_alert_qty;
-          console.log("Low stock qty:", this.stockNotifQty);
-        }
+        // if (this.stocksStore.stock_alert_qty === 0) {
+        //   this.stockNotifQty = 0;
+        // } else {
+        //   this.stockNotifQty = this.stocksStore.stock_alert_qty;
+        //   console.log("Low stock qty:", this.stockNotifQty);
+        // }
       } catch (error) {
         console.error('Error fetching stocks:', error);
       }

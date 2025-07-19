@@ -1,5 +1,8 @@
 <template>
     <v-container>
+        <v-btn @click="this.reloadData" class="refresh bg-brown-darken-3" variant="flat" icon>
+            <v-icon>mdi-refresh</v-icon>
+        </v-btn>
         <v-form ref="transactionForm" @submit.prevent="submitForm" v-model="isFormValid">
             <v-row>
                 <!-- Main Section -->
@@ -110,7 +113,7 @@
                                     placeholder="Enter cash amount" />
                                 <v-text-field class="payment-section-item me-2 mt-2" 
                                     v-model="customer_change"
-                                    label="*Change" 
+                                    label="Change" 
                                     variant="outlined" 
                                     density="compact"
                                     :rules="[v => parseFloat(v) >= 0]" 
@@ -118,7 +121,7 @@
                                     readonly />
                                 <v-text-field class="payment-section-item me-2 mt-2" 
                                     v-model="customer_discount"
-                                    label="Discount" 
+                                    label="*Discount" 
                                     variant="outlined" 
                                     @input="e => customer_discount = e.target.value.replace(/[^0-9.]/g, '')"
                                     type="number"
@@ -453,12 +456,17 @@ export default {
         }
     },
     mounted() {
-        this.fetchProducts();
-        this.fetchOrderStatus();
-        this.fetchCurrentOrders();
-        this.fetchLowStocks();
+        this.reloadData();
     },
     methods: {
+        async reloadData() {
+            this.loadingStore.show("");
+            this.fetchProducts();
+            this.fetchOrderStatus();
+            this.fetchCurrentOrders();
+            this.fetchLowStocks();
+            this.loadingStore.hide();
+        },
         async generateReferenceNumber() {
             // Random 10 numbers
             const generatedNumber = Math.random().toString().slice(2, 14);
@@ -488,7 +496,7 @@ export default {
                 this.stockNotifQty = 0;
                 } else {
                 this.stockNotifQty = this.stocksStore.stock_alert_qty;
-                this.showAlert(`${ this.stockNotifQty } ${ this.stockNotifQty > 1 ? 'stocks' : 'stock' } has currently low quantity.`);
+                this.showAlert(`${ this.stockNotifQty } ${ this.stockNotifQty > 1 ? 'stocks' : 'stock' } has low quantity.`);
                 console.log("Low stock qty:", this.stockNotifQty);
                 }
             } catch (error) {
@@ -633,11 +641,12 @@ export default {
                 console.log ("Submit: ", transactionData);
                 await this.transactStore.submitTransactStore(transactionData, orderedProducts);
                 this.fetchCurrentOrders();
+                this.fetchLowStocks();
                 this.$refs.transactionForm.reset();
                 this.subTotal = 0;
                 this.totalQuantity = 0;
                 this.selectedProducts = [];
-                window.location.href = '/cashier';
+                // window.location.href = '/cashier';
                 this.showSuccess("Success! Ready for next customer.");
                 // Print receipt
             } catch (error) {
@@ -1143,5 +1152,11 @@ export default {
     50% {
         border-color: orange;
     }
+}
+
+.refresh {
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
 }
 </style>

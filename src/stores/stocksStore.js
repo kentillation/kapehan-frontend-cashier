@@ -53,4 +53,7 @@ export const useStocksStore = defineStore('stocks', {
             }
         },
     },
+    getters: {
+        stockNotificationQty: (state) => state.stock_alert_qty || 0,
+    }
 });
