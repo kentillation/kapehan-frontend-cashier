@@ -1153,5 +1153,6 @@ export default {
     position: fixed;
     bottom: 15px;
     right: 15px;
+    z-index: 1;
 }
 </style>
