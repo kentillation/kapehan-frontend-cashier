@@ -622,17 +622,18 @@ export default {
                     this.validatingData = false;
                     return;
                 }
+                this.computed_discount = this.subTotal * (this.customer_discount / 100);
                 const transactionData = [{
                     reference_number: refNumber,
                     table_number: Number(this.table_number),
                     customer_name: this.customer_name,
                     total_quantity: this.totalQuantity,
                     customer_cash: parseFloat(this.customer_cash.replace(/[^0-9.]/g, '')) || 0,
-                    customer_charge: this.customer_charge,
+                    customer_charge: parseFloat(this.subTotal) || 0,
                     customer_change: parseFloat(this.customer_change.replace(/[^0-9.]/g, '')) || 0,
                     customer_discount: Number(this.customer_discount),
-                    total_due: this.discountedSubtotal,
-                    computed_discount: this.customer_charge * (this.customer_discount / 100),
+                    total_due: parseFloat(this.discountedSubtotal) || 0,
+                    computed_discount: this.computed_discount,
                 }];
                 console.log ("Submit: ", transactionData);
                 await this.transactStore.submitTransactStore(transactionData, orderedProducts);
