@@ -154,10 +154,10 @@ export default {
   computed: {
     ...mapState(useStocksStore, ['stockNotificationQty']),
     showSidebar() {
-      return this.$route.name !== 'LoginPage' && this.$route.name !== 'Reference' && !this.isNotFoundPage;
+      return this.$route.name !== 'LoginPage' && this.$route.name !== 'Reference' && this.$route.name !== 'ViewOrder' && !this.isNotFoundPage;
     },
     showMenu() {
-      return this.$route.name !== 'LoginPage' && this.$route.name !== 'Reference' && !this.isNotFoundPage;
+      return this.$route.name !== 'LoginPage' && this.$route.name !== 'Reference' && this.$route.name !== 'ViewOrder' && !this.isNotFoundPage;
     },
   },
   async mounted() {

@@ -7,6 +7,7 @@ import Settings from '@/views/Settings.vue';
 import Help from '@/views/Help.vue';
 import About from '@/views/About.vue';
 import Reference from '@/views/Reference.vue';
+import ViewOrder from '@/views/ViewOrder.vue';
 import LoaderUI from '../components/LoaderUI.vue';
 import { useAuthStore } from '@/stores/auth';
 
@@ -19,6 +20,7 @@ const routes = [
     { path: '/help', name: 'Help', component: Help, meta: { requiresAuth: true } },
     { path: '/about', name: 'About', component: About, meta: { requiresAuth: true } },
     { path: '/reference/:reference', name: 'Reference', component: Reference },
+    { path: '/view-order/:reference', name: 'ViewOrder', component: ViewOrder },
     { path: '/loader', name: 'LoaderUI', component: LoaderUI, meta: { requiresAuth: true } },
 ];
 

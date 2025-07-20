@@ -195,7 +195,7 @@
                                 </v-chip> -->
 
                                 <v-chip color="gray" prepend-icon="mdi-qrcode" size="small" variant="flat"
-                                    class="ps-5 text-white" @click="toReference(item.reference_number)">
+                                    class="ps-5 text-white" @click="toViewOrder(item.reference_number)">
                                 </v-chip>
                             </div>
                         </template>
@@ -844,9 +844,9 @@ export default {
             }
         },
 
-        async toReference(reference) {
+        async toViewOrder(reference) {
             // this.$router.push({ name: 'Reference', params: { reference } });
-            window.open(`/reference/${reference}`, '_blank');
+            window.open(`/view-order/${reference}`, '_blank');
         },
 
         changeStatus(order) {
