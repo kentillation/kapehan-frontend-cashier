@@ -13,7 +13,7 @@
             <span>Customer name: {{ this.customerName }}</span><br />
             <span>Number of items: {{ this.totalItems }}</span><br />
             <span>Table #: {{ this.tableNumber }}</span><br />
-            <span>Order status: {{ this.order_status }}</span><br />
+            <span>Order status: {{ this.orderStatus }}</span><br />
         </div>
 
         <v-data-table :headers="headersOrderDetails" 
@@ -95,6 +95,7 @@ export default {
             createdAt: '',
             updatedAt: '',
             tableNumber: 'N/A',
+            orderStatus: '',
             tempLabel: '',
             sizeLabel: '',
             totalQuantity: 0,
@@ -164,6 +165,7 @@ export default {
                 this.createdAt = response?.data?.created_at ? this.formatDateTime(response.data.created_at) : 'N/A';
                 this.updatedAt = response?.data?.updated_at ? this.formatDateTime(response.data.updated_at) : 'N/A';
                 this.tableNumber = response?.data?.table_number || 'N/A';
+                this.orderStatus = response?.data?.order_status || 'N/A';
                 this.totalQuantity = response?.data?.total_quantity ? parseInt(response.data.total_quantity, 10) : 0;
             } catch (error) {
                 console.error('Error fetching order details:', error);
@@ -174,7 +176,7 @@ export default {
         async fetchQRCode(reference) {
             try {
                 const qrCodeBlob = await this.transactStore.fetchQRcodeTempStore(reference);
-                this.imgSrc = URL.createObjectURL(qrCodeBlob);  // qrCodeBlob is already the blob data
+                this.imgSrc = URL.createObjectURL(qrCodeBlob);
                 if (!this.imgSrc) {
                     console.error('Failed to create image URL from blob');
                 }
