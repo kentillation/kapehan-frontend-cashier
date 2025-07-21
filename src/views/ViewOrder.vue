@@ -1,57 +1,68 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-    <v-container class="my-6">
-        <div class="centered">
-            <img v-if="imgSrc" :src="imgSrc" width="120" height="120" alt="Order QR Code">
-            <span>Scan this QR Code to track order</span><br />
-            <h3>Reference #: {{ this.reference }}</h3>
-        </div>
-        <div class="left-content">
-            <span>Date & Time: {{ this.createdAt }}</span><br />
-            <span>Customer name: {{ this.customerName }}</span><br />
-            <span>Number of items: {{ this.totalItems }}</span><br />
-            <span>Table #: {{ this.tableNumber }}</span><br />
-            <span>Order status: {{ this.orderStatus }}</span><br />
-        </div>
+    <v-dialog :model-value="modelValue" 
+        @update:modelValue="$emit('update:modelValue', $event)" 
+        width="auto" 
+        transition="dialog-bottom-transition"
+        scrollable>
+        <v-btn @click="$emit('update:modelValue', false)" class="position-absolute" size="small" style="top: -50px;" icon>
+            <v-icon>mdi-close</v-icon>
+        </v-btn>
+        <v-card>
+            <v-container class="pa-5">
+                <div class="centered">
+                    <img v-if="imgSrc" :src="imgSrc" width="120" height="120" alt="Order QR Code">
+                    <span>Scan this QR Code to track order</span><br />
+                    <h3>Reference #: {{ this.referenceNumber }}</h3>
+                </div>
+                <div class="left-content">
+                    <span>Date & Time: {{ this.createdAt }}</span><br />
+                    <span>Customer name: {{ this.customerName }}</span><br />
+                    <span>Number of items: {{ this.totalItems }}</span><br />
+                    <span>Table #: {{ this.tableNumber }}</span><br />
+                    <span>Order status: {{ this.orderStatus }}</span><br />
+                </div>
 
-        <v-data-table :headers="headersOrderDetails" 
-            :items="orderDetails" 
-            density="compact" 
-            hide-default-footer>
-            <!--eslint-disable-next-line -->
-            <template v-slot:item.product_name="{ item }">
-                {{ item?.product_name || '' }}{{ item?.temp_label || '' }}{{ item?.size_label || ''
-                }}x{{ item?.quantity }}
-            </template>
-            <!--eslint-disable-next-line -->
-            <template v-slot:item.product_price="{ item }">
-                ₱{{ item.product_price.toFixed(2) }}
-            </template>
-            <!--eslint-disable-next-line -->
-            <template v-slot:item.subtotal="{ item }">
-                ₱{{ item.subtotal.toFixed(2) }}
-            </template>
-        </v-data-table>
+                <v-data-table :headers="headersOrderDetails" 
+                    :items="orderDetails" 
+                    density="compact" 
+                    hide-default-footer>
+                    <!--eslint-disable-next-line -->
+                    <template v-slot:item.product_name="{ item }">
+                        {{ item?.product_name || '' }}{{ item?.temp_label || '' }}{{ item?.size_label || ''
+                        }}x{{ item?.quantity }}
+                    </template>
+                    <!--eslint-disable-next-line -->
+                    <template v-slot:item.product_price="{ item }">
+                        ₱{{ item.product_price.toFixed(2) }}
+                    </template>
+                    <!--eslint-disable-next-line -->
+                    <template v-slot:item.subtotal="{ item }">
+                        ₱{{ item.subtotal.toFixed(2) }}
+                    </template>
+                </v-data-table>
 
-        <div class="payment">
-            <div class="d-flex justify-space-between">
-                <h4>Total charge: </h4>
-                <h4>₱{{ this.totalAmount }}</h4>
-            </div>
-            <div class="d-flex justify-space-between">
-                <h4>Cash render:</h4>
-                <h4>₱{{ this.customerCash }}</h4>
-            </div>
-            <div class="d-flex justify-space-between">
-                <h4>Discount:</h4>
-                <h4>{{ this.customerDiscount }}%</h4>
-            </div>
-            <div class="d-flex justify-space-between">
-                <h4>Change:</h4>
-                <h4>₱{{ this.customerChange }}</h4>
-            </div>
-        </div>
-    </v-container>
+                <div class="payment">
+                    <div class="d-flex justify-space-between">
+                        <h4>Total charge: </h4>
+                        <h4>₱{{ this.totalAmount }}</h4>
+                    </div>
+                    <div class="d-flex justify-space-between">
+                        <h4>Cash render:</h4>
+                        <h4>₱{{ this.customerCash }}</h4>
+                    </div>
+                    <div class="d-flex justify-space-between">
+                        <h4>Discount:</h4>
+                        <h4>{{ this.customerDiscount }}%</h4>
+                    </div>
+                    <div class="d-flex justify-space-between">
+                        <h4>Change:</h4>
+                        <h4>₱{{ this.customerChange }}</h4>
+                    </div>
+                </div>
+            </v-container>
+        </v-card>
+    </v-dialog>
 </template>
 
 <script>
@@ -62,7 +73,7 @@ export default {
     name: 'ViewOrder',
     data() {
         return {
-            reference: this.$route.params.reference || 'No reference provided',
+            // reference: this.$route.params.reference || 'No reference provided',
             product_name: '',
             product_price: 0,
             subtotal: 0,
@@ -89,6 +100,35 @@ export default {
             imgSrc: null,
         };
     },
+    props: {
+        modelValue: {
+            type: Boolean,
+            required: true
+        },
+        referenceNumber: {
+            type: String,
+        },
+    },
+    emits: ['update:modelValue'],
+    watch: {
+        referenceNumber: {
+            immediate: true,
+            handler(newVal) {
+                if (newVal) {
+                    this.fetchCustomerOrders(newVal);
+                    this.fetchQRCode(newVal);
+                }
+            }
+        },
+        // modelValue: {
+        //     handler(newVal) {
+        //         if (newVal && this.referenceNumber) {
+        //             this.fetchCustomerOrders(this.referenceNumber);
+        //             this.fetchQRCode(this.referenceNumber);
+        //         }
+        //     }
+        // }
+    },
     setup() {
         const transactStore = useTransactStore();
         const currentDate = new Date().toLocaleDateString('en-PH', {
@@ -102,19 +142,19 @@ export default {
         const formatCurrentDate = currentDate.replace(/,/g, '');
         return { transactStore, formatCurrentDate };
     },
-    mounted() {
-        this.fetchCustomerOrders(this.reference);
-        this.fetchQRCode(this.reference);
-    },
+    // mounted() {
+    //     this.fetchCustomerOrders(this.referenceNumber);
+    //     this.fetchQRCode(this.referenceNumber);
+    // },
     beforeUnmount() {
         if (this.imgSrc) {
             URL.revokeObjectURL(this.imgSrc);
         }
     },
     methods: {
-        async fetchCustomerOrders(reference) {
+        async fetchCustomerOrders(referenceNumber) {
             try {
-                const response = await this.transactStore.fetchOrderDetailsStore(reference);
+                const response = await this.transactStore.fetchOrderDetailsStore(referenceNumber);
                 let allOrders = [];
                 if (response?.data?.all_orders) {
                     allOrders = response.data.all_orders;
@@ -150,9 +190,9 @@ export default {
             }
         },
 
-        async fetchQRCode(reference) {
+        async fetchQRCode(referenceNumber) {
             try {
-                const qrCodeBlob = await this.transactStore.fetchQRcodeTempStore(reference);
+                const qrCodeBlob = await this.transactStore.fetchQRcodeTempStore(referenceNumber);
                 this.imgSrc = URL.createObjectURL(qrCodeBlob);
                 if (!this.imgSrc) {
                     console.error('Failed to create image URL from blob');

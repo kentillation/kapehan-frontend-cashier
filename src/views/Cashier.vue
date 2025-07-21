@@ -190,14 +190,11 @@
                                     <span v-if="Number(item.order_status_id) === 1" class="smoke smoke5"></span>
                                 </v-chip>
 
-                                <!-- <v-chip color="gray" prepend-icon="mdi-printer" size="small" variant="flat"
-                                    class="ps-5 text-white" @click="printOrders(item)">
-                                </v-chip> -->
-
                                 <v-chip color="gray" prepend-icon="mdi-qrcode" size="small" variant="flat"
-                                    class="ps-5 text-white" @click="toViewOrder(item.reference_number)">
+                                    class="ps-5 text-white" @click="toViewOrder(item)">
                                 </v-chip>
                             </div>
+                            <ViewOrder v-model="viewOrderDialog" @update:modelValue="productEditDialog = $event" :reference-number="selectedReferenceNumber" />
                         </template>
 
                     </v-data-table>
@@ -224,7 +221,7 @@
             </v-dialog>
 
             <!-- Viewing products of current order -->
-            <v-dialog v-model="ordersDialog" max-width="800px" persistent>
+            <!-- <v-dialog v-model="ordersDialog" max-width="800px" persistent>
                 <v-card>
                     <v-card-text>
                         <div class="d-flex flex-column">
@@ -259,7 +256,7 @@
                             @click="ordersDialog = false">Close</v-btn>
                     </v-card-actions>
                 </v-card>
-            </v-dialog>
+            </v-dialog> -->
         </v-form>
         <Snackbar ref="snackbarRef" />
         <Alert ref="alertRef" />
@@ -275,6 +272,7 @@ import { useProductsStore } from '@/stores/productsStore';
 import { useStocksStore } from '@/stores/stocksStore';
 import { useTransactStore } from '@/stores/transactionStore';
 import { useLoadingStore } from '@/stores/loading';
+import ViewOrder from './ViewOrder.vue';
 import Snackbar from '@/components/Snackbar.vue';
 import Alert from '@/components/Alert.vue';
 import GlobalLoader from '@/components/GlobalLoader.vue';
@@ -283,6 +281,7 @@ export default {
     // eslint-disable-next-line vue/multi-word-component-names
     name: 'Cashier',
     components: {
+        ViewOrder,
         Snackbar,
         Alert,
         GlobalLoader,
@@ -326,7 +325,8 @@ export default {
             order_statuses: [],
             orderDetails: [],
             loadingCurrentOrders: false,
-            ordersDialog: false,
+            viewOrderDialog: false,
+            selectedReferenceNumber: null,
             imgSrc: null,
 
             selectedTableNumber: null,
@@ -844,9 +844,9 @@ export default {
             }
         },
 
-        async toViewOrder(reference) {
-            // this.$router.push({ name: 'Reference', params: { reference } });
-            window.open(`/view-order/${reference}`, '_blank');
+        toViewOrder(item) {
+            this.viewOrderDialog = true;
+            this.selectedReferenceNumber = item.reference_number;
         },
 
         changeStatus(order) {
