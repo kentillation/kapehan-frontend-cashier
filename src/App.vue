@@ -160,9 +160,6 @@ export default {
       return this.$route.name !== 'LoginPage' && this.$route.name !== 'Reference' && !this.isNotFoundPage;
     },
   },
-  async mounted() {
-    await this.fetchLowStocks();
-  },
   methods: {
     toCashier() {
       this.$router.push('/cashier');

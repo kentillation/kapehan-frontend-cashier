@@ -456,8 +456,8 @@ export default {
             return this.subTotal * (1 - discountDecimal);
         }
     },
-    mounted() {
-        this.reloadData();
+    async mounted() {
+        await this.reloadData();
     },
     methods: {
         async reloadData() {
