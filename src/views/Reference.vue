@@ -57,7 +57,7 @@
         <div class="centered mt-10">
             <!-- Fetch QR from backend -->
              <img v-if="imgSrc" :src="imgSrc" width="120" height="120" alt="Order QR Code">
-            <span>Scan the QR Code to track order</span><br />
+            <span>This is your transaction QR Code</span><br />
         </div>
 
         <div class="centered mt-6">

@@ -968,13 +968,6 @@ export default {
             this.products = [];
             // this.fetchProducts();
         },
-
-        generatedQRCode(referenceNumber) {
-            const baseUrl = 'https://poofsa-yals.vercel.app/v1/qr-code/';
-            const size = '150x150';
-            const data = `Reference Number: ${referenceNumber}`;
-            return `${baseUrl}?size=${size}&data=${encodeURIComponent(data)}`;
-        },
     }
 };
 </script>
