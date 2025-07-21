@@ -12,7 +12,7 @@ body {
 }
 
 .v-icon--size-default {
-    font-size: calc(var(--v-icon-size-multiplier) * 1.3em) !important; /* changed 1.5em to 1.3em */
+    font-size: calc(var(--v-icon-size-multiplier) * 1.3em) !important;
 }
 
 .v-btn--size-default {
