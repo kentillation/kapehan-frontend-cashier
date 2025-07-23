@@ -276,7 +276,6 @@ import ViewOrder from './ViewOrder.vue';
 import Snackbar from '@/components/Snackbar.vue';
 import Alert from '@/components/Alert.vue';
 import GlobalLoader from '@/components/GlobalLoader.vue';
-// import { TRANSACTION_API } from '@/api/transactionApi';
 
 export default {
     // eslint-disable-next-line vue/multi-word-component-names
@@ -468,6 +467,7 @@ export default {
             this.fetchOrderStatus();
             this.fetchCurrentOrders();
             this.fetchLowStocks();
+            this.polling();
             // this.unsubscribe = TRANSACTION_API.subscribeToStatusUpdates((data) => {
             //     console.log('Real-time update:', data)
             // });
@@ -513,6 +513,17 @@ export default {
             } catch (error) {
                 console.error('Error fetching order status:', error);
                 this.showError("Error fetching order status!");
+            }
+        },
+
+        async polling() {
+            try {
+                await this.transactStore.startStationStatusPollingStore();
+                this.orders = this.transactStore.currentOrders;
+                this.loadingCurrentOrders = false;
+            } catch (error) {
+                console.error('Error polling orders:', error);
+                this.showError("Error polling orders!");
             }
         },
 

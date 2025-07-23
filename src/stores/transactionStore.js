@@ -16,6 +16,34 @@ export const useTransactStore = defineStore('transactionData', {
     }),
 
     actions: {
+        // listenToEvents() {
+        //     window.Echo.channel('realtime-channel')
+        //         .listen('RealTimeMessage', (data) => {
+        //             this.messages.push(data.message); // Update state
+        //         });
+        // },
+
+        async startStationStatusPollingStore(interval = 5000) {
+            let isActive = true;
+            const poll = async () => {
+                if (!isActive) return;
+                try {
+                    await this.fetchAllCurrentOrdersStore();
+                    // callback(status);
+                } catch (error) {
+                    // callback(error, null);
+                } finally {
+                    if (isActive) {
+                        setTimeout(poll, interval);
+                    }
+                }
+            };
+            poll();
+            return () => {
+                isActive = false;
+            };
+        },
+
         async submitTransactStore(transactionData, orderedProducts) {
             this.loading = true;
             this.error = null;
