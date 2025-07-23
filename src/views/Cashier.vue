@@ -142,7 +142,7 @@
                         <!--eslint-disable-next-line -->
                         <template v-slot:item.actions="{ item }">
                             <div class="d-flex" style="gap: 8px;">
-                                <!-- <v-chip :color="getStatusColor(Number(item.order_status_id))"
+                                <v-chip :color="getStatusColor(Number(item.order_status_id))"
                                     :prepend-icon="getStatusIcon(Number(item.order_status_id))" size="small" variant="flat"
                                     @click="changeStatus(item)" class="text-white"
                                     style="width: 80px; justify-content: flex-start;">
@@ -153,9 +153,9 @@
                                     <span v-if="Number(item.order_status_id) === 1" class="smoke smoke3"></span>
                                     <span v-if="Number(item.order_status_id) === 1" class="smoke smoke4"></span>
                                     <span v-if="Number(item.order_status_id) === 1" class="smoke smoke5"></span>
-                                </v-chip> -->
+                                </v-chip>
 
-                                <v-chip v-if="item.statusMeta" :color="item.statusMeta.color"
+                                <!-- <v-chip v-if="item.statusMeta" :color="item.statusMeta.color"
                                     :prepend-icon="item.statusMeta.icon" size="small" variant="flat"
                                     @click="changeStatus(item)" class="text-white"
                                     style="width: 80px; justify-content: flex-start;">
@@ -173,7 +173,7 @@
                                 <v-chip v-else color="grey" size="small" variant="flat">
                                     <v-icon>mdi-loading</v-icon>
                                     <span>Loading...</span>
-                                </v-chip>
+                                </v-chip> -->
 
                                 <v-chip color="gray" prepend-icon="mdi-qrcode" size="small" variant="flat"
                                     class="ps-5 text-white" @click="toViewOrder(item)">
@@ -452,21 +452,22 @@ export default {
         }
     },
     async mounted() {
-        this.loadingStore.show("");
-        try {
-            await this.fetchOrderStatus();
-            await Promise.all([
-                this.fetchProducts(),
-                this.fetchCurrentOrders(),
-                this.fetchLowStocks()
-            ]);
-            await this.polling();
-        } catch (error) {
-            console.error('Error loading data:', error);
-            this.showError("Error loading initial data!");
-        } finally {
-            this.loadingStore.hide();
-        }
+        this.reloadData();
+        // this.loadingStore.show("");
+        // try {
+        //     await this.fetchOrderStatus();
+        //     await Promise.all([
+        //         this.fetchProducts(),
+        //         this.fetchCurrentOrders(),
+        //         this.fetchLowStocks()
+        //     ]);
+        //     // await this.polling();
+        // } catch (error) {
+        //     console.error('Error loading data:', error);
+        //     this.showError("Error loading initial data!");
+        // } finally {
+        //     this.loadingStore.hide();
+        // }
     },
     methods: {
         async reloadData() {
@@ -475,7 +476,7 @@ export default {
             this.fetchOrderStatus();
             this.fetchCurrentOrders();
             this.fetchLowStocks();
-            this.polling();
+            // this.polling();
             this.loadingStore.hide();
         },
 
@@ -523,49 +524,49 @@ export default {
         },
 
         // added
-        async polling() {
-            try {
-                await this.transactStore.startStationStatusPollingStore();
-                if (!this.order_statuses || this.order_statuses.length === 0) {
-                    await this.fetchOrderStatus();
-                }
-                this.orders = this.transactStore.currentOrders.map(order => {
-                    const meta = this.getStatusMeta(Number(order.order_status_id));
-                    return {
-                        ...order,
-                        statusMeta: meta || this.defaultStatusMeta
-                    };
-                });
-                this.loadingCurrentOrders = false;
-            } catch (error) {
-                console.error('Error polling orders:', error);
-                this.showError("Error polling orders!");
-            }
-        },
+        // async polling() {
+        //     try {
+        //         await this.transactStore.startStationStatusPollingStore();
+        //         if (!this.order_statuses || this.order_statuses.length === 0) {
+        //             await this.fetchOrderStatus();
+        //         }
+        //         this.orders = this.transactStore.currentOrders.map(order => {
+        //             const meta = this.getStatusMeta(Number(order.order_status_id));
+        //             return {
+        //                 ...order,
+        //                 statusMeta: meta || this.defaultStatusMeta
+        //             };
+        //         });
+        //         this.loadingCurrentOrders = false;
+        //     } catch (error) {
+        //         console.error('Error polling orders:', error);
+        //         this.showError("Error polling orders!");
+        //     }
+        // },
 
         // added
-        getStatusMeta(statusId) {
-            try {
-                if (!Array.isArray(this.order_statuses) || this.order_statuses.length === 0) {
-                    return this.defaultStatusMeta;
-                }
-                const status = this.order_statuses.find(s =>
-                    Number(s.order_status_id) === Number(statusId)
-                );
-                if (!status) return this.defaultStatusMeta;
-                return {
-                    color: this.getStatusColor(statusId),
-                    icon: this.getStatusIcon(statusId),
-                    name: status.order_status,
-                    hasAnimation: statusId === 1,
-                    animationClass: statusId === 1 ? 'typewriter-fixed' : '',
-                    showSmoke: statusId === 1
-                };
-            } catch (error) {
-                console.error('Error getting status meta:', error);
-                return this.defaultStatusMeta;
-            }
-        },
+        // getStatusMeta(statusId) {
+        //     try {
+        //         if (!Array.isArray(this.order_statuses) || this.order_statuses.length === 0) {
+        //             return this.defaultStatusMeta;
+        //         }
+        //         const status = this.order_statuses.find(s =>
+        //             Number(s.order_status_id) === Number(statusId)
+        //         );
+        //         if (!status) return this.defaultStatusMeta;
+        //         return {
+        //             color: this.getStatusColor(statusId),
+        //             icon: this.getStatusIcon(statusId),
+        //             name: status.order_status,
+        //             hasAnimation: statusId === 1,
+        //             animationClass: statusId === 1 ? 'typewriter-fixed' : '',
+        //             showSmoke: statusId === 1
+        //         };
+        //     } catch (error) {
+        //         console.error('Error getting status meta:', error);
+        //         return this.defaultStatusMeta;
+        //     }
+        // },
 
         async fetchCurrentOrders() {
             this.loadingCurrentOrders = true;
