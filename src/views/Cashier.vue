@@ -22,8 +22,7 @@
                                     <v-chip color="grey-darken-3" variant="flat" class="position-absolute" size="small">
                                         {{ this.selectedCategory }}
                                     </v-chip>
-                                    <v-icon @click="closeSelectedCategory" 
-                                        class="position-absolute text-white" 
+                                    <v-icon @click="closeSelectedCategory" class="position-absolute text-white"
                                         style="top: 88px;">
                                         mdi-close</v-icon>
                                 </template>
@@ -34,9 +33,9 @@
                             </v-btn>
                         </div>
                     </div>
-                    <v-data-table v-if="this.products.length > 0" :headers="headersDisplay" :items="filteredProducts" :loading="loadingProducts"
-                        :items-per-page="-1" height="400px" @click:row="(event, { item }) => selectProduct(item)"
-                        density="comfortable" class="hover-table">
+                    <v-data-table v-if="this.products.length > 0" :headers="headersDisplay" :items="filteredProducts"
+                        :loading="loadingProducts" :items-per-page="-1" height="400px"
+                        @click:row="(event, { item }) => selectProduct(item)" density="comfortable" class="hover-table">
                         <!-- eslint-disable vue/valid-v-slot -->
                         <template v-slot:item.product_name="{ item }">
                             <span class="small">
@@ -48,7 +47,8 @@
                         </template>
                     </v-data-table>
                     <v-container v-else class="text-center">
-                        <p style="font-size: 15px;">No category selected. <span @click="this.fetchProducts" class="text-primary" style="cursor: pointer;">Tap to reload</span> </p>
+                        <p style="font-size: 15px;">No category selected. <span @click="this.fetchProducts"
+                                class="text-primary" style="cursor: pointer;">Tap to reload</span> </p>
                     </v-container>
                 </v-col>
 
@@ -84,67 +84,32 @@
                         <v-col cols="12">
                             <h3>Payment Section</h3>
                             <div class="payment-section mt-3">
-                                <v-text-field class="payment-section-item me-2 mt-2" 
-                                    v-model="customer_charge"
-                                    label="Sub total" 
-                                    variant="outlined" 
-                                    density="compact" 
-                                    type="number"
-                                    :model-value="subTotal.toFixed(2)" 
-                                    prepend-inner-icon="mdi-cash" 
+                                <v-text-field class="payment-section-item me-2 mt-2" v-model="customer_charge"
+                                    label="Sub total" variant="outlined" density="compact" type="number"
+                                    :model-value="subTotal.toFixed(2)" prepend-inner-icon="mdi-cash" readonly />
+                                <v-text-field class="payment-section-item me-2 mt-2" v-model="total_due"
+                                    label="Total due" variant="outlined" density="compact" type="number"
+                                    :model-value="discountedSubtotal.toFixed(2)" prepend-inner-icon="mdi-cash"
                                     readonly />
-                                <v-text-field class="payment-section-item me-2 mt-2" 
-                                    v-model="total_due"
-                                    label="Total due" 
-                                    variant="outlined" 
-                                    density="compact" 
-                                    type="number"
-                                    :model-value="discountedSubtotal.toFixed(2)" 
-                                    prepend-inner-icon="mdi-cash" 
-                                    readonly />
-                                <v-text-field class="payment-section-item me-2 mt-2"
-                                    v-model.number="customer_cash"
-                                    label="*Cash render" 
-                                    variant="outlined" 
-                                    density="compact" type="number"
+                                <v-text-field class="payment-section-item me-2 mt-2" v-model.number="customer_cash"
+                                    label="*Cash render" variant="outlined" density="compact" type="number"
                                     :rules="[v => !isNaN(parseFloat(v)) || 'Required', v => parseFloat(v) >= this.subTotal || 'Must be greater than or equal to total charge']"
                                     @input="e => customer_cash = e.target.value.replace(/[^0-9.]/g, '')"
-                                    prepend-inner-icon="mdi-cash-plus" 
-                                    placeholder="Enter cash amount" />
-                                <v-text-field class="payment-section-item me-2 mt-2" 
-                                    v-model="customer_change"
-                                    label="Change" 
-                                    variant="outlined" 
-                                    density="compact"
-                                    :rules="[v => parseFloat(v) >= 0]" 
-                                    prepend-inner-icon="mdi-cash-refund" 
-                                    readonly />
-                                <v-text-field class="payment-section-item me-2 mt-2" 
-                                    v-model="customer_discount"
-                                    label="*Discount" 
-                                    variant="outlined" 
+                                    prepend-inner-icon="mdi-cash-plus" placeholder="Enter cash amount" />
+                                <v-text-field class="payment-section-item me-2 mt-2" v-model="customer_change"
+                                    label="Change" variant="outlined" density="compact"
+                                    :rules="[v => parseFloat(v) >= 0]" prepend-inner-icon="mdi-cash-refund" readonly />
+                                <v-text-field class="payment-section-item me-2 mt-2" v-model="customer_discount"
+                                    label="*Discount" variant="outlined"
                                     @input="e => customer_discount = e.target.value.replace(/[^0-9.]/g, '')"
-                                    type="number"
-                                    density="compact" 
-                                    prepend-inner-icon="mdi-percent" 
-                                    clearable />
-                                <v-text-field class="payment-section-item me-2 mt-2" 
-                                    v-model="table_number"
-                                    label="*Table number" 
-                                    variant="outlined" 
-                                    density="compact" 
-                                    type="number"
-                                    :rules="[v => !!v || 'Required']" 
-                                    prepend-inner-icon="mdi-table-chair"
+                                    type="number" density="compact" prepend-inner-icon="mdi-percent" clearable />
+                                <v-text-field class="payment-section-item me-2 mt-2" v-model="table_number"
+                                    label="*Table number" variant="outlined" density="compact" type="number"
+                                    :rules="[v => !!v || 'Required']" prepend-inner-icon="mdi-table-chair"
                                     placeholder="Enter table number" />
-                                <v-text-field class="payment-section-item me-2 mt-2" 
-                                    v-model="customer_name"
-                                    label="Customer (optional)" 
-                                    variant="outlined" 
-                                    density="compact" 
-                                    type="text"
-                                    prepend-inner-icon="mdi-account" 
-                                    placeholder="Enter customer name" />
+                                <v-text-field class="payment-section-item me-2 mt-2" v-model="customer_name"
+                                    label="Customer (optional)" variant="outlined" density="compact" type="text"
+                                    prepend-inner-icon="mdi-account" placeholder="Enter customer name" />
                             </div>
 
                             <div class="d-flex justify-end me-2 ms-1">
@@ -177,7 +142,7 @@
                         <!--eslint-disable-next-line -->
                         <template v-slot:item.actions="{ item }">
                             <div class="d-flex" style="gap: 8px;">
-                                <v-chip :color="getStatusColor(Number(item.order_status_id))"
+                                <!-- <v-chip :color="getStatusColor(Number(item.order_status_id))"
                                     :prepend-icon="getStatusIcon(Number(item.order_status_id))" size="small" variant="flat"
                                     @click="changeStatus(item)" class="text-white"
                                     style="width: 80px; justify-content: flex-start;">
@@ -188,32 +153,34 @@
                                     <span v-if="Number(item.order_status_id) === 1" class="smoke smoke3"></span>
                                     <span v-if="Number(item.order_status_id) === 1" class="smoke smoke4"></span>
                                     <span v-if="Number(item.order_status_id) === 1" class="smoke smoke5"></span>
-                                </v-chip>
+                                </v-chip> -->
 
-                                <!-- <v-chip :color="(item.statusMeta || {}).color || 'grey'"
-                                        :prepend-icon="(item.statusMeta || {}).icon || 'mdi-help-circle'" 
-                                        size="small" 
-                                        variant="flat"
-                                        @click="changeStatus(item)" 
-                                        class="text-white"
-                                        style="width: 80px; justify-content: flex-start;">
-                                    <span :class="(item.statusMeta || {}).animationClass">
-                                        {{ (item.statusMeta || {}).name || 'Loading...' }}
+                                <v-chip v-if="item.statusMeta" :color="item.statusMeta.color"
+                                    :prepend-icon="item.statusMeta.icon" size="small" variant="flat"
+                                    @click="changeStatus(item)" class="text-white"
+                                    style="width: 80px; justify-content: flex-start;">
+                                    <span :class="item.statusMeta.animationClass">
+                                        {{ item.statusMeta.name }}
                                     </span>
-                                    <template v-if="(item.statusMeta || {}).showSmoke">
+                                    <template v-if="item.statusMeta.showSmoke">
                                         <span class="smoke"></span>
                                         <span class="smoke smoke2"></span>
                                         <span class="smoke smoke3"></span>
                                         <span class="smoke smoke4"></span>
                                         <span class="smoke smoke5"></span>
                                     </template>
-                                </v-chip> -->
+                                </v-chip>
+                                <v-chip v-else color="grey" size="small" variant="flat">
+                                    <v-icon>mdi-loading</v-icon>
+                                    <span>Loading...</span>
+                                </v-chip>
 
                                 <v-chip color="gray" prepend-icon="mdi-qrcode" size="small" variant="flat"
                                     class="ps-5 text-white" @click="toViewOrder(item)">
                                 </v-chip>
                             </div>
-                            <ViewOrder v-model="viewOrderDialog" @update:modelValue="productEditDialog = $event" :reference-number="selectedReferenceNumber" />
+                            <ViewOrder v-model="viewOrderDialog" @update:modelValue="productEditDialog = $event"
+                                :reference-number="selectedReferenceNumber" />
                         </template>
 
                     </v-data-table>
@@ -453,7 +420,7 @@ export default {
         },
         subTotal() {
             return this.selectedProducts.reduce((sum, p) => sum + (p.product_price * p.quantity), 0);
-        }, 
+        },
         currentOrders() {
             return this.orders;
         },
@@ -485,7 +452,21 @@ export default {
         }
     },
     async mounted() {
-        await this.reloadData();
+        this.loadingStore.show("");
+        try {
+            await this.fetchOrderStatus();
+            await Promise.all([
+                this.fetchProducts(),
+                this.fetchCurrentOrders(),
+                this.fetchLowStocks()
+            ]);
+            await this.polling();
+        } catch (error) {
+            console.error('Error loading data:', error);
+            this.showError("Error loading initial data!");
+        } finally {
+            this.loadingStore.hide();
+        }
     },
     methods: {
         async reloadData() {
@@ -494,7 +475,7 @@ export default {
             this.fetchOrderStatus();
             this.fetchCurrentOrders();
             this.fetchLowStocks();
-            // this.polling();
+            this.polling();
             this.loadingStore.hide();
         },
 
@@ -519,12 +500,12 @@ export default {
             }
         },
 
-        // added
+        
         async fetchLowStocks() {
             try {
                 await this.stocksStore.fetchLowStocksStore(this.authStore.branchId);
                 if (this.stockNotificationQty > 0) {
-                    this.showAlert(`${ this.stockNotificationQty } ${ this.stockNotificationQty > 1 ? 'stocks' : 'stock' } has low quantity.`);
+                    this.showAlert(`${this.stockNotificationQty} ${this.stockNotificationQty > 1 ? 'stocks' : 'stock'} has low quantity.`);
                 }
             } catch (error) {
                 console.error('Error fetching stocks:', error);
@@ -541,45 +522,50 @@ export default {
             }
         },
 
-        // async polling() {
-        //     try {
-        //         await this.transactStore.startStationStatusPollingStore();
-        //         this.orders = this.transactStore.currentOrders.map(order => {
-        //             return {
-        //                 ...order,
-        //                 statusMeta: this.getStatusMeta(Number(order.order_status_id)) || {
-        //                     color: 'grey',
-        //                     icon: 'mdi-help-circle',
-        //                     name: 'Loading...',
-        //                     hasAnimation: false,
-        //                     animationClass: '',
-        //                     showSmoke: false
-        //                 }
-        //             };
-        //         });
-        //         this.loadingCurrentOrders = false;
-        //     } catch (error) {
-        //         console.error('Error polling orders:', error);
-        //         this.showError("Error polling orders!");
-        //     }
-        // },
+        // added
+        async polling() {
+            try {
+                await this.transactStore.startStationStatusPollingStore();
+                if (!this.order_statuses || this.order_statuses.length === 0) {
+                    await this.fetchOrderStatus();
+                }
+                this.orders = this.transactStore.currentOrders.map(order => {
+                    const meta = this.getStatusMeta(Number(order.order_status_id));
+                    return {
+                        ...order,
+                        statusMeta: meta || this.defaultStatusMeta
+                    };
+                });
+                this.loadingCurrentOrders = false;
+            } catch (error) {
+                console.error('Error polling orders:', error);
+                this.showError("Error polling orders!");
+            }
+        },
 
-        // getStatusMeta(statusId) {
-        //     try {
-        //         const status = this.order_statuses.find(s => Number(s.order_status_id) === Number(statusId));
-        //         return {
-        //             color: this.getStatusColor(statusId),
-        //             icon: this.getStatusIcon(statusId),
-        //             name: status ? status.order_status : 'Unknown',
-        //             hasAnimation: statusId === 1,
-        //             animationClass: statusId === 1 ? 'typewriter-fixed' : '',
-        //             showSmoke: statusId === 1
-        //         };
-        //     } catch (error) {
-        //         console.error('Error getting status meta:', error);
-        //         return this.defaultStatusMeta;
-        //     }
-        // },
+        // added
+        getStatusMeta(statusId) {
+            try {
+                if (!Array.isArray(this.order_statuses) || this.order_statuses.length === 0) {
+                    return this.defaultStatusMeta;
+                }
+                const status = this.order_statuses.find(s =>
+                    Number(s.order_status_id) === Number(statusId)
+                );
+                if (!status) return this.defaultStatusMeta;
+                return {
+                    color: this.getStatusColor(statusId),
+                    icon: this.getStatusIcon(statusId),
+                    name: status.order_status,
+                    hasAnimation: statusId === 1,
+                    animationClass: statusId === 1 ? 'typewriter-fixed' : '',
+                    showSmoke: statusId === 1
+                };
+            } catch (error) {
+                console.error('Error getting status meta:', error);
+                return this.defaultStatusMeta;
+            }
+        },
 
         async fetchCurrentOrders() {
             this.loadingCurrentOrders = true;
@@ -705,7 +691,7 @@ export default {
                     total_due: parseFloat(this.discountedSubtotal) || 0,
                     computed_discount: this.computed_discount,
                 }];
-                console.log ("Submit: ", transactionData);
+                console.log("Submit: ", transactionData);
                 await this.transactStore.submitTransactStore(transactionData, orderedProducts);
                 this.fetchCurrentOrders();
                 this.fetchLowStocks();
@@ -867,15 +853,15 @@ export default {
                         <div class="payment">
                             <div class="orders-item">
                                 <span>Total charge</span>
-                                <span>₱${ this.totalAmount }</span>
+                                <span>₱${this.totalAmount}</span>
                             </div>
                             <div class="orders-item">
                                 <span>Cash render:</span>
-                                <span>₱${ this.customerCash }</span>
+                                <span>₱${this.customerCash}</span>
                             </div>
                             <div class="orders-item">
                                 <span>Change:</span>
-                                <span>₱${ this.customerChange }</span>
+                                <span>₱${this.customerChange}</span>
                             </div>
                         </div>
                         <div class="centered mt-10">
@@ -1033,7 +1019,7 @@ export default {
             this.$refs.snackbarRef.showSnackbar(message, "success");
         },
 
-        closeSelectedCategory () {
+        closeSelectedCategory() {
             this.selectedCategory = '';
             this.products = [];
             // this.fetchProducts();
@@ -1057,34 +1043,34 @@ export default {
 }
 
 ::v-deep(.hover-table .v-data-table__tr) {
-  transition: background-color 0.5s ease-in-out;
-  cursor: pointer;
+    transition: background-color 0.5s ease-in-out;
+    cursor: pointer;
 }
 
 ::v-deep(.hover-table .v-data-table__tr:hover) {
-  animation: backgroundFade 2s infinite;
+    animation: backgroundFade 2s infinite;
 }
 
 @keyframes backgroundFade {
-  0% {
-    background-color: rgba(224, 247, 250, 0);
-  }
+    0% {
+        background-color: rgba(224, 247, 250, 0);
+    }
 
-  50% {
-    background-color: rgba(117, 62, 62, 0.442);
-  }
+    50% {
+        background-color: rgba(117, 62, 62, 0.442);
+    }
 
-  100% {
-    background-color: rgba(224, 247, 250, 0);
-  }
+    100% {
+        background-color: rgba(224, 247, 250, 0);
+    }
 }
 
 .pdct-txt .v-input__details {
-  display: none !important;
+    display: none !important;
 }
 
 ::v-deep .v-input__details {
-  display: none;
+    display: none;
 }
 
 .indication {
