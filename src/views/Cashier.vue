@@ -276,6 +276,7 @@ import ViewOrder from './ViewOrder.vue';
 import Snackbar from '@/components/Snackbar.vue';
 import Alert from '@/components/Alert.vue';
 import GlobalLoader from '@/components/GlobalLoader.vue';
+// import { TRANSACTION_API } from '@/api/transactionApi';
 
 export default {
     // eslint-disable-next-line vue/multi-word-component-names
@@ -321,6 +322,7 @@ export default {
             computed_discount: 0,
 
             // Orders
+            // unsubscribe: null,
             orders: [],
             order_statuses: [],
             orderDetails: [],
@@ -466,6 +468,9 @@ export default {
             this.fetchOrderStatus();
             this.fetchCurrentOrders();
             this.fetchLowStocks();
+            // this.unsubscribe = TRANSACTION_API.subscribeToStatusUpdates((data) => {
+            //     console.log('Real-time update:', data)
+            // });
             this.loadingStore.hide();
         },
         async generateReferenceNumber() {

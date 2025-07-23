@@ -14,6 +14,13 @@ export const TRANSACTION_API = {
         FETCH_STATION_STATUS: '/kitchen/station-status',
         CHANGE_KITCHEN_STATUS: '/kitchen/update-kitchen-product-status',
     },
+    
+    // ==================== WEB SOCKET METHODS ====================
+    // subscribeToStatusUpdates(stationStatusId, callback) {
+    //     echo.private(`update-order-status.${stationStatusId}`)
+    //         .listen('.status.updated', callback) // Match the event class name in Laravel
+    //     return () => echo.leave('update-order-status')
+    // },
 
     async fetchAllCurrentOrdersApi() {
         try {
