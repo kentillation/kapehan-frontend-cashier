@@ -495,9 +495,6 @@ export default {
             this.fetchCurrentOrders();
             this.fetchLowStocks();
             // this.polling();
-            // this.unsubscribe = TRANSACTION_API.subscribeToStatusUpdates((data) => {
-            //     console.log('Real-time update:', data)
-            // });
             this.loadingStore.hide();
         },
 
