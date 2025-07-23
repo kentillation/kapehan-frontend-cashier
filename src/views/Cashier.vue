@@ -190,6 +190,25 @@
                                     <span v-if="Number(item.order_status_id) === 1" class="smoke smoke5"></span>
                                 </v-chip>
 
+                                <!-- <v-chip :color="(item.statusMeta || {}).color || 'grey'"
+                                        :prepend-icon="(item.statusMeta || {}).icon || 'mdi-help-circle'" 
+                                        size="small" 
+                                        variant="flat"
+                                        @click="changeStatus(item)" 
+                                        class="text-white"
+                                        style="width: 80px; justify-content: flex-start;">
+                                    <span :class="(item.statusMeta || {}).animationClass">
+                                        {{ (item.statusMeta || {}).name || 'Loading...' }}
+                                    </span>
+                                    <template v-if="(item.statusMeta || {}).showSmoke">
+                                        <span class="smoke"></span>
+                                        <span class="smoke smoke2"></span>
+                                        <span class="smoke smoke3"></span>
+                                        <span class="smoke smoke4"></span>
+                                        <span class="smoke smoke5"></span>
+                                    </template>
+                                </v-chip> -->
+
                                 <v-chip color="gray" prepend-icon="mdi-qrcode" size="small" variant="flat"
                                     class="ps-5 text-white" @click="toViewOrder(item)">
                                 </v-chip>
@@ -329,6 +348,14 @@ export default {
             viewOrderDialog: false,
             selectedReferenceNumber: null,
             imgSrc: null,
+            defaultStatusMeta: {
+                color: 'grey',
+                icon: 'mdi-help-circle',
+                name: 'Loading...',
+                hasAnimation: false,
+                animationClass: '',
+                showSmoke: false
+            },
 
             selectedTableNumber: null,
             customerName: '',
@@ -467,12 +494,13 @@ export default {
             this.fetchOrderStatus();
             this.fetchCurrentOrders();
             this.fetchLowStocks();
-            this.polling();
+            // this.polling();
             // this.unsubscribe = TRANSACTION_API.subscribeToStatusUpdates((data) => {
             //     console.log('Real-time update:', data)
             // });
             this.loadingStore.hide();
         },
+
         async generateReferenceNumber() {
             // Random 10 numbers
             const generatedNumber = Math.random().toString().slice(2, 14);
@@ -516,16 +544,45 @@ export default {
             }
         },
 
-        async polling() {
-            try {
-                await this.transactStore.startStationStatusPollingStore();
-                this.orders = this.transactStore.currentOrders;
-                this.loadingCurrentOrders = false;
-            } catch (error) {
-                console.error('Error polling orders:', error);
-                this.showError("Error polling orders!");
-            }
-        },
+        // async polling() {
+        //     try {
+        //         await this.transactStore.startStationStatusPollingStore();
+        //         this.orders = this.transactStore.currentOrders.map(order => {
+        //             return {
+        //                 ...order,
+        //                 statusMeta: this.getStatusMeta(Number(order.order_status_id)) || {
+        //                     color: 'grey',
+        //                     icon: 'mdi-help-circle',
+        //                     name: 'Loading...',
+        //                     hasAnimation: false,
+        //                     animationClass: '',
+        //                     showSmoke: false
+        //                 }
+        //             };
+        //         });
+        //         this.loadingCurrentOrders = false;
+        //     } catch (error) {
+        //         console.error('Error polling orders:', error);
+        //         this.showError("Error polling orders!");
+        //     }
+        // },
+
+        // getStatusMeta(statusId) {
+        //     try {
+        //         const status = this.order_statuses.find(s => Number(s.order_status_id) === Number(statusId));
+        //         return {
+        //             color: this.getStatusColor(statusId),
+        //             icon: this.getStatusIcon(statusId),
+        //             name: status ? status.order_status : 'Unknown',
+        //             hasAnimation: statusId === 1,
+        //             animationClass: statusId === 1 ? 'typewriter-fixed' : '',
+        //             showSmoke: statusId === 1
+        //         };
+        //     } catch (error) {
+        //         console.error('Error getting status meta:', error);
+        //         return this.defaultStatusMeta;
+        //     }
+        // },
 
         async fetchCurrentOrders() {
             this.loadingCurrentOrders = true;
