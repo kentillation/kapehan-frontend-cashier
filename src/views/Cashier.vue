@@ -500,7 +500,6 @@ export default {
                 this.loadingProducts = false;
             }
         },
-
         
         async fetchLowStocks() {
             try {
@@ -669,7 +668,8 @@ export default {
                 }
                 const orderedProducts = this.selectedProducts.map(p => ({
                     product_id: p.product_id,
-                    quantity: p.quantity
+                    quantity: p.quantity,
+                    station_id: p.station_id
                 }));
                 let refNumber = typeof this.newRefNumber === 'function' || typeof this.newRefNumber?.then === 'function'
                     ? await this.newRefNumber
