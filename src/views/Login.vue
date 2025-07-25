@@ -82,7 +82,7 @@ export default {
 
             this.loading = true;
             try {
-                this.loadingStore.show('Logging in...');
+                this.loadingStore.show('');
                 const authStore = useAuthStore();
                 await authStore.login({ cashier_email: this.cashier_email, cashier_password: this.cashier_password });
 
