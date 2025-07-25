@@ -34,6 +34,21 @@
             </v-row>
             <v-divider class="my-4"></v-divider>
         </v-card>
+        <v-dialog v-model="accountDialog" width="500">
+            <v-card class="pa-2">
+                <v-card-title>
+                    <h3>Account settings</h3>
+                </v-card-title>
+                <v-card-text>
+                    <h3>Hello, World!</h3>
+                </v-card-text>
+                <v-spacer></v-spacer>
+                <div class="d-flex justify-space-between pa-3">
+                    <v-btn prepend-icon="mdi-magic-staff" color="primary" variant="tonal">Apply</v-btn>
+                    <v-btn prepend-icon="mdi-information-outline" color="error" variant="tonal" @click="accountDialog = false">Change later</v-btn>
+                </div>
+            </v-card>
+        </v-dialog>
         <v-dialog v-model="themeDialog" width="500">
             <v-card class="pa-2">
                 <v-card-title>
@@ -50,54 +65,80 @@
                 <v-spacer></v-spacer>
                 <div class="d-flex justify-space-between pa-3">
                     <v-btn prepend-icon="mdi-magic-staff" color="primary" variant="tonal" @click="applyTheme">Apply</v-btn>
-                    <v-btn prepend-icon="mdi-information-outline" color="error" variant="tonal" @click="themeDialog = false">
-                        <span class="to-hide">Change later</span>
-                        <span class="to-show">Later</span>
-                    </v-btn>
+                    <v-btn prepend-icon="mdi-information-outline" color="error" variant="tonal" @click="themeDialog = false">Change later</v-btn>
                 </div>
             </v-card>
         </v-dialog>
+        <Alert ref="alertRef" />
     </v-container>
 </template>
 
 <script>
 import { useTheme } from 'vuetify';
 import { ref, computed } from 'vue';
+import { mapState } from 'pinia';
+import { useAuthStore } from '@/stores/auth';
+import { useStocksStore } from '@/stores/stocksStore';
+import Alert from '@/components/Alert.vue';
 
 export default {
     // eslint-disable-next-line vue/multi-word-component-names
     name: 'Settings',
+    components: {
+        Alert,
+    },
     data() {
         return {
             accountDialog: false,
         }
     },
+    mounted() {
+        this.fetchLowStocks();
+    },
     setup() {
+        const authStore = useAuthStore();
         const theme = useTheme();
         const themeDialog = ref(false);
         const selectedTheme = ref(theme.global.name.value);
-
         const currentThemeName = computed(() => {
             return theme.global.name.value === 'dark' ? 'Dark' : 'Light';
         });
-
         const applyTheme = () => {
             theme.global.name.value = selectedTheme.value;
             localStorage.setItem('theme', selectedTheme.value);
             themeDialog.value = false;
         };
+        const stocksStore = useStocksStore();
 
         return {
+            authStore,
             theme,
             themeDialog,
             selectedTheme,
             currentThemeName,
-            applyTheme
+            applyTheme,
+            stocksStore
         };
+    },
+    computed: {
+        ...mapState(useStocksStore, ['stockNotificationQty']),
     },
     methods: {
         openAccountDialog() {
             this.accountDialog = true;
+        },
+        async fetchLowStocks() {
+            try {
+                await this.stocksStore.fetchLowStocksStore(this.authStore.branchId);
+                if (this.stockNotificationQty > 0) {
+                    this.showAlert(`${this.stockNotificationQty} ${this.stockNotificationQty > 1 ? 'stocks' : 'stock'} has low quantity.`);
+                }
+            } catch (error) {
+                console.error('Error fetching stocks:', error);
+            }
+        },
+        showAlert(message) {
+            this.$refs.alertRef.showSnackbarAlert(message, "error");
         },
     },
 };

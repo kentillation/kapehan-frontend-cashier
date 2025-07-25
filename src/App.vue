@@ -18,7 +18,7 @@
             <v-badge v-if="stockNotificationQty >= 1" 
               :content="stockNotificationQty" 
               class="position-absolute" 
-              style="top: 5px; right: 9px;" 
+              style="top: 2px; right: 9px;" 
               color="error">
             </v-badge>
             <v-icon>mdi-bell-outline</v-icon>
@@ -65,6 +65,9 @@ export default {
   },
   components: {
     GlobalLoader,
+  },
+  async mounted() {
+    await this.fetchLowStocks();
   },
   setup() {
     const authStore = useAuthStore();
