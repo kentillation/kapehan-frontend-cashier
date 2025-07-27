@@ -36,7 +36,9 @@
                         Proceed
                     </v-btn>
                 </v-form>
-                <h6 class="text-center text-grey mt-5">Poofsa .tend UAT Version v1.0.0</h6>
+                <div class="text-center mb-5">
+                    <p text color="#0090b6" style="cursor: pointer;" @click="$router.push('/forgot-password')">Forgot password?</p>
+                </div>
             </v-sheet>
             <v-snackbar v-model="snackbar.visible" :color="snackbar.color" timeout="4000" top>
                 {{ snackbar.message }}
