@@ -3,9 +3,13 @@
         <v-container class="fill-height d-flex align-center justify-center">
             <v-sheet class="pa-6 mx-auto ma-4" max-width="500" rounded="lg" width="100%">
                 <div class="d-flex justify-center mb-4">
-                    <img :src="logo" alt="Poofsa Logo" />
+                    <img :src="logo" loading="lazy" alt="Poofsa Logo" />
                 </div>
-                <h1 class="text-center">Poofsa <span class="text-warning">.tend</span></h1>
+                <h1 class="text-center">
+                    Poofsa 
+                    <span class="text-warning">.tend</span>
+                    <v-chip color="#0090b6" size="x-small" class="position-absolute">BETA</v-chip>
+                </h1>
                 <v-form ref="form" @submit.prevent="handleLogin" v-model="isFormValid" class="pa-4">
                     <div class="text-subtitle-1 text-medium-emphasis">Email</div>
                     <v-text-field v-model="cashier_email" 
