@@ -5,7 +5,7 @@
         width="auto" 
         transition="dialog-bottom-transition"
         scrollable>
-        <v-btn @click="$emit('update:modelValue', false)" class="position-absolute" size="small" style="top: -50px;" icon>
+        <v-btn @click="$emit('update:modelValue', false)" color="#0090b6" class="position-absolute" size="small" style="top: -17px; left: -17px; z-index: 1;" icon>
             <v-icon>mdi-close</v-icon>
         </v-btn>
         <v-card>
@@ -95,7 +95,7 @@ export default {
             headersOrderDetails: [
                 { title: 'Item', value: 'product_name' },
                 { title: 'Price', value: 'product_price' },
-                { title: 'Amount', value: 'subtotal' },
+                { title: 'Subtotal', value: 'subtotal' },
             ],
             imgSrc: null,
         };

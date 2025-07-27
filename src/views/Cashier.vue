@@ -1,6 +1,6 @@
 <template>
     <v-container>
-        <v-btn @click="this.reloadData" class="refresh bg-brown-darken-3" variant="flat" icon>
+        <v-btn @click="this.reloadData" color="#0090b6" class="refresh" variant="flat" icon>
             <v-icon>mdi-refresh</v-icon>
         </v-btn>
         <v-form ref="transactionForm" @submit.prevent="submitForm" v-model="isFormValid">
@@ -9,8 +9,8 @@
                 <v-col cols="12" lg="6" md="6" sm="12" xs="12">
                     <div class="d-flex align-items-center flex-column">
                         <div class="indication pa-2 text-white trnsct-head">
-                            <h3 class="me-13">Quantity: <span>{{ totalQuantity }}</span></h3>
-                            <h3 class="ms-15">Charge: ₱ <span>{{ subTotal.toFixed() }}</span></h3>
+                            <h3 class="me-13 text-white">Quantity: <span>{{ totalQuantity }}</span></h3>
+                            <h3 class="ms-15 text-white">Charge: ₱ <span>{{ subTotal.toFixed() }}</span></h3>
                         </div>
                         <div class="d-flex align-items-center justify-content-center">
                             <v-text-field v-model="searchProduct" class="prdct-txt text-white w-50"
@@ -27,8 +27,8 @@
                                         mdi-close</v-icon>
                                 </template>
                             </div>
-                            <v-btn class="bg-brown-darken-3 d-flex align-items-center py-7 w-50 rounded-0"
-                                variant="tonal" @click="showCategoriesDialog" large>
+                            <v-btn color="#0090b6" class="d-flex align-items-center py-7 w-50 rounded-0"
+                                variant="flat" @click="showCategoriesDialog" large>
                                 <v-icon>mdi-magnify</v-icon>&nbsp; Category
                             </v-btn>
                         </div>
@@ -68,13 +68,13 @@
                                     </div>
                                 </template>
                                 <template v-slot:item.actions="{ item }">
-                                    <v-btn @click="minusQuan(item)" class="bg-brown-darken-3 mini-btn ms-3">
+                                    <v-btn @click="minusQuan(item)" color="#0090b6" class="mini-btn ms-3">
                                         <v-icon>mdi-minus</v-icon>
                                     </v-btn>
-                                    <v-btn @click="addQuan(item)" class="bg-brown-darken-3 mini-btn mx-1">
+                                    <v-btn @click="addQuan(item)" color="#0090b6" class="mini-btn mx-1">
                                         <v-icon>mdi-plus</v-icon>
                                     </v-btn>
-                                    <v-btn @click="removeProduct(item)" class="bg-red-darken-4 mini-btn">
+                                    <v-btn @click="removeProduct(item)" class="bg-red-lighten-2 mini-btn" variant="flat">
                                         <v-icon>mdi-delete</v-icon>
                                     </v-btn>
                                 </template>
@@ -113,11 +113,11 @@
                             </div>
 
                             <div class="d-flex justify-end me-2 ms-1">
-                                <v-btn class="bg-red-lighten-2 d-flex w-50 py-6 mt-3" variant="tonal"
+                                <v-btn class="bg-red-lighten-2 d-flex w-50 py-6 mt-3" variant="flat"
                                     prepend-icon="mdi-refresh" @click="resetPaymentSection" :disabled="loading">
                                     Reset
                                 </v-btn>&nbsp;
-                                <v-btn class="bg-brown-darken-3 d-flex w-50 py-6 mt-3" variant="tonal"
+                                <v-btn class="d-flex w-50 py-6 mt-3" color="#0090b6" variant="flat"
                                     append-icon="mdi-send" type="submit" :loading="loading" :disabled="!isFormValid || loading ||
                                         Number(customer_cash) < subTotal || Number(customer_change) < 0">
                                     Submit
@@ -175,7 +175,7 @@
                                     <span>Loading...</span>
                                 </v-chip> -->
 
-                                <v-chip color="gray" prepend-icon="mdi-qrcode" size="small" variant="flat"
+                                <v-chip color="#0090b6" prepend-icon="mdi-qrcode" size="small" variant="flat"
                                     class="ps-5 text-white" @click="toViewOrder(item)">
                                 </v-chip>
                             </div>
