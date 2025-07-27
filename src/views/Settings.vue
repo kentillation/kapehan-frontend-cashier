@@ -1,7 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
     <v-container>
-        <h3 class="text-brown-lighten-1">Settings</h3>
+        <h3>Settings</h3>
         <v-card class="pa-8 mt-3">
             <v-row>
                 <v-col cols="12" lg="6" md="6" sm="12">
