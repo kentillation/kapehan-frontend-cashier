@@ -4,6 +4,7 @@ import { TRANSACTION_API } from '@/api/transactionApi';
 export const useTransactStore = defineStore('transactionData', {
     state: () => ({
         transactionData: null,
+        reversalData: null,
         currentOrders: [],
         orderStatuses: [],
         stationStatuses: [],
@@ -66,6 +67,33 @@ export const useTransactStore = defineStore('transactionData', {
             } catch (error) {
                 console.error('Transaction submission failed:', error);
                 this.error = error.message || 'Failed to submit transaction';
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async saveReversalStore(reversalData) {
+            this.loading = true;
+            this.error = null;
+            this.success = false;
+            try {
+                if (!reversalData) {
+                    throw new Error('Invalid data');
+                }
+                const payload = {
+                    ...reversalData
+                };
+                const response = await TRANSACTION_API.saveReversalApi(payload);
+                if (!response || response.status !== true) {
+                    throw new Error(response?.message || 'Failed to submit reversal');
+                }
+                this.reversalData = response.data;
+                this.success = true;
+                return response;
+            } catch (error) {
+                console.error('Reversal submission failed:', error);
+                this.error = error.message || 'Failed to submit reversal';
                 throw error;
             } finally {
                 this.loading = false;

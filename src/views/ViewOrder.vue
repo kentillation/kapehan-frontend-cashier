@@ -43,22 +43,63 @@
                         ₱{{ item.subtotal.toFixed(2) }}
                     </template>
                 </v-data-table>
-                <v-dialog v-model="addVoidBlotter" height="250" transition="dialog-bottom-transition">
+                <v-dialog v-model="addVoidReversalDialog" height="260" width="400" transition="dialog-bottom-transition">
                     <v-card class="pa-2">
                         <v-card-title>
-                            <h4>Confirmation</h4>
+                            <h5>Add Reversal Confirmation</h5>
                         </v-card-title>
-                        <v-card-text>
-                            <p class="mb-3">{{ selectedProductText }}</p>
-                            <span>Do you want to file blotter for this item?</span>
+                        <v-card-text class="d-flex flex-column">
+                            <span style="font-size: 16px;">
+                                <strong>Table #: {{ this.selectedProduct.table_number }}</strong>
+                            </span>
+                            <span class="mb-3" style="font-size: 16px;">
+                                <strong>{{ selectedProductText }} &nbsp; &nbsp; x{{ this.selectedProduct.quantity }}</strong>
+                            </span>
+                            <span class="text-center">Want to file reversal for this item?</span>
                         </v-card-text>
-                        <v-card-actions>
-                            <v-btn color="red" variant="tonal" class="px-3" prepend-icon="mdi-close"
-                                @click="addVoidBlotter = false">No, I wont!
+                        <v-card-actions class="d-flex">
+                            <v-btn color="red" variant="tonal" class="px-3 pt-1 pb-6" prepend-icon="mdi-close"
+                                @click="addVoidReversalDialog = false">No<span class="to-hide"> , I wont!</span>
                             </v-btn>
                             <v-spacer></v-spacer>
-                            <v-btn color="green" variant="tonal" class="px-3" prepend-icon="mdi-check"
-                                @click="addVoidBlotter = false">Yes
+                            <v-btn color="green" variant="tonal" class="px-3 pt-1 pb-6" prepend-icon="mdi-check"
+                                @click="openConfirmVoidReversalDialog">Yes<span class="to-hide"> , I want!</span>
+                            </v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+                <v-dialog v-model="confirmVoidReversalDialog" height="260" width="400" transition="dialog-bottom-transition">
+                    <v-card class="pa-2">
+                        <v-card-title>
+                            <h5>Reversal Confirmation</h5>
+                        </v-card-title>
+                        <v-card-text class="d-flex flex-column">
+                            <span style="font-size: 16px;">
+                                <strong>Table #: {{ this.selectedProduct.table_number }}</strong>
+                            </span>
+                            <span class="mb-3" style="font-size: 16px;">
+                                <strong>{{ selectedProductText }}</strong>
+                            </span>
+                            <div class="d-flex align-center justify-space-around">
+                                <span style="font-size: 16px;">Quantity: </span>
+                                <div class="mt-3">
+                                    <v-btn @click="minusQuantity" color="#0090b6" class="mini-btn ms-3">
+                                        <v-icon>mdi-minus</v-icon>
+                                    </v-btn>
+                                    <span class="mx-3" style="font-size: 16px;">{{ this.selectedProduct.quantity }}</span>
+                                    <v-btn @click="addQuantity" color="#0090b6" class="mini-btn mx-1">
+                                        <v-icon>mdi-plus</v-icon>
+                                    </v-btn>
+                                </div>
+                            </div>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-btn color="red" variant="tonal" class="px-3 pt-1 pb-6" prepend-icon="mdi-close"
+                                @click="confirmVoidReversalDialog = false">Cancel
+                            </v-btn>
+                            <v-spacer></v-spacer>
+                            <v-btn color="green" variant="tonal" class="px-3 pt-1 pb-6" prepend-icon="mdi-check"
+                                @click="saveReversal">Proceed
                             </v-btn>
                         </v-card-actions>
                     </v-card>
@@ -85,14 +126,24 @@
             </v-container>
         </v-card>
     </v-dialog>
+    <Alert ref="alertRef" />
+    <Snackbar ref="successRef" />
 </template>
 
 <script>
+import { useAuthStore } from '@/stores/auth';
 import { useTransactStore } from '@/stores/transactionStore';
+import { useLoadingStore } from '@/stores/loading';
+import Alert from '@/components/Alert.vue';
+import Snackbar from '@/components/Snackbar.vue';
 
 export default {
     // eslint-disable-next-line vue/multi-word-component-names
     name: 'ViewOrder',
+    components: {
+        Alert,
+        Snackbar,
+    },
     data() {
         return {
             // reference: this.$route.params.reference || 'No reference provided',
@@ -122,8 +173,10 @@ export default {
                 { title: 'Subtotal', value: 'subtotal' },
             ],
             imgSrc: null,
-            addVoidBlotter: false,
+            addVoidReversalDialog: false,
+            confirmVoidReversalDialog: false,
             selectedProduct: null,
+            selectedProductOriginalQuantity: 0,
         };
     },
     props: {
@@ -143,8 +196,7 @@ export default {
             if (!this.selectedProduct) return '';
             return `${this.selectedProduct.product_name || ''}
                 ${this.selectedProduct.temp_label || ''}
-                ${this.selectedProduct.size_label || ''} \t \t
-                x${this.selectedProduct.quantity || ''}`;
+                ${this.selectedProduct.size_label || ''}`;
         },
     },
     emits: ['update:modelValue'],
@@ -168,7 +220,9 @@ export default {
         // }
     },
     setup() {
+        const authStore = useAuthStore();
         const transactStore = useTransactStore();
+        const loadingStore = useLoadingStore();
         const currentDate = new Date().toLocaleDateString('en-PH', {
             year: 'numeric',
             month: 'long',
@@ -178,7 +232,7 @@ export default {
             hour12: true,
         });
         const formatCurrentDate = currentDate.replace(/,/g, '');
-        return { transactStore, formatCurrentDate };
+        return { authStore, transactStore, loadingStore, formatCurrentDate };
     },
     // mounted() {
     //     this.fetchCustomerOrders(this.referenceNumber);
@@ -242,8 +296,58 @@ export default {
         },
 
         selectedOrder(event, { item }) {
-            this.selectedProduct = item;
-            this.addVoidBlotter = true;
+            this.selectedProduct = { ...item };
+            this.selectedProductOriginalQuantity = item.quantity; // Store original quantity
+            this.addVoidReversalDialog = true;
+        },
+
+        openConfirmVoidReversalDialog () {
+            this.addVoidReversalDialog = false;
+            this.confirmVoidReversalDialog = true;
+        },
+
+        addQuantity() {
+            if (this.selectedProduct && this.selectedProduct.quantity < this.selectedProductOriginalQuantity) {
+                this.selectedProduct.quantity += 1;
+            } else {
+                this.showAlert("Can't exceed to original quantity");
+            }
+        },
+
+        minusQuantity() {
+            if (this.selectedProduct && this.selectedProduct.quantity > 1) {
+                this.selectedProduct.quantity -= 1;
+            } else {
+                this.showAlert("Can't reduce quantity below 1");
+            }
+        },
+
+        async saveReversal() {
+            this.loadingStore.show("Saving reversal...");
+            try {
+                if (!this.selectedProduct || this.selectedProduct.quantity <= 0) {
+                    this.$emit('update:modelValue', false);
+                    return;
+                }
+                const reversalData = {
+                    reference_number: this.referenceNumber,
+                    transaction_id: this.selectedProduct.transaction_id,
+                    table_number: this.selectedProduct.table_number,
+                    product_id: this.selectedProduct.product_id,
+                    from_quantity: this.selectedProductOriginalQuantity,
+                    to_quantity: this.selectedProduct.quantity,
+                };
+                await this.transactStore.saveReversalStore(reversalData);
+            } catch (error) {
+                console.error('Error saving reversal:', error);
+                this.showAlert(error.message || 'Failed to save reversal');
+            } finally {
+                this.confirmVoidReversalDialog = false;
+                this.addVoidReversalDialog = false;
+                this.$emit('update:modelValue', false);
+                this.loadingStore.hide();
+                this.showSuccess('Reversal saved successfully');
+            }
         },
 
         formatOrder(order) {
@@ -278,6 +382,15 @@ export default {
                 timeZone: 'Asia/Manila'
             });
         },
+
+        showSuccess(message) {
+            this.$refs.successRef.showSnackbar(message, "success");
+        },
+
+        showAlert(message) {
+            this.$refs.alertRef.showSnackbarAlert(message, "error");
+        },
+        
     },
 };
 </script>
@@ -314,6 +427,12 @@ export default {
 
 .v-table--density-compact {
     --v-table-row-height: 0;
+}
+
+.mini-btn {
+    font-size: 15px;
+    width: 35px !important;
+    height: 27px !important;
 }
 
 .centered {

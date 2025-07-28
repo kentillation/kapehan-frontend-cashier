@@ -187,7 +187,7 @@
                                 </v-chip>
                             </div>
                             <ViewOrder v-model="viewOrderDialog" @update:modelValue="productEditDialog = $event"
-                                :reference-number="selectedReferenceNumber" :order-details="orderDetails" />
+                                :reference-number="selectedReferenceNumber" />
                         </template>
 
                     </v-data-table>
