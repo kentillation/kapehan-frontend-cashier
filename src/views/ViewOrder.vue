@@ -337,6 +337,8 @@ export default {
             }
             this.submittedReversals.add(reversalKey);
             this.isSubmitting = true;
+            this.confirmVoidReversalDialog = false;
+            this.addVoidReversalDialog = false;
             try {
                 if (!this.selectedProduct || this.selectedProduct.quantity <= 0) {
                     this.$emit('update:modelValue', false);
@@ -357,8 +359,8 @@ export default {
                 console.error('Error saving reversal:', error);
                 this.showAlert(error.message);
             } finally {
-                this.confirmVoidReversalDialog = false;
-                this.addVoidReversalDialog = false;
+                // this.confirmVoidReversalDialog = false;
+                // this.addVoidReversalDialog = false;
                 this.$emit('update:modelValue', false);
                 this.loadingStore.hide();
                 this.isSubmitting = false;
