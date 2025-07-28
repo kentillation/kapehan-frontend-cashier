@@ -3,6 +3,7 @@ import NotFound from '@/views/NotFound.vue';
 import LoginPage from '@/views/Login.vue';
 import Register from '@/views/Register.vue';
 import Cashier from '@/views/Cashier.vue';
+import Reversal from '@/views/Reversal.vue';
 import Settings from '@/views/Settings.vue';
 import Help from '@/views/Help.vue';
 import About from '@/views/About.vue';
@@ -16,6 +17,7 @@ const routes = [
     { path: '/', name: 'LoginPage', component: LoginPage, meta: { requiresAuth: false } },
     { path: '/register', name: 'Register', component: Register },
     { path: '/cashier', name: 'Cashier', component: Cashier, meta: { requiresAuth: true } },
+    { path: '/reversal', name: 'Reversal', component: Reversal, meta: { requiresAuth: true } },
     { path: '/settings', name: 'Settings', component: Settings, meta: { requiresAuth: true } },
     { path: '/help', name: 'Help', component: Help, meta: { requiresAuth: true } },
     { path: '/about', name: 'About', component: About, meta: { requiresAuth: true } },

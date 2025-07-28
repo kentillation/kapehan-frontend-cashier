@@ -9,6 +9,7 @@ export const TRANSACTION_API = {
         FETCH_KITCHEN_PRODUCT: '/open/kitchen-product-details',
         FETCH_ORDER_TEMP: '/open/order-details-temp',
         FETCH_QR_TEMP: '/open/get-qr-temp',
+        FETCH_REVERSAL: '/open/reversal-orders',
         CHANGE_STATUS: '/cashier/update-order-status',
         SUBMIT: '/cashier/submit-transaction',
         SAVE_REVERSAL: '/cashier/save-reversal',
@@ -155,6 +156,41 @@ export const TRANSACTION_API = {
             throw enhancedError;
         }
     },
+
+    async fetchReversalApi() {
+        try {
+            const authToken = localStorage.getItem('auth_token');
+            if (!authToken) {
+                throw new Error('No authentication token found');
+            }
+            const config = {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                    'Content-Type': 'application/json'
+                },
+            };
+            const response = await apiClient.get(
+                `${this.ENDPOINTS.FETCH_REVERSAL}`,
+                config
+            );
+
+            if (!response.data) {
+                throw new Error('Invalid response from server');
+            }
+            return response.data;
+        } catch (error) {
+            console.error('[TRANSACTION_API] Error fetching reversal orders:', error);
+            const enhancedError = new Error(
+                error.response?.data?.message ||
+                error.message ||
+                'Failed to fetch reversal orders'
+            );
+            enhancedError.response = error.response;
+            enhancedError.status = error.response?.status;
+            throw enhancedError;
+        }
+    },
+
 
     async fetchKitchenProductDetailsApi(transactionId) {
         try {

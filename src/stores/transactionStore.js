@@ -6,6 +6,7 @@ export const useTransactStore = defineStore('transactionData', {
         transactionData: null,
         reversalData: null,
         currentOrders: [],
+        reversalOrders: [],
         orderStatuses: [],
         stationStatuses: [],
         orderDtls: [],
@@ -99,6 +100,29 @@ export const useTransactStore = defineStore('transactionData', {
                 this.loading = false;
             }
         },
+
+        async fetchReversalStore() {
+            this.loading = true;
+            this.error = null;
+            try {
+                if (!TRANSACTION_API || typeof TRANSACTION_API.fetchReversalApi !== 'function') {
+                    throw new Error('TRANSACTION_API service is not properly initialized');
+                }
+                const response = await TRANSACTION_API.fetchReversalApi();
+                if (response && response.status === true) {
+                    this.reversalOrders = response.data;
+                } else {
+                    throw new Error('Failed to fetch reversal orders');
+                }
+            } catch (error) {
+                console.error('Error in fetchReversalApi:', error);
+                this.error = 'Failed to fetch reversal orders';
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
 
         async fetchAllCurrentOrdersStore() {
             this.loading = true;

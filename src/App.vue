@@ -32,6 +32,8 @@
             <v-list-subheader size="30">Menu</v-list-subheader>
             <v-list-item prepend-icon="mdi-account-cash-outline" @click="toCashier" class="ps-3"
               style="border-radius: 30px;">Cashier</v-list-item>
+            <v-list-item prepend-icon="mdi-cached" @click="toReversal" class="ps-3"
+              style="border-radius: 30px;">Reversal</v-list-item>
             <v-list-item prepend-icon="mdi-cog-outline" @click="toSettings" class="ps-3"
               style="border-radius: 30px;">Settings</v-list-item>
             <v-list-item prepend-icon="mdi-door-open" @click="showLogout" class="ps-3"
@@ -166,6 +168,9 @@ export default {
   methods: {
     toCashier() {
       this.$router.push('/cashier');
+    },
+    toReversal() {
+      this.$router.push('/reversal');
     },
     toSettings() {
       this.$router.push('/settings');

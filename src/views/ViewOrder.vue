@@ -99,7 +99,8 @@
                             </v-btn>
                             <v-spacer></v-spacer>
                             <v-btn color="green" variant="tonal" class="px-3 pt-1 pb-6" prepend-icon="mdi-check"
-                                @click="saveReversal">Proceed
+                                @click="saveReversal" :disabled="isSubmitting">
+                                {{ isSubmitting ? 'Processing...' : 'Proceed' }}
                             </v-btn>
                         </v-card-actions>
                     </v-card>
@@ -177,6 +178,8 @@ export default {
             confirmVoidReversalDialog: false,
             selectedProduct: null,
             selectedProductOriginalQuantity: 0,
+            isSubmitting: false,
+            submittedReversals: new Set(),
         };
     },
     props: {
@@ -324,6 +327,15 @@ export default {
 
         async saveReversal() {
             this.loadingStore.show("Saving reversal...");
+            const reversalKey = `${this.selectedProduct.transaction_id}-${this.selectedProduct.product_id}-${this.referenceNumber}`;
+            if (this.submittedReversals.has(reversalKey)) {
+                this.showAlert('Reversal is already in progress.');
+                this.confirmVoidReversalDialog = false;
+                this.addVoidReversalDialog = false;
+                return;
+            }
+            this.submittedReversals.add(reversalKey);
+            this.isSubmitting = true;
             try {
                 if (!this.selectedProduct || this.selectedProduct.quantity <= 0) {
                     this.$emit('update:modelValue', false);
@@ -338,15 +350,16 @@ export default {
                     to_quantity: this.selectedProduct.quantity,
                 };
                 await this.transactStore.saveReversalStore(reversalData);
+                this.showSuccess('Reversal saved successfully');
             } catch (error) {
                 console.error('Error saving reversal:', error);
-                this.showAlert(error.message || 'Failed to save reversal');
+                this.showAlert(error.message);
             } finally {
                 this.confirmVoidReversalDialog = false;
                 this.addVoidReversalDialog = false;
                 this.$emit('update:modelValue', false);
                 this.loadingStore.hide();
-                this.showSuccess('Reversal saved successfully');
+                this.isSubmitting = false;
             }
         },
 
