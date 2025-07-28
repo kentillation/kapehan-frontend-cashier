@@ -1,11 +1,9 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
-    <v-dialog :model-value="modelValue" 
-        @update:modelValue="$emit('update:modelValue', $event)" 
-        width="auto" 
-        transition="dialog-bottom-transition"
-        scrollable>
-        <v-btn @click="$emit('update:modelValue', false)" color="#0090b6" class="position-absolute" size="small" style="top: -17px; left: -17px; z-index: 1;" icon>
+    <v-dialog :model-value="modelValue" @update:modelValue="$emit('update:modelValue', $event)" width="auto"
+        transition="dialog-bottom-transition" scrollable>
+        <v-btn @click="$emit('update:modelValue', false)" color="#0090b6" class="position-absolute" size="small"
+            style="top: -17px; left: -17px; z-index: 1;" icon>
             <v-icon>mdi-close</v-icon>
         </v-btn>
         <v-card>
@@ -13,19 +11,23 @@
                 <div class="centered">
                     <img v-if="imgSrc" :src="imgSrc" width="120" height="120" alt="Order QR Code">
                     <span>Scan this QR Code to track order</span><br />
-                    <h3>Reference #: {{ this.referenceNumber }}</h3>
+                    <h3>Table #: {{ this.tableNumber }}</h3>
                 </div>
                 <div class="left-content">
                     <span>Date & Time: {{ this.createdAt }}</span><br />
+                    <span>Reference #: {{ this.referenceNumber }}</span><br />
                     <span>Customer name: {{ this.customerName }}</span><br />
                     <span>Number of items: {{ this.totalItems }}</span><br />
-                    <span>Table #: {{ this.tableNumber }}</span><br />
                     <span>Order status: {{ this.orderStatus }}</span><br />
                 </div>
 
-                <v-data-table :headers="headersOrderDetails" 
-                    :items="orderDetails" 
-                    density="compact" 
+                <v-data-table
+                    :headers="headersOrderDetails" 
+                    :items="currentOrders"
+                    height="250px"
+                    density="compact"
+                    class="bg-grey-darken-3 hover-table rounded"
+                    @click:row="selectedOrder"
                     hide-default-footer>
                     <!--eslint-disable-next-line -->
                     <template v-slot:item.product_name="{ item }">
@@ -41,6 +43,26 @@
                         ₱{{ item.subtotal.toFixed(2) }}
                     </template>
                 </v-data-table>
+                <v-dialog v-model="addVoidBlotter" height="250" transition="dialog-bottom-transition">
+                    <v-card class="pa-2">
+                        <v-card-title>
+                            <h4>Confirmation</h4>
+                        </v-card-title>
+                        <v-card-text>
+                            <p class="mb-3">{{ selectedProductText }}</p>
+                            <span>Do you want to file blotter for this item?</span>
+                        </v-card-text>
+                        <v-card-actions>
+                            <v-btn color="red" variant="tonal" class="px-3" prepend-icon="mdi-close"
+                                @click="addVoidBlotter = false">No, I wont!
+                            </v-btn>
+                            <v-spacer></v-spacer>
+                            <v-btn color="green" variant="tonal" class="px-3" prepend-icon="mdi-check"
+                                @click="addVoidBlotter = false">Yes
+                            </v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
 
                 <div class="payment">
                     <div class="d-flex justify-space-between">
@@ -88,6 +110,8 @@ export default {
             updatedAt: '',
             tableNumber: 'N/A',
             orderStatus: '',
+            productName: '',
+            quanTity: '',
             tempLabel: '',
             sizeLabel: '',
             totalQuantity: 0,
@@ -98,6 +122,8 @@ export default {
                 { title: 'Subtotal', value: 'subtotal' },
             ],
             imgSrc: null,
+            addVoidBlotter: false,
+            selectedProduct: null,
         };
     },
     props: {
@@ -107,6 +133,18 @@ export default {
         },
         referenceNumber: {
             type: String,
+        },
+    },
+    computed: {
+        currentOrders() {
+            return this.orderDetails;
+        },
+        selectedProductText() {
+            if (!this.selectedProduct) return '';
+            return `${this.selectedProduct.product_name || ''}
+                ${this.selectedProduct.temp_label || ''}
+                ${this.selectedProduct.size_label || ''} \t \t
+                x${this.selectedProduct.quantity || ''}`;
         },
     },
     emits: ['update:modelValue'],
@@ -203,6 +241,11 @@ export default {
             }
         },
 
+        selectedOrder(event, { item }) {
+            this.selectedProduct = item;
+            this.addVoidBlotter = true;
+        },
+
         formatOrder(order) {
             return {
                 ...order,
@@ -222,6 +265,7 @@ export default {
                 updated_at: order.updated_at ? this.formatDateTime(order.updated_at) : 'N/A',
             };
         },
+
         formatDateTime(dateString) {
             if (!dateString) return 'N/A';
             const date = new Date(dateString);
@@ -239,13 +283,33 @@ export default {
 </script>
 
 <style scoped>
-.v-table, .v-container {
+.v-table,
+.v-container {
     background-color: #fdfeff;
     color: #080808;
 }
 
-.v-table > .v-table__wrapper > table > tbody > tr > td {
-    padding: 0;
+::v-deep(.hover-table .v-data-table__tr) {
+    transition: background-color 0.5s ease-in-out;
+    cursor: pointer;
+}
+
+::v-deep(.hover-table .v-data-table__tr:hover) {
+    animation: backgroundFade 2s infinite;
+}
+
+@keyframes backgroundFade {
+    0% {
+        background-color: rgba(224, 247, 250, 0);
+    }
+
+    50% {
+        background-color: rgba(62, 104, 117, 0.442);
+    }
+
+    100% {
+        background-color: rgba(224, 247, 250, 0);
+    }
 }
 
 .v-table--density-compact {
@@ -259,7 +323,8 @@ export default {
     justify-content: center;
 }
 
-.centered, .left-content {
+.centered,
+.left-content {
     margin-bottom: 25px;
 }
 

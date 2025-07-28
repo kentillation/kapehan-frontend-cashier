@@ -33,9 +33,16 @@
                             </v-btn>
                         </div>
                     </div>
-                    <v-data-table v-if="this.products.length > 0" :headers="headersDisplay" :items="filteredProducts"
-                        :loading="loadingProducts" :items-per-page="-1" height="400px"
-                        @click:row="(event, { item }) => selectProduct(item)" density="comfortable" class="hover-table">
+                    <v-data-table 
+                        v-if="this.products.length > 0" 
+                        :headers="headersDisplay" 
+                        :items="filteredProducts"
+                        :loading="loadingProducts" 
+                        :items-per-page="-1" 
+                        height="400px"
+                        @click:row="(event, { item }) => selectProduct(item)" 
+                        density="comfortable" 
+                        class="hover-table">
                         <!-- eslint-disable vue/valid-v-slot -->
                         <template v-slot:item.product_name="{ item }">
                             <span class="small">
@@ -175,12 +182,12 @@
                                     <span>Loading...</span>
                                 </v-chip> -->
 
-                                <v-chip color="#0090b6" prepend-icon="mdi-qrcode" size="small" variant="flat"
+                                <v-chip color="#0090b6" prepend-icon="mdi-eye-outline" size="small" variant="flat"
                                     class="ps-5 text-white" @click="toViewOrder(item)">
                                 </v-chip>
                             </div>
                             <ViewOrder v-model="viewOrderDialog" @update:modelValue="productEditDialog = $event"
-                                :reference-number="selectedReferenceNumber" />
+                                :reference-number="selectedReferenceNumber" :order-details="orderDetails" />
                         </template>
 
                     </v-data-table>
@@ -205,44 +212,6 @@
                     </v-card-text>
                 </v-card>
             </v-dialog>
-
-            <!-- Viewing products of current order -->
-            <!-- <v-dialog v-model="ordersDialog" max-width="800px" persistent>
-                <v-card>
-                    <v-card-text>
-                        <div class="d-flex flex-column">
-                            <h4>Table #{{ this.selectedTableNumber }}</h4>
-                            <h4>Customer name: {{ this.customerName }}</h4>
-                        </div>
-
-                        <v-data-table :headers="headersOrderDetails" :items="orderDetails" density="comfortable"
-                            :items-per-page="5" class="elevation-1 mt-3">
-                            <template v-slot:item.product_name="{ item }">
-                                {{ item?.product_name || '' }}{{ item?.temp_label || '' }}{{ item?.size_label || ''
-                                }}x{{ item?.quantity }}
-                            </template>
-                            <template v-slot:item.product_price="{ item }">
-                                ₱{{ item.product_price.toFixed(2) }}
-                            </template>
-                            <template v-slot:item.subtotal="{ item }">
-                                ₱{{ item.subtotal.toFixed(2) }}
-                            </template>
-                        </v-data-table>
-
-                        <v-divider class="my-4"></v-divider>
-
-                        <div class="d-flex flex-column">
-                            <h4>Total Quantity: {{ totalOrderQuantity }} {{ itemIndicator }}</h4>
-                            <h4>Total Amount: ₱{{ totalOrderAmount.toFixed(2) }}</h4>
-                        </div>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn color="red" variant="tonal" prepend-icon="mdi-close" class="me-2 mb-2"
-                            @click="ordersDialog = false">Close</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog> -->
         </v-form>
         <Snackbar ref="snackbarRef" />
         <Alert ref="alertRef" />
