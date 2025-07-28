@@ -329,6 +329,7 @@ export default {
             this.loadingStore.show("Saving reversal...");
             const reversalKey = `${this.selectedProduct.transaction_id}-${this.selectedProduct.product_id}-${this.referenceNumber}`;
             if (this.submittedReversals.has(reversalKey)) {
+                this.loadingStore.hide();
                 this.showAlert('Reversal is already in progress.');
                 this.confirmVoidReversalDialog = false;
                 this.addVoidReversalDialog = false;
@@ -339,6 +340,7 @@ export default {
             try {
                 if (!this.selectedProduct || this.selectedProduct.quantity <= 0) {
                     this.$emit('update:modelValue', false);
+                    this.loadingStore.hide();
                     return;
                 }
                 const reversalData = {
