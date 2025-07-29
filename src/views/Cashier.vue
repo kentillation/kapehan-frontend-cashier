@@ -27,22 +27,15 @@
                                         mdi-close</v-icon>
                                 </template>
                             </div>
-                            <v-btn color="#0090b6" class="d-flex align-items-center py-7 w-50 rounded-0"
-                                variant="flat" @click="showCategoriesDialog" large>
+                            <v-btn color="#0090b6" class="d-flex align-items-center py-7 w-50 rounded-0" variant="flat"
+                                @click="showCategoriesDialog" large>
                                 <v-icon>mdi-magnify</v-icon>&nbsp; Category
                             </v-btn>
                         </div>
                     </div>
-                    <v-data-table 
-                        v-if="this.products.length > 0" 
-                        :headers="headersDisplay" 
-                        :items="filteredProducts"
-                        :loading="loadingProducts" 
-                        :items-per-page="-1" 
-                        height="400px"
-                        @click:row="(event, { item }) => selectProduct(item)" 
-                        density="comfortable" 
-                        class="hover-table">
+                    <v-data-table v-if="this.products.length > 0" :headers="headersDisplay" :items="filteredProducts"
+                        :loading="loadingProducts" :items-per-page="-1" height="400px"
+                        @click:row="(event, { item }) => selectProduct(item)" density="comfortable" class="hover-table">
                         <!-- eslint-disable vue/valid-v-slot -->
                         <template v-slot:item.product_name="{ item }">
                             <span class="small">
@@ -54,7 +47,7 @@
                         </template>
                     </v-data-table>
                     <v-container v-else class="text-center">
-                        <p style="font-size: 15px;">No category selected. <span @click="this.fetchProducts"
+                        <p style="font-size: 15px;">No available products. <span @click="reloadProducts"
                                 class="text-primary" style="cursor: pointer;">Tap to reload</span> </p>
                     </v-container>
                 </v-col>
@@ -81,7 +74,8 @@
                                     <v-btn @click="addQuan(item)" color="#0090b6" class="mini-btn mx-1">
                                         <v-icon>mdi-plus</v-icon>
                                     </v-btn>
-                                    <v-btn @click="removeProduct(item)" class="bg-red-lighten-2 mini-btn" variant="flat">
+                                    <v-btn @click="removeProduct(item)" class="bg-red-lighten-2 mini-btn"
+                                        variant="flat">
                                         <v-icon>mdi-delete</v-icon>
                                     </v-btn>
                                 </template>
@@ -150,10 +144,11 @@
                         <template v-slot:item.actions="{ item }">
                             <div class="d-flex" style="gap: 8px;">
                                 <v-chip :color="getStatusColor(Number(item.order_status_id))"
-                                    :prepend-icon="getStatusIcon(Number(item.order_status_id))" size="small" variant="flat"
-                                    @click="changeStatus(item)" class="text-white"
+                                    :prepend-icon="getStatusIcon(Number(item.order_status_id))" size="small"
+                                    variant="flat" @click="changeStatus(item)" class="text-white"
                                     style="width: 80px; justify-content: flex-start;">
-                                    <span v-if="Number(item.order_status_id) === 1" class="typewriter-fixed">Brewing</span>
+                                    <span v-if="Number(item.order_status_id) === 1"
+                                        class="typewriter-fixed">Brewing</span>
                                     <span v-else>{{ getStatusName(Number(item.order_status_id)) }}</span>
                                     <span v-if="Number(item.order_status_id) === 1" class="smoke"></span>
                                     <span v-if="Number(item.order_status_id) === 1" class="smoke smoke2"></span>
@@ -176,11 +171,11 @@
                                         <span class="smoke smoke4"></span>
                                         <span class="smoke smoke5"></span>
                                     </template>
-                                </v-chip>
-                                <v-chip v-else color="grey" size="small" variant="flat">
-                                    <v-icon>mdi-loading</v-icon>
-                                    <span>Loading...</span>
-                                </v-chip> -->
+        </v-chip>
+        <v-chip v-else color="grey" size="small" variant="flat">
+            <v-icon>mdi-loading</v-icon>
+            <span>Loading...</span>
+        </v-chip> -->
 
                                 <v-chip color="#0090b6" prepend-icon="mdi-eye-outline" size="small" variant="flat"
                                     class="ps-5 text-white" @click="toViewOrder(item)">
@@ -195,21 +190,27 @@
             </v-row>
 
             <!-- Categories -->
-            <v-dialog v-model="categoriesDialog" max-width="500">
+            <v-dialog v-model="categoriesDialog" width="500" height="500" class="rounded-10">
+                <v-btn @click="categoriesDialog = false" color="#0090b6" class="position-absolute" size="small"
+                    style="top: -17px; left: -17px; z-index: 10;" icon>
+                    <v-icon>mdi-close</v-icon>
+                </v-btn>
                 <v-card>
-                    <v-card-title class="d-flex justify-space-between">
-                        <h3>Categories</h3>
-                        <v-btn prepend-icon="mdi-close-circle-outline" @click="categoriesDialog = false" class="pa-1"
-                            size="medium"></v-btn>
-                    </v-card-title>
-                    <v-card-text class="d-flex align-center flex-column">
+                    <h3 class="bg-grey-lighten-4 position-fixed pa-2 w-100" style="z-index: 2; border-radius: 3px 3px 0 0;">
+                        <p class="ms-3">Categories</p>
+                    </h3>
+                    <div class="d-flex align-center flex-column pa-6 mt-6">
                         <v-list-item v-for="(category, i) in productsStore.getCategories" :key="i"
-                            :prepend-icon="category.icon" class="bg-brown-darken-3 mt-2 w-75"
-                            style="border-radius: 30px !important; font-size: 14px;"
+                            :prepend-icon="category.icon" class="text-white mt-2 w-100"
+                            style="border-radius: 20px !important; background: #0090b6;"
                             @click="handleCategorySelect(category)">
                             <span>{{ category.label }}</span>
                         </v-list-item>
-                    </v-card-text>
+                    </div>
+                    <v-sheet v-if="productsStore.getCategories.length === 0" class="mt-5 text-center">
+                        <p style="font-size: 15px;">No categories found. <span @click="showCategoriesDialog"
+                                class="text-primary" style="cursor: pointer;">Tap to reload</span> </p>
+                    </v-sheet>
                 </v-card>
             </v-dialog>
         </v-form>
@@ -260,6 +261,7 @@ export default {
             selectedCategory: '',
             loadingCategories: false,
             categoriesDialog: false,
+            progressCircular: false,
 
             // Form
             validatingData: false,
@@ -469,7 +471,7 @@ export default {
                 this.loadingProducts = false;
             }
         },
-        
+
         async fetchLowStocks() {
             try {
                 await this.stocksStore.fetchLowStocksStore(this.authStore.branchId);
@@ -507,6 +509,7 @@ export default {
 
         async fetchCategories() {
             this.loadingCategories = true;
+            this.progressCircular = true;
             try {
                 await this.productsStore.fetchAllCategoriesStore();
                 this.categories = this.productsStore.categories;
@@ -514,9 +517,17 @@ export default {
             } catch (error) {
                 console.error('Error fetching categories:', error);
                 this.showError("Error fetching categories!");
+                this.progressCircular = false;
             } finally {
                 this.loadingCategories = false;
+                this.progressCircular = false;
             }
+        },
+
+        reloadProducts() {
+            this.loadingStore.show("");
+            this.fetchProducts();
+            this.loadingStore.hide();
         },
 
         showCategoriesDialog() {
