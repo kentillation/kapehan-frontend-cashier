@@ -216,7 +216,6 @@
         </v-form>
         <Snackbar ref="snackbarRef" />
         <Alert ref="alertRef" />
-        <GlobalLoader :visible="validatingData" message="Informing kitchen..." />
     </v-container>
 </template>
 
@@ -231,7 +230,6 @@ import { useLoadingStore } from '@/stores/loading';
 import ViewOrder from './ViewOrder.vue';
 import Snackbar from '@/components/Snackbar.vue';
 import Alert from '@/components/Alert.vue';
-import GlobalLoader from '@/components/GlobalLoader.vue';
 
 export default {
     // eslint-disable-next-line vue/multi-word-component-names
@@ -240,7 +238,6 @@ export default {
         ViewOrder,
         Snackbar,
         Alert,
-        GlobalLoader,
     },
     data() {
         return {
@@ -264,7 +261,6 @@ export default {
             progressCircular: false,
 
             // Form
-            validatingData: false,
             isFormValid: false,
             referenceNumber: '',
             table_number: null,
@@ -604,9 +600,9 @@ export default {
 
         async submitForm() {
             try {
-                this.validatingData = true;
+                this.loadingStore.show("Submitting...");
                 if (!this.$refs.transactionForm.validate()) {
-                    this.validatingData = false;
+                    this.loadingStore.hide();
                     return;
                 }
                 const orderedProducts = this.selectedProducts.map(p => ({
@@ -619,7 +615,7 @@ export default {
                     : this.newRefNumber;
                 if (!refNumber || !this.table_number) {
                     this.showError("Reference number and table number are required.");
-                    this.validatingData = false;
+                    this.loadingStore.hide();
                     return;
                 }
                 this.computed_discount = this.subTotal * (this.customer_discount / 100);
@@ -651,7 +647,7 @@ export default {
                 console.error('Internal server error:', error);
             } finally {
                 // this.loading = false;
-                this.validatingData = false;
+                this.loadingStore.hide();
             }
         },
 
