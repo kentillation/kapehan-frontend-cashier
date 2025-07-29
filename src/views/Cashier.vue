@@ -636,195 +636,6 @@ export default {
             }
         },
 
-        async printOrders(order) {
-            if (!order || !order.reference_number) {
-                this.showError("Invalid order data!");
-                return;
-            }
-            try {
-                const response = await this.transactStore.fetchOrderDetailsStore(order.reference_number);
-                let allOrders = [];
-                if (response?.data?.all_orders) {
-                    allOrders = response.data.all_orders;
-                    this.selectedTableNumber = response.data.table_number;
-                    this.customerName = response.data.customer_name;
-                }
-                else if (this.transactStore.orderDtls?.data?.all_orders) {
-                    allOrders = this.transactStore.orderDtls.data.all_orders;
-                    this.selectedTableNumber = this.transactStore.orderDtls.data.table_number;
-                    this.customerName = this.transactStore.orderDtls.data.customer_name;
-                }
-                else {
-                    console.error('Invalid response structure:', {
-                        response: response,
-                        storeData: this.transactStore.orderDtls
-                    });
-                    this.orderDetails = [];
-                    this.showError("Failed to load order details - invalid format");
-                }
-                await this.fetchQRCode(order.reference_number);
-                this.orderDetails = allOrders.map(order => this.formatOrder(order));
-                this.referenceNumber = response?.data?.reference_number || 'N/A';
-                this.totalItems = response?.data?.total_quantity ? parseFloat(response.data.total_quantity) : 0;
-                this.totalAmount = response?.data?.total_amount ? parseFloat(response.data.total_amount) : 0;
-                this.customerCash = response?.data?.customer_cash ? parseFloat(response.data.customer_cash) : 0;
-                this.customerChange = response?.data?.customer_change ? parseFloat(response.data.customer_change) : 0;
-                this.createdAt = response?.data?.created_at ? this.formatDateTime(response.data.created_at) : 'N/A';
-                this.updatedAt = response?.data?.updated_at ? this.formatDateTime(response.data.updated_at) : 'N/A';
-                this.tableNumber = response?.data?.table_number || 'N/A';
-                this.totalQuan = response?.data?.total_quantity ? parseInt(response.data.total_quantity, 10) : 0;
-                if (allOrders.length === 0) {
-                    alert('No transaction available to print.');
-                    return;
-                }
-                const printWindow = window.open('', '_blank');
-                if (!printWindow) {
-                    alert('Please allow popups for this website to print the report.');
-                    return;
-                }
-                printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>Receipt</title>
-                        <style>
-                            body {
-                                font-family: Arial, sans-serif;
-                            }
-                            .v-table, .v-container {
-                                background-color: #fdfeff;
-                                color: #080808;
-                            }
-                            .v-table > .v-table__wrapper > table > tbody > tr > td {
-                                padding: 0;
-                                text-align: left;
-                            }
-                            .v-table--density-compact {
-                                --v-table-row-height: 0;
-                            }
-                            .centered {
-                                display: flex;
-                                flex-direction: column;
-                                align-items: center;
-                                justify-content: center;
-                            }
-                            .left-content {
-                                margin-bottom: 25px;
-                            }
-                            .item-head {
-                                font-weight: bold;
-                            }
-                            .orders {
-                                display: flex;
-                                flex-direction: column;
-                            }
-                            .orders-item {
-                                display: flex;
-                                justify-content: space-between;
-                                text-align: left;
-                            }
-                            .orders-item-twin {
-                                margin-left: 15px;
-                            }
-                            h4, h5 {
-                                margin: 0 !important;
-                                font-weight: normal;
-                            }
-                            .main-heading {
-                                margin-bottom: 0;
-                            }
-                            .payment {
-                                display: flex;
-                                flex-direction: column;
-                                margin-top: 25px;
-                            }
-                            span {
-                                font-size: 14px !important;
-                                margin-top: 3px !important;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="centered">
-                            <h3 class="main-heading">${this.authStore.shopName}</h3>
-                            <h5>${this.authStore.branchName} Branch</h5>
-                            <h5>${this.authStore.branchLocation}</h5>
-                            <h5>VAT Reg. TIN: 000-111-222-333</h5>
-                            <h3>Reference #: ${this.referenceNumber}</h3>
-                        </div>
-                        <div class="left-content">
-                            <span>Date & time: ${this.formatCurrentDate}</span><br />
-                            <span>Customer name: ${this.customerName}</span><br />
-                            <span>Number of items: ${this.totalItems}</span><br />
-                            <span>Table #: ${this.selectedTableNumber}</span>
-                        </div>
-                        <div class="orders">
-                            <div class="orders-item">
-                                <span class="item-head">Item</span>
-                                <span class="orders-item">
-                                    <span class="orders-item-twin item-head">Price</span>
-                                    <span class="orders-item-twin item-head">Subtotal</span>
-                                <span>
-                            </div>
-                            ${allOrders.map(oD => `
-                            <div class="orders-item">
-                                <span>${oD.product_name || ''}${oD.temp_label || ''}${oD.size_label || ''}x${oD.quantity || ''}</span>
-                                <span class="orders-item">
-                                    <span class="orders-item-twin">₱${oD.product_price?.toFixed ? oD.product_price.toFixed(2) : oD.product_price || ''}</span>
-                                    <span class="orders-item-twin">₱${(oD.product_price * oD.quantity || 0).toFixed(2)}</span>
-                                <span>
-                            </div>
-                            `).join('')}
-                        </div>
-                        <div class="payment">
-                            <div class="orders-item">
-                                <span>Total charge</span>
-                                <span>₱${this.totalAmount}</span>
-                            </div>
-                            <div class="orders-item">
-                                <span>Cash render:</span>
-                                <span>₱${this.customerCash}</span>
-                            </div>
-                            <div class="orders-item">
-                                <span>Change:</span>
-                                <span>₱${this.customerChange}</span>
-                            </div>
-                        </div>
-                        <div class="centered mt-10">
-                            <img v-if="${this.imgSrc}" src="${this.imgSrc}" width="120" height="120" alt="Order QR Code">
-                            <span>Scan the QR Code to view order</span><br />
-                        </div>
-
-                        <div class="centered mt-6">
-                            <span>Thank you for purchasing!</span><br />
-                            <span>You may follow us in our socials</span>
-                            <span>FB: @KapehanPH</span>
-                            <span>IG: @kapehan_ph</span><br />
-                            <span>This serve as official receipt.</span>
-                        </div>
-                    </body>
-                </html>`);
-                printWindow.document.close();
-                printWindow.print();
-            } catch (error) {
-                console.error('Error fetching order details:', error);
-                this.orderDetails = [];
-                this.showError("Failed to fetch order details.");
-            }
-        },
-
-        async fetchQRCode(reference) {
-            try {
-                const qrCodeBlob = await this.transactStore.fetchQRcodeStore(reference);
-                this.imgSrc = URL.createObjectURL(qrCodeBlob);
-                if (!this.imgSrc) {
-                    console.error('Failed to create image URL from blob');
-                }
-            } catch (error) {
-                console.error('Error fetching order details:', error);
-                this.imgSrc = '';
-            }
-        },
-
         toViewOrder(item) {
             this.viewOrderDialog = true;
             this.selectedReferenceNumber = item.reference_number;
@@ -950,7 +761,7 @@ export default {
             // this.fetchProducts();
         },
 
-                // added
+        // added
         // async polling() {
         //     try {
         //         await this.transactStore.startStationStatusPollingStore();
@@ -994,6 +805,195 @@ export default {
         //         return this.defaultStatusMeta;
         //     }
         // },
+
+        // async fetchQRCode(reference) {
+        //     try {
+        //         const qrCodeBlob = await this.transactStore.fetchQRcodeStore(reference);
+        //         this.imgSrc = URL.createObjectURL(qrCodeBlob);
+        //         if (!this.imgSrc) {
+        //             console.error('Failed to create image URL from blob');
+        //         }
+        //     } catch (error) {
+        //         console.error('Error fetching order details:', error);
+        //         this.imgSrc = '';
+        //     }
+        // },
+
+        // async printOrders(order) {
+        //     if (!order || !order.reference_number) {
+        //         this.showError("Invalid order data!");
+        //         return;
+        //     }
+        //     try {
+        //         const response = await this.transactStore.fetchOrderDetailsStore(order.reference_number);
+        //         let allOrders = [];
+        //         if (response?.data?.all_orders) {
+        //             allOrders = response.data.all_orders;
+        //             this.selectedTableNumber = response.data.table_number;
+        //             this.customerName = response.data.customer_name;
+        //         }
+        //         else if (this.transactStore.orderDtls?.data?.all_orders) {
+        //             allOrders = this.transactStore.orderDtls.data.all_orders;
+        //             this.selectedTableNumber = this.transactStore.orderDtls.data.table_number;
+        //             this.customerName = this.transactStore.orderDtls.data.customer_name;
+        //         }
+        //         else {
+        //             console.error('Invalid response structure:', {
+        //                 response: response,
+        //                 storeData: this.transactStore.orderDtls
+        //             });
+        //             this.orderDetails = [];
+        //             this.showError("Failed to load order details - invalid format");
+        //         }
+        //         await this.fetchQRCode(order.reference_number);
+        //         this.orderDetails = allOrders.map(order => this.formatOrder(order));
+        //         this.referenceNumber = response?.data?.reference_number || 'N/A';
+        //         this.totalItems = response?.data?.total_quantity ? parseFloat(response.data.total_quantity) : 0;
+        //         this.totalAmount = response?.data?.total_amount ? parseFloat(response.data.total_amount) : 0;
+        //         this.customerCash = response?.data?.customer_cash ? parseFloat(response.data.customer_cash) : 0;
+        //         this.customerChange = response?.data?.customer_change ? parseFloat(response.data.customer_change) : 0;
+        //         this.createdAt = response?.data?.created_at ? this.formatDateTime(response.data.created_at) : 'N/A';
+        //         this.updatedAt = response?.data?.updated_at ? this.formatDateTime(response.data.updated_at) : 'N/A';
+        //         this.tableNumber = response?.data?.table_number || 'N/A';
+        //         this.totalQuan = response?.data?.total_quantity ? parseInt(response.data.total_quantity, 10) : 0;
+        //         if (allOrders.length === 0) {
+        //             alert('No transaction available to print.');
+        //             return;
+        //         }
+        //         const printWindow = window.open('', '_blank');
+        //         if (!printWindow) {
+        //             alert('Please allow popups for this website to print the report.');
+        //             return;
+        //         }
+        //         printWindow.document.write(`
+        //         <html>
+        //             <head>
+        //                 <title>Receipt</title>
+        //                 <style>
+        //                     body {
+        //                         font-family: Arial, sans-serif;
+        //                     }
+        //                     .v-table, .v-container {
+        //                         background-color: #fdfeff;
+        //                         color: #080808;
+        //                     }
+        //                     .v-table > .v-table__wrapper > table > tbody > tr > td {
+        //                         padding: 0;
+        //                         text-align: left;
+        //                     }
+        //                     .v-table--density-compact {
+        //                         --v-table-row-height: 0;
+        //                     }
+        //                     .centered {
+        //                         display: flex;
+        //                         flex-direction: column;
+        //                         align-items: center;
+        //                         justify-content: center;
+        //                     }
+        //                     .left-content {
+        //                         margin-bottom: 25px;
+        //                     }
+        //                     .item-head {
+        //                         font-weight: bold;
+        //                     }
+        //                     .orders {
+        //                         display: flex;
+        //                         flex-direction: column;
+        //                     }
+        //                     .orders-item {
+        //                         display: flex;
+        //                         justify-content: space-between;
+        //                         text-align: left;
+        //                     }
+        //                     .orders-item-twin {
+        //                         margin-left: 15px;
+        //                     }
+        //                     h4, h5 {
+        //                         margin: 0 !important;
+        //                         font-weight: normal;
+        //                     }
+        //                     .main-heading {
+        //                         margin-bottom: 0;
+        //                     }
+        //                     .payment {
+        //                         display: flex;
+        //                         flex-direction: column;
+        //                         margin-top: 25px;
+        //                     }
+        //                     span {
+        //                         font-size: 14px !important;
+        //                         margin-top: 3px !important;
+        //                     }
+        //                 </style>
+        //             </head>
+        //             <body>
+        //                 <div class="centered">
+        //                     <h3 class="main-heading">${this.authStore.shopName}</h3>
+        //                     <h5>${this.authStore.branchName} Branch</h5>
+        //                     <h5>${this.authStore.branchLocation}</h5>
+        //                     <h5>VAT Reg. TIN: 000-111-222-333</h5>
+        //                     <h3>Reference #: ${this.referenceNumber}</h3>
+        //                 </div>
+        //                 <div class="left-content">
+        //                     <span>Date & time: ${this.formatCurrentDate}</span><br />
+        //                     <span>Customer name: ${this.customerName}</span><br />
+        //                     <span>Number of items: ${this.totalItems}</span><br />
+        //                     <span>Table #: ${this.selectedTableNumber}</span>
+        //                 </div>
+        //                 <div class="orders">
+        //                     <div class="orders-item">
+        //                         <span class="item-head">Item</span>
+        //                         <span class="orders-item">
+        //                             <span class="orders-item-twin item-head">Price</span>
+        //                             <span class="orders-item-twin item-head">Subtotal</span>
+        //                         <span>
+        //                     </div>
+        //                     ${allOrders.map(oD => `
+        //                     <div class="orders-item">
+        //                         <span>${oD.product_name || ''}${oD.temp_label || ''}${oD.size_label || ''}x${oD.quantity || ''}</span>
+        //                         <span class="orders-item">
+        //                             <span class="orders-item-twin">₱${oD.product_price?.toFixed ? oD.product_price.toFixed(2) : oD.product_price || ''}</span>
+        //                             <span class="orders-item-twin">₱${(oD.product_price * oD.quantity || 0).toFixed(2)}</span>
+        //                         <span>
+        //                     </div>
+        //                     `).join('')}
+        //                 </div>
+        //                 <div class="payment">
+        //                     <div class="orders-item">
+        //                         <span>Total charge</span>
+        //                         <span>₱${this.totalAmount}</span>
+        //                     </div>
+        //                     <div class="orders-item">
+        //                         <span>Cash render:</span>
+        //                         <span>₱${this.customerCash}</span>
+        //                     </div>
+        //                     <div class="orders-item">
+        //                         <span>Change:</span>
+        //                         <span>₱${this.customerChange}</span>
+        //                     </div>
+        //                 </div>
+        //                 <div class="centered mt-10">
+        //                     <img v-if="${this.imgSrc}" src="${this.imgSrc}" width="120" height="120" alt="Order QR Code">
+        //                     <span>Scan the QR Code to view order</span><br />
+        //                 </div>
+        //                 <div class="centered mt-6">
+        //                     <span>Thank you for purchasing!</span><br />
+        //                     <span>You may follow us in our socials</span>
+        //                     <span>FB: @KapehanPH</span>
+        //                     <span>IG: @kapehan_ph</span><br />
+        //                     <span>This serve as official receipt.</span>
+        //                 </div>
+        //             </body>
+        //         </html>`);
+        //         printWindow.document.close();
+        //         printWindow.print();
+        //     } catch (error) {
+        //         console.error('Error fetching order details:', error);
+        //         this.orderDetails = [];
+        //         this.showError("Failed to fetch order details.");
+        //     }
+        // },
+
     }
 };
 </script>
