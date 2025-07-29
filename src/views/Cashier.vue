@@ -208,7 +208,7 @@
                         </v-list-item>
                     </div>
                     <v-sheet v-if="productsStore.getCategories.length === 0" class="mt-5 text-center">
-                        <p style="font-size: 15px;">No categories found. <span @click="showCategoriesDialog"
+                        <p style="font-size: 15px;">No categories found. <span @click="reloadCategories"
                                 class="text-primary" style="cursor: pointer;">Tap to reload</span> </p>
                     </v-sheet>
                 </v-card>
@@ -528,6 +528,14 @@ export default {
             this.loadingStore.show("");
             this.fetchProducts();
             this.loadingStore.hide();
+        },
+
+        reloadCategories() {
+            this.categoriesDialog = false;
+            this.loadingStore.show("");
+            this.fetchCategories();
+            this.loadingStore.hide();
+            this.categoriesDialog = true;
         },
 
         showCategoriesDialog() {
