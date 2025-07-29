@@ -491,51 +491,6 @@ export default {
             }
         },
 
-        // added
-        // async polling() {
-        //     try {
-        //         await this.transactStore.startStationStatusPollingStore();
-        //         if (!this.order_statuses || this.order_statuses.length === 0) {
-        //             await this.fetchOrderStatus();
-        //         }
-        //         this.orders = this.transactStore.currentOrders.map(order => {
-        //             const meta = this.getStatusMeta(Number(order.order_status_id));
-        //             return {
-        //                 ...order,
-        //                 statusMeta: meta || this.defaultStatusMeta
-        //             };
-        //         });
-        //         this.loadingCurrentOrders = false;
-        //     } catch (error) {
-        //         console.error('Error polling orders:', error);
-        //         this.showError("Error polling orders!");
-        //     }
-        // },
-
-        // added
-        // getStatusMeta(statusId) {
-        //     try {
-        //         if (!Array.isArray(this.order_statuses) || this.order_statuses.length === 0) {
-        //             return this.defaultStatusMeta;
-        //         }
-        //         const status = this.order_statuses.find(s =>
-        //             Number(s.order_status_id) === Number(statusId)
-        //         );
-        //         if (!status) return this.defaultStatusMeta;
-        //         return {
-        //             color: this.getStatusColor(statusId),
-        //             icon: this.getStatusIcon(statusId),
-        //             name: status.order_status,
-        //             hasAnimation: statusId === 1,
-        //             animationClass: statusId === 1 ? 'typewriter-fixed' : '',
-        //             showSmoke: statusId === 1
-        //         };
-        //     } catch (error) {
-        //         console.error('Error getting status meta:', error);
-        //         return this.defaultStatusMeta;
-        //     }
-        // },
-
         async fetchCurrentOrders() {
             this.loadingCurrentOrders = true;
             try {
@@ -994,6 +949,51 @@ export default {
             this.products = [];
             // this.fetchProducts();
         },
+
+                // added
+        // async polling() {
+        //     try {
+        //         await this.transactStore.startStationStatusPollingStore();
+        //         if (!this.order_statuses || this.order_statuses.length === 0) {
+        //             await this.fetchOrderStatus();
+        //         }
+        //         this.orders = this.transactStore.currentOrders.map(order => {
+        //             const meta = this.getStatusMeta(Number(order.order_status_id));
+        //             return {
+        //                 ...order,
+        //                 statusMeta: meta || this.defaultStatusMeta
+        //             };
+        //         });
+        //         this.loadingCurrentOrders = false;
+        //     } catch (error) {
+        //         console.error('Error polling orders:', error);
+        //         this.showError("Error polling orders!");
+        //     }
+        // },
+
+        // added
+        // getStatusMeta(statusId) {
+        //     try {
+        //         if (!Array.isArray(this.order_statuses) || this.order_statuses.length === 0) {
+        //             return this.defaultStatusMeta;
+        //         }
+        //         const status = this.order_statuses.find(s =>
+        //             Number(s.order_status_id) === Number(statusId)
+        //         );
+        //         if (!status) return this.defaultStatusMeta;
+        //         return {
+        //             color: this.getStatusColor(statusId),
+        //             icon: this.getStatusIcon(statusId),
+        //             name: status.order_status,
+        //             hasAnimation: statusId === 1,
+        //             animationClass: statusId === 1 ? 'typewriter-fixed' : '',
+        //             showSmoke: statusId === 1
+        //         };
+        //     } catch (error) {
+        //         console.error('Error getting status meta:', error);
+        //         return this.defaultStatusMeta;
+        //     }
+        // },
     }
 };
 </script>

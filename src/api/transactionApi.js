@@ -191,7 +191,6 @@ export const TRANSACTION_API = {
         }
     },
 
-
     async fetchKitchenProductDetailsApi(transactionId) {
         try {
             const authToken = localStorage.getItem('auth_token');

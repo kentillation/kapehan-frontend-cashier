@@ -123,7 +123,6 @@ export const useTransactStore = defineStore('transactionData', {
             }
         },
 
-
         async fetchAllCurrentOrdersStore() {
             this.loading = true;
             this.error = null;
