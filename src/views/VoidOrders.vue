@@ -1,13 +1,13 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
     <v-container>
-        <h3>Reversal</h3>
+        <h3>Void Orders</h3>
         <v-card class="mt-3">
             <v-card-text>
                 <v-data-table 
-                    :headers="headersReversalOrders" 
-                    :items="reversalOrders" 
-                    :loading="loadingReversalOrders"
+                    :headers="headersVoidOrders" 
+                    :items="voidOrders" 
+                    :loading="loadingVoidOrders"
                     density="comfortable" 
                     height="400px">
                 </v-data-table>
@@ -24,20 +24,20 @@ import Alert from '@/components/Alert.vue';
 
 export default {
     // eslint-disable-next-line vue/multi-word-component-names
-    name: 'Reversal',
+    name: 'VoidOrders',
     components: {
         Alert,
     },
     data () {
         return {
-            loadingReversalOrders: false,
-            reversalOrders: [],
-            headersReversalOrders: [
+            loadingVoidOrders: false,
+            voidOrders: [],
+            headersVoidOrders: [
                 { title: 'Reference', value: 'reference_number', width: '10%' },
                 { title: 'Table#', value: 'table_number', width: '10%' },
                 { title: 'Product', value: 'display_product_name', width: '20%' },
                 { title: 'Quantity', value: 'to_quantity', width: '10%' },
-                { title: 'Status', value: 'reversal_status', width: '10%' },
+                { title: 'Status', value: 'void_status', width: '10%' },
                 { title: 'Date created', value: 'updated_at', width: '30%' },
             ],
         }
@@ -57,29 +57,29 @@ export default {
         return { transactStore, loadingStore, formatCurrentDate };
     },
     mounted () {
-        this.fetchReversalOrders();
+        this.fetchvoidOrders();
     },
     methods: {
-        async fetchReversalOrders() {
-            this.loadingReversalOrders = true;
+        async fetchvoidOrders() {
+            this.loadingVoidOrders = true;
             try {
-                await this.transactStore.fetchReversalStore();
-                this.reversalOrders = this.transactStore.reversalOrders;
-                if (this.reversalOrders && this.reversalOrders.length > 0) {
-                    this.reversalOrders = this.reversalOrders.map(order => this.formatReversalOrders(order));
+                await this.transactStore.fetchVoidOrderStore();
+                this.voidOrders = this.transactStore.voidOrders;
+                if (this.voidOrders && this.voidOrders.length > 0) {
+                    this.voidOrders = this.voidOrders.map(order => this.formatvoidOrders(order));
                 } else {
-                    this.showAlert("No reversal orders found!");
+                    this.showAlert("No void orders found!");
                 }
-                this.loadingReversalOrders = false;
+                this.loadingVoidOrders = false;
             } catch (error) {
-                console.error('Error fetching reversal orders:', error);
-                this.showAlert("Error fetching reversal orders!");
+                console.error('Error fetching void orders:', error);
+                this.showAlert("Error fetching void orders!");
             } finally {
-                this.loadingReversalOrders = false;
+                this.loadingVoidOrders = false;
             }
         },
 
-        formatReversalOrders(order) {
+        formatvoidOrders(order) {
             return {
                 ...order,
                 display_product_name: `${ order.product_name }${ order.temp_label }${ order.size_label }` || '',

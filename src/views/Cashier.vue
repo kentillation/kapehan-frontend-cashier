@@ -171,11 +171,11 @@
                                         <span class="smoke smoke4"></span>
                                         <span class="smoke smoke5"></span>
                                     </template>
-        </v-chip>
-        <v-chip v-else color="grey" size="small" variant="flat">
-            <v-icon>mdi-loading</v-icon>
-            <span>Loading...</span>
-        </v-chip> -->
+                                    </v-chip>
+                                    <v-chip v-else color="grey" size="small" variant="flat">
+                                        <v-icon>mdi-loading</v-icon>
+                                        <span>Loading...</span>
+                                    </v-chip> -->
 
                                 <v-chip color="#0090b6" prepend-icon="mdi-eye-outline" size="small" variant="flat"
                                     class="ps-5 text-white" @click="toViewOrder(item)">

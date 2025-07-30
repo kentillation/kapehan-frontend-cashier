@@ -9,8 +9,8 @@ export const TRANSACTION_API = {
         FETCH_ORDER_DETAILS: '/open/order-details',
         FETCH_ORDER_TEMP: '/open/order-details-temp',
         FETCH_QR_TEMP: '/open/get-qr-temp',
-        FETCH_REVERSAL: '/open/reversal-orders',
-        SAVE_REVERSAL: '/cashier/save-reversal',
+        FETCH_VOID_ORDERS: '/open/void-orders',
+        SAVE_VOID_ORDER: '/cashier/save-void',
 
         // FETCH_STATION_STATUS: '/kitchen/station-status',
         // CHANGE_KITCHEN_STATUS: '/kitchen/update-kitchen-product-status',
@@ -246,7 +246,7 @@ export const TRANSACTION_API = {
         }
     },
 
-    async fetchReversalApi() {
+    async fetchVoidOrderApi() {
         try {
             const authToken = localStorage.getItem('auth_token');
             if (!authToken) {
@@ -259,7 +259,7 @@ export const TRANSACTION_API = {
                 },
             };
             const response = await apiClient.get(
-                `${this.ENDPOINTS.FETCH_REVERSAL}`,
+                `${this.ENDPOINTS.FETCH_VOID_ORDERS}`,
                 config
             );
 
@@ -268,11 +268,11 @@ export const TRANSACTION_API = {
             }
             return response.data;
         } catch (error) {
-            console.error('[TRANSACTION_API] Error fetching reversal orders:', error);
+            console.error('[TRANSACTION_API] Error fetching void orders:', error);
             const enhancedError = new Error(
                 error.response?.data?.message ||
                 error.message ||
-                'Failed to fetch reversal orders'
+                'Failed to fetch void orders'
             );
             enhancedError.response = error.response;
             enhancedError.status = error.response?.status;
@@ -280,9 +280,9 @@ export const TRANSACTION_API = {
         }
     },
 
-    async saveReversalApi(payload) {
+    async saveVoidOrderApi(payload) {
         if (!payload || !payload.reference_number || !payload.table_number) {
-            throw new Error('Invalid reversal data');
+            throw new Error('Invalid void data');
         }
         try {
             const authToken = localStorage.getItem('auth_token');
@@ -296,7 +296,7 @@ export const TRANSACTION_API = {
                 }
             };
             const response = await apiClient.post(
-                this.ENDPOINTS.SAVE_REVERSAL,
+                this.ENDPOINTS.SAVE_VOID_ORDER,
                 payload,
                 config
             );
@@ -308,7 +308,7 @@ export const TRANSACTION_API = {
             console.error('[TransactionAPI] Error saving data:', error);
             const errorMessage = error.response?.data?.message ||
                 error.message ||
-                'Failed to save reversal data';
+                'Failed to save void data';
             const enhancedError = new Error(errorMessage);
             enhancedError.response = error.response;
             enhancedError.status = error.response?.status;

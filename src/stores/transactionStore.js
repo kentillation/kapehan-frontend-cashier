@@ -4,9 +4,9 @@ import { TRANSACTION_API } from '@/api/transactionApi';
 export const useTransactStore = defineStore('transactionData', {
     state: () => ({
         transactionData: null,
-        reversalData: null,
+        voidOrderData: null,
         currentOrders: [],
-        reversalOrders: [],
+        voidOrders: [],
         orderStatuses: [],
         stationStatuses: [],
         orderDtls: [],
@@ -219,49 +219,49 @@ export const useTransactStore = defineStore('transactionData', {
             }
         },
 
-        async fetchReversalStore() {
+        async fetchVoidOrderStore() {
             this.loading = true;
             this.error = null;
             try {
-                if (!TRANSACTION_API || typeof TRANSACTION_API.fetchReversalApi !== 'function') {
+                if (!TRANSACTION_API || typeof TRANSACTION_API.fetchVoidOrderApi !== 'function') {
                     throw new Error('TRANSACTION_API service is not properly initialized');
                 }
-                const response = await TRANSACTION_API.fetchReversalApi();
+                const response = await TRANSACTION_API.fetchVoidOrderApi();
                 if (response && response.status === true) {
-                    this.reversalOrders = response.data;
+                    this.voidOrders = response.data;
                 } else {
-                    throw new Error('Failed to fetch reversal orders');
+                    throw new Error('Failed to fetch void orders');
                 }
             } catch (error) {
-                console.error('Error in fetchReversalApi:', error);
-                this.error = 'Failed to fetch reversal orders';
+                console.error('Error in fetchVoidOrderApi:', error);
+                this.error = 'Failed to fetch void orders';
                 throw error;
             } finally {
                 this.loading = false;
             }
         },
 
-        async saveReversalStore(reversalData) {
+        async saveVoidOrderStore(voidOrderData) {
             this.loading = true;
             this.error = null;
             this.success = false;
             try {
-                if (!reversalData) {
+                if (!voidOrderData) {
                     throw new Error('Invalid data');
                 }
                 const payload = {
-                    ...reversalData
+                    ...voidOrderData
                 };
-                const response = await TRANSACTION_API.saveReversalApi(payload);
+                const response = await TRANSACTION_API.saveVoidOrderApi(payload);
                 if (!response || response.status !== true) {
-                    throw new Error(response?.message || 'Failed to submit reversal');
+                    throw new Error(response?.message || 'Failed to submit void');
                 }
-                this.reversalData = response.data;
+                this.voidOrderData = response.data;
                 this.success = true;
                 return response;
             } catch (error) {
-                console.error('Reversal submission failed:', error);
-                this.error = error.message || 'Failed to submit reversal';
+                console.error('Void submission failed:', error);
+                this.error = error.message || 'Failed to submit void';
                 throw error;
             } finally {
                 this.loading = false;

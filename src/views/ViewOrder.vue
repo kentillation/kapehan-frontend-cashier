@@ -43,10 +43,10 @@
                         ₱{{ item.subtotal.toFixed(2) }}
                     </template>
                 </v-data-table>
-                <v-dialog v-model="addVoidReversalDialog" height="260" width="400" transition="dialog-bottom-transition">
+                <v-dialog v-model="addVoidOrderDialog" height="260" width="400" transition="dialog-bottom-transition">
                     <v-card class="pa-2">
                         <v-card-title>
-                            <h5>Add Reversal Confirmation</h5>
+                            <h5>Void Confirmation</h5>
                         </v-card-title>
                         <v-card-text class="d-flex flex-column">
                             <span style="font-size: 16px;">
@@ -55,23 +55,23 @@
                             <span class="mb-3" style="font-size: 16px;">
                                 <strong>{{ selectedProductText }} &nbsp; &nbsp; x{{ this.selectedProduct.quantity }}</strong>
                             </span>
-                            <span class="text-center">Want to file reversal for this item?</span>
+                            <span class="text-center">Do you want to void this item?</span>
                         </v-card-text>
                         <v-card-actions class="d-flex">
                             <v-btn color="red" variant="tonal" class="px-3 pt-1 pb-6" prepend-icon="mdi-close"
-                                @click="addVoidReversalDialog = false">No<span class="to-hide"> , I wont!</span>
+                                @click="addVoidOrderDialog = false">No<span class="to-hide"> , I wont!</span>
                             </v-btn>
                             <v-spacer></v-spacer>
                             <v-btn color="green" variant="tonal" class="px-3 pt-1 pb-6" prepend-icon="mdi-check"
-                                @click="openConfirmVoidReversalDialog">Yes<span class="to-hide"> , I want!</span>
+                                @click="openConfirmVoidOrderDialog">Yes<span class="to-hide"> , I want!</span>
                             </v-btn>
                         </v-card-actions>
                     </v-card>
                 </v-dialog>
-                <v-dialog v-model="confirmVoidReversalDialog" height="260" width="400" transition="dialog-bottom-transition">
+                <v-dialog v-model="confirmVoidOrderDialog" height="260" width="400" transition="dialog-bottom-transition">
                     <v-card class="pa-2">
                         <v-card-title>
-                            <h5>Reversal Confirmation</h5>
+                            <h5>Confirmation</h5>
                         </v-card-title>
                         <v-card-text class="d-flex flex-column">
                             <span style="font-size: 16px;">
@@ -95,11 +95,11 @@
                         </v-card-text>
                         <v-card-actions>
                             <v-btn color="red" variant="tonal" class="px-3 pt-1 pb-6" prepend-icon="mdi-close"
-                                @click="confirmVoidReversalDialog = false">Cancel
+                                @click="confirmVoidOrderDialog = false">Cancel
                             </v-btn>
                             <v-spacer></v-spacer>
                             <v-btn color="green" variant="tonal" class="px-3 pt-1 pb-6" prepend-icon="mdi-check"
-                                @click="saveReversal" :disabled="isSubmitting">
+                                @click="saveVoidOrder" :disabled="isSubmitting">
                                 {{ isSubmitting ? 'Processing...' : 'Proceed' }}
                             </v-btn>
                         </v-card-actions>
@@ -174,12 +174,12 @@ export default {
                 { title: 'Subtotal', value: 'subtotal' },
             ],
             imgSrc: null,
-            addVoidReversalDialog: false,
-            confirmVoidReversalDialog: false,
+            addVoidOrderDialog: false,
+            confirmVoidOrderDialog: false,
             selectedProduct: null,
             selectedProductOriginalQuantity: 0,
             isSubmitting: false,
-            submittedReversals: new Set(),
+            submittedVoidOrders: new Set(),
         };
     },
     props: {
@@ -301,12 +301,12 @@ export default {
         selectedOrder(event, { item }) {
             this.selectedProduct = { ...item };
             this.selectedProductOriginalQuantity = item.quantity; // Store original quantity
-            this.addVoidReversalDialog = true;
+            this.addVoidOrderDialog = true;
         },
 
-        openConfirmVoidReversalDialog () {
-            this.addVoidReversalDialog = false;
-            this.confirmVoidReversalDialog = true;
+        openConfirmVoidOrderDialog () {
+            this.addVoidOrderDialog = false;
+            this.confirmVoidOrderDialog = true;
         },
 
         addQuantity() {
@@ -325,27 +325,27 @@ export default {
             }
         },
 
-        async saveReversal() {
-            this.loadingStore.show("Saving reversal...");
-            const reversalKey = `${this.selectedProduct.transaction_id}-${this.selectedProduct.product_id}-${this.referenceNumber}`;
-            if (this.submittedReversals.has(reversalKey)) {
+        async saveVoidOrder() {
+            this.loadingStore.show("Saving void order...");
+            const voidKey = `${this.selectedProduct.transaction_id}-${this.selectedProduct.product_id}-${this.referenceNumber}`;
+            if (this.submittedVoidOrders.has(voidKey)) {
                 this.loadingStore.hide();
-                this.showAlert('Reversal is already in progress.');
-                this.confirmVoidReversalDialog = false;
-                this.addVoidReversalDialog = false;
+                this.showAlert('Void is already in progress.');
+                this.confirmVoidOrderDialog = false;
+                this.addVoidOrderDialog = false;
                 return;
             }
-            this.submittedReversals.add(reversalKey);
+            this.submittedVoidOrders.add(voidKey);
             this.isSubmitting = true;
-            this.confirmVoidReversalDialog = false;
-            this.addVoidReversalDialog = false;
+            this.confirmVoidOrderDialog = false;
+            this.addVoidOrderDialog = false;
             try {
                 if (!this.selectedProduct || this.selectedProduct.quantity <= 0) {
                     this.$emit('update:modelValue', false);
                     this.loadingStore.hide();
                     return;
                 }
-                const reversalData = {
+                const voidOrderData = {
                     reference_number: this.referenceNumber,
                     transaction_id: this.selectedProduct.transaction_id,
                     table_number: this.selectedProduct.table_number,
@@ -353,14 +353,14 @@ export default {
                     from_quantity: this.selectedProductOriginalQuantity,
                     to_quantity: this.selectedProduct.quantity,
                 };
-                await this.transactStore.saveReversalStore(reversalData);
-                this.showSuccess('Reversal saved successfully');
+                await this.transactStore.saveVoidOrderStore(voidOrderData);
+                this.showSuccess('Void has been saved successfully');
             } catch (error) {
-                console.error('Error saving reversal:', error);
+                console.error('Error saving void order:', error);
                 this.showAlert(error.message);
             } finally {
-                // this.confirmVoidReversalDialog = false;
-                // this.addVoidReversalDialog = false;
+                // this.confirmVoidOrderDialog = false;
+                // this.addVoidOrderDialog = false;
                 this.$emit('update:modelValue', false);
                 this.loadingStore.hide();
                 this.isSubmitting = false;
