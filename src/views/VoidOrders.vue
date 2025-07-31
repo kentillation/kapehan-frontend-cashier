@@ -10,6 +10,13 @@
                     :loading="loadingVoidOrders"
                     density="comfortable" 
                     height="400px">
+
+                <!--eslint-disable-next-line -->
+                <template v-slot:item.void_status="{ item }">
+                    <v-chip :color="item.void_status_id === 1 ? 'red' : 'green'" size="small" variant="tonal">
+                        {{ item.void_status }}
+                    </v-chip>
+                </template>
                 </v-data-table>
             </v-card-text>
         </v-card>
@@ -33,12 +40,12 @@ export default {
             loadingVoidOrders: false,
             voidOrders: [],
             headersVoidOrders: [
-                { title: 'Reference', value: 'reference_number', width: '10%' },
-                { title: 'Table#', value: 'table_number', width: '10%' },
-                { title: 'Product', value: 'display_product_name', width: '20%' },
-                { title: 'Quantity', value: 'to_quantity', width: '10%' },
                 { title: 'Status', value: 'void_status', width: '10%' },
-                { title: 'Date created', value: 'updated_at', width: '30%' },
+                { title: 'Table#', value: 'table_number', width: '10%' },
+                { title: 'Quantity', value: 'to_quantity', width: '10%' },
+                { title: 'Product_name', value: 'display_product_name', width: '20%' },
+                { title: 'Reference', value: 'reference_number', width: '10%' },
+                { title: 'Date_updated', value: 'updated_at', width: '30%' },
             ],
         }
     },
@@ -82,6 +89,7 @@ export default {
         formatvoidOrders(order) {
             return {
                 ...order,
+                to_quantity: `x${order.to_quantity}`,
                 display_product_name: `${ order.product_name }${ order.temp_label }${ order.size_label }` || '',
                 updated_at: order.updated_at ? this.formatDateTime(order.updated_at) : 'N/A',
             };
