@@ -1,6 +1,9 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
     <v-container>
+        <v-btn @click="this.fetchvoidOrders" color="#0090b6" class="refresh" variant="flat" icon>
+            <v-icon>mdi-refresh</v-icon>
+        </v-btn>
         <h3>Void Orders</h3>
         <v-card class="mt-3">
             <v-card-text>
@@ -69,6 +72,7 @@ export default {
     methods: {
         async fetchvoidOrders() {
             this.loadingVoidOrders = true;
+            this.loadingStore.show('');
             try {
                 await this.transactStore.fetchVoidOrderStore();
                 this.voidOrders = this.transactStore.voidOrders;
@@ -83,6 +87,7 @@ export default {
                 this.showAlert("Error fetching void orders!");
             } finally {
                 this.loadingVoidOrders = false;
+                this.loadingStore.hide();
             }
         },
 
@@ -112,3 +117,12 @@ export default {
     }
 };
 </script>
+
+<style scoped>
+.refresh {
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+    z-index: 1;
+}
+</style>

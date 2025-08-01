@@ -148,7 +148,7 @@
                                     variant="flat" @click="changeStatus(item)" class="text-white"
                                     style="width: 80px; justify-content: flex-start;">
                                     <span v-if="Number(item.order_status_id) === 1"
-                                        class="typewriter-fixed">Brewing</span>
+                                        class="typewriter-fixed">{{ item.order_status }}</span>
                                     <span v-else>{{ getStatusName(Number(item.order_status_id)) }}</span>
                                     <span v-if="Number(item.order_status_id) === 1" class="smoke"></span>
                                     <span v-if="Number(item.order_status_id) === 1" class="smoke smoke2"></span>
