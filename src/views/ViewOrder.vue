@@ -31,16 +31,22 @@
                     hide-default-footer>
                     <!--eslint-disable-next-line -->
                     <template v-slot:item.product_name="{ item }">
-                        {{ item?.product_name || '' }}{{ item?.temp_label || '' }}{{ item?.size_label || ''
-                        }}x{{ item?.quantity }}
+                        <span :class="{ 'text-red-lighten-3': item.station_status_id === 1 }">
+                            {{ item?.product_name || '' }}{{ item?.temp_label || '' }}{{ item?.size_label || ''
+                            }}x{{ item?.quantity }}
+                        </span>
                     </template>
                     <!--eslint-disable-next-line -->
                     <template v-slot:item.product_price="{ item }">
-                        ₱{{ item.product_price.toFixed(2) }}
+                        <span :class="{ 'text-red-lighten-3': item.station_status_id === 1 }">
+                            ₱{{ item.product_price.toFixed(2) }}
+                        </span>
                     </template>
                     <!--eslint-disable-next-line -->
                     <template v-slot:item.subtotal="{ item }">
-                        ₱{{ item.subtotal.toFixed(2) }}
+                        <span :class="{ 'text-red-lighten-3': item.station_status_id === 1 }">
+                            ₱{{ item.subtotal.toFixed(2) }}
+                        </span>
                     </template>
                 </v-data-table>
                 <v-dialog v-model="addVoidOrderDialog" height="260" width="400" transition="dialog-bottom-transition">

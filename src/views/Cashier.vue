@@ -688,7 +688,7 @@ export default {
                 })
                 .catch(error => {
                     console.error('Error updating order status:', error);
-                    this.showError("Failed to update order status. Please try again!");
+                    this.showError(error);
                 })
                 .finally(() => {
                     this.loadingStore.hide();
