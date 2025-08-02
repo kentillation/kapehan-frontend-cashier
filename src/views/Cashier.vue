@@ -8,34 +8,35 @@
                 <!-- Main Section -->
                 <v-col cols="12" lg="6" md="6" sm="12" xs="12">
                     <div class="d-flex align-items-center flex-column">
-                        <div class="indication pa-2 text-white trnsct-head">
+                        <div class="indication pa-2 text-white">
                             <h3 class="me-13 text-white">Quantity: <span>{{ totalQuantity }}</span></h3>
                             <h3 class="ms-15 text-white">Charge: ₱ <span>{{ subTotal.toFixed() }}</span></h3>
                         </div>
-                        <div class="d-flex align-items-center justify-content-center">
-                            <v-text-field v-model="searchProduct" class="prdct-txt text-white w-50"
-                                style="background: #696969;" placeholder="FIND PRODUCT..." outlined>
+                        <div class="d-flex align-items-center justify-content-center mt-2">
+                            <v-text-field prepend-icon="mdi-magnify" v-model="searchProduct" class="find-product-input w-75"
+                                placeholder="FIND PRODUCT..." variant="flat" density="compact">
                             </v-text-field>
                             <div class="d-flex justify-center mt-10" style="z-index: 1;">
                                 <template v-if="this.selectedCategory">
                                     <!-- <v-chip v-if="this.selectedCategory" color="gray" variant="flat" class="text-white position-absolute"> -->
-                                    <v-chip color="grey-darken-3" variant="flat" class="position-absolute" size="small">
+                                    <v-chip color="#696969" variant="flat" class="position-absolute" 
+                                    style="top: 105px;" size="small">
                                         {{ this.selectedCategory }}
                                     </v-chip>
-                                    <v-icon @click="closeSelectedCategory" class="position-absolute text-white"
-                                        style="top: 88px;">
+                                    <v-icon @click="closeSelectedCategory" class="position-absolute"
+                                        style="top: 95px;">
                                         mdi-close</v-icon>
                                 </template>
                             </div>
-                            <v-btn color="#0090b6" class="d-flex align-items-center py-7 w-50 rounded-0" variant="flat"
+                            <v-btn color="#0090b6" class="category-btn ms-2 d-flex align-items-center" variant="flat"
                                 @click="showCategoriesDialog" large>
-                                <v-icon>mdi-magnify</v-icon>&nbsp; Category
+                                <v-icon>mdi-tune-variant</v-icon>
                             </v-btn>
                         </div>
                     </div>
                     <v-data-table v-if="this.products.length > 0" :headers="headersDisplay" :items="filteredProducts"
                         :loading="loadingProducts" :items-per-page="-1" height="400px"
-                        @click:row="(event, { item }) => selectProduct(item)" density="comfortable" class="hover-table">
+                        @click:row="(event, { item }) => selectProduct(item)" density="comfortable" class="hover-table mt-2">
                         <!-- eslint-disable vue/valid-v-slot -->
                         <template v-slot:item.product_name="{ item }">
                             <span class="small">
@@ -199,7 +200,7 @@
                     <h3 class="bg-grey-lighten-4 position-fixed pa-2 w-100" style="z-index: 2; border-radius: 3px 3px 0 0;">
                         <p class="ms-3">Categories</p>
                     </h3>
-                    <div class="d-flex align-center flex-column pa-6 mt-6">
+                    <div class="d-flex align-center flex-column pa-8 mt-6">
                         <v-list-item v-for="(category, i) in productsStore.getCategories" :key="i"
                             :prepend-icon="category.icon" class="text-white mt-2 w-100"
                             style="border-radius: 20px !important; background: #0090b6;"
@@ -1014,13 +1015,29 @@ export default {
 </script>
 
 <style scoped>
-.v-btn--size-default {
-    --v-btn-height: 22px;
+
+.v-text-field input {
+    margin-left: 0 !important;
 }
 
-.trnsct-head {
-    border-radius: 10px 10px 0 0 !important;
-    background: #696969;
+.find-product-input {
+    height: 40px;
+    border-radius: 8px;
+    background: #bebebe;
+    padding-left: 12px !important;
+}
+
+.category-btn {
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.v-icon--size-default {
+    font-size: 20px !important;
+}
+
+.v-btn--size-default {
+    --v-btn-height: 22px;
 }
 
 .v-data-table {
@@ -1062,6 +1079,8 @@ export default {
     display: flex;
     justify-content: space-between;
     position: sticky;
+    border-radius: 8px !important;
+    background: #696969;
 }
 
 .mini-btn {
