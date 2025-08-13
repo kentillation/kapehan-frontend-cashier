@@ -14,15 +14,22 @@
           <v-app-bar-nav-icon variant="text" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
           <span><strong>{{ authStore.shopName }}</strong></span>
           <v-spacer></v-spacer>
-          <v-btn icon>
-            <v-badge v-if="stockNotificationQty >= 1" 
+
+          <v-btn icon @click.stop="notif_card = !notif_card">
+            <v-badge 
+              v-if="stockNotificationQty >= 1" 
               :content="stockNotificationQty" 
               class="position-absolute" 
               style="top: 2px; right: 9px;" 
-              color="error">
-            </v-badge>
+              color="error"/>
             <v-icon>mdi-dropbox</v-icon>
           </v-btn>
+          <v-card v-model="notif_card" v-if="showLowStockCard" class="notif-card">
+            <v-card-text>
+              <span>{{ stockNotificationQty }} stock has low quantity</span>
+            </v-card-text>
+          </v-card>
+          
           <v-btn class="ms-0" icon>
             <v-icon @click="toSettings">mdi-account-circle-outline</v-icon>
           </v-btn>
@@ -32,12 +39,12 @@
             <v-list-subheader size="30">Menu</v-list-subheader>
             <v-list-item prepend-icon="mdi-account-cash-outline" @click="toCashier" class="ps-3"
               style="border-radius: 30px;">Cashier</v-list-item>
-            <v-list-item prepend-icon="mdi-cached" @click="toVoidOrders" class="ps-3"
-              style="border-radius: 30px;">Void Orders</v-list-item>
+            <v-list-item prepend-icon="mdi-cached" @click="toVoidOrders" class="ps-3" style="border-radius: 30px;">Void
+              Orders</v-list-item>
             <v-list-item prepend-icon="mdi-cog-outline" @click="toSettings" class="ps-3"
               style="border-radius: 30px;">Settings</v-list-item>
-            <v-list-item prepend-icon="mdi-door-open" @click="showLogout" class="ps-3"
-              style="border-radius: 30px;">Sign Out</v-list-item>
+            <v-list-item prepend-icon="mdi-door-open" @click="showLogout" class="ps-3" style="border-radius: 30px;">Sign
+              Out</v-list-item>
           </v-list>
         </v-navigation-drawer>
       </template>
@@ -60,7 +67,7 @@ import GlobalLoader from '@/components/GlobalLoader.vue';
 
 export default {
   name: 'App',
-  data () {
+  data() {
     return {
       stocks: [],
     }
@@ -148,6 +155,7 @@ export default {
       authStore,
       stocksStore,
       loadingStore,
+      notif_card: ref(true),
       drawer: ref(true),
       open: ref(false),
       connectionStatus,
@@ -164,6 +172,9 @@ export default {
     showMenu() {
       return this.$route.name !== 'LoginPage' && this.$route.name !== 'Reference' && !this.isNotFoundPage;
     },
+    showLowStockCard() {
+      return !this.notif_card;
+    }
   },
   methods: {
     toCashier() {
@@ -185,7 +196,7 @@ export default {
     toAbout() {
       this.$router.push('/about');
     },
-   
+
     async fetchLowStocks() {
       try {
         if (!this.authStore.branchId) {
@@ -207,5 +218,12 @@ export default {
   font-weight: 700 !important;
   padding: 2px 4px !important;
   min-width: 0 !important;
+}
+
+.notif-card {
+  position: fixed;
+  top: 50px;
+  right: 50px;
+  z-index: 3;
 }
 </style>
