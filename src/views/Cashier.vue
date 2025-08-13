@@ -13,7 +13,7 @@
                             <h3 class="ms-15 text-white">Charge: ₱ <span>{{ subTotal.toFixed() }}</span></h3>
                         </div>
                         <div class="d-flex align-items-center justify-content-center mt-2">
-                            <v-text-field prepend-icon="mdi-magnify" v-model="searchProduct" class="find-product-input w-75"
+                            <v-text-field v-model="searchProduct" class="find-product-input w-75"
                                 placeholder="FIND PRODUCT..." density="compact">
                             </v-text-field>
                             <div class="d-flex justify-center mt-10" style="z-index: 1;">
@@ -132,7 +132,12 @@
 
                 <!-- Current Orders Section -->
                 <v-col cols="12" lg="6" md="6" sm="12" xs="12">
-                    <h3>Current Orders</h3>
+                    <span class="d-flex align-center justify-space-between mb-1">
+                        <h3>Current Orders</h3>
+                        <v-btn @click="fetchCurrentOrders" prepend-icon="mdi-refresh" variant="tonal" color="#0090b6">
+                            Refresh
+                        </v-btn>
+                    </span>
                     <v-data-table :headers="headersOrders" :items="currentOrders" :loading="loadingCurrentOrders"
                         density="comfortable" height="300px">
                         <template v-slot:item.table_number="{ item }">
@@ -232,6 +237,7 @@ import { useLoadingStore } from '@/stores/loading';
 import ViewOrder from './ViewOrder.vue';
 import Snackbar from '@/components/Snackbar.vue';
 import Alert from '@/components/Alert.vue';
+import echo from '@/resources/js/echo';
 
 export default {
     // eslint-disable-next-line vue/multi-word-component-names
@@ -422,33 +428,15 @@ export default {
     },
     async mounted() {
         this.reloadData();
-        // this.realTimeUpdates();
-        // this.loadingStore.show("");
-        // try {
-        //     await this.fetchOrderStatus();
-        //     await Promise.all([
-        //         this.fetchProducts(),
-        //         this.fetchCurrentOrders(),
-        //         this.fetchLowStocks()
-        //     ]);
-        //     // await this.polling();
-        // } catch (error) {
-        //     console.error('Error loading data:', error);
-        //     this.showError("Error loading initial data!");
-        // } finally {
-        //     this.loadingStore.hide();
-        // }
     },
     methods: {
-        // For real-time
-        // realTimeUpdates() {
-        //     setTimeout(() => {
-        //         echo.channel('testChannel')
-        //         .listen('NewOrderSubmitted', (e) => {
-        //             console.log(e);
-        //         })
-        //     }, 200);
-        // },
+        // real-time
+        async lowStockAlert() {
+            echo.channel('lowStockLevelChannel')
+                .listen('LowStockLevel', (e) => {
+                    this.showAlert(e.message);
+            });
+        },
 
         async reloadData() {
             this.loadingStore.show("");
@@ -456,7 +444,7 @@ export default {
             this.fetchOrderStatus();
             this.fetchCurrentOrders();
             this.fetchLowStocks();
-            // this.polling();
+            this.lowStockAlert();
             this.loadingStore.hide();
         },
 
@@ -485,7 +473,7 @@ export default {
             try {
                 await this.stocksStore.fetchLowStocksStore(this.authStore.branchId);
                 if (this.stockNotificationQty > 0) {
-                    this.showAlert(`${this.stockNotificationQty} ${this.stockNotificationQty > 1 ? 'stocks' : 'stock'} has low quantity.`);
+                    // this.showAlert(`${this.stockNotificationQty} ${this.stockNotificationQty > 1 ? 'stocks' : 'stock'} has low quantity.`);
                 }
             } catch (error) {
                 console.error('Error fetching stocks:', error);
@@ -649,6 +637,7 @@ export default {
                 this.fetchCurrentOrders();
                 this.fetchLowStocks();
                 this.$refs.transactionForm.reset();
+                this.resetPaymentSection();
                 this.subTotal = 0;
                 this.totalQuantity = 0;
                 this.selectedProducts = [];
@@ -678,7 +667,6 @@ export default {
                 status => Number(status.order_status_id) === Number(order.order_status_id)
             );
 
-            // added
             if (currentStatusIndex === -1) {
                 this.showError("Current order status not found!");
                 return;
@@ -686,7 +674,6 @@ export default {
             const nextStatusIndex = (currentStatusIndex + 1) % this.order_statuses.length;
             const newStatus = Number(this.order_statuses[nextStatusIndex].order_status_id);
 
-            // added
             if (isNaN(newStatus)) {
                 this.showError("Next order status is invalid!");
                 return;
@@ -786,31 +773,9 @@ export default {
         closeSelectedCategory() {
             this.selectedCategory = '';
             this.products = [];
-            // this.fetchProducts();
+            this.fetchProducts();
         },
 
-        // added
-        // async polling() {
-        //     try {
-        //         await this.transactStore.startStationStatusPollingStore();
-        //         if (!this.order_statuses || this.order_statuses.length === 0) {
-        //             await this.fetchOrderStatus();
-        //         }
-        //         this.orders = this.transactStore.currentOrders.map(order => {
-        //             const meta = this.getStatusMeta(Number(order.order_status_id));
-        //             return {
-        //                 ...order,
-        //                 statusMeta: meta || this.defaultStatusMeta
-        //             };
-        //         });
-        //         this.loadingCurrentOrders = false;
-        //     } catch (error) {
-        //         console.error('Error polling orders:', error);
-        //         this.showError("Error polling orders!");
-        //     }
-        // },
-
-        // added
         // getStatusMeta(statusId) {
         //     try {
         //         if (!Array.isArray(this.order_statuses) || this.order_statuses.length === 0) {
@@ -1033,10 +998,7 @@ export default {
 }
 
 .find-product-input {
-    height: 40px;
-    border-radius: 8px;
-    background: #bebebe;
-    padding-left: 12px !important;
+    border-radius: 10px;
 }
 
 .category-btn {
