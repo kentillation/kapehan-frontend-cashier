@@ -15,7 +15,7 @@
           <span><strong>{{ authStore.shopName }}</strong></span>
           <v-spacer></v-spacer>
 
-          <v-btn icon @click.stop="notif_card = !notif_card">
+          <v-btn icon>
             <v-badge 
               v-if="stockNotificationQty >= 1" 
               :content="stockNotificationQty" 
@@ -23,13 +23,11 @@
               style="top: 2px; right: 9px;" 
               color="error"/>
             <v-icon>mdi-dropbox</v-icon>
+            <v-tooltip v-if="stockNotificationQty >= 1" activator="parent" location="bottom">
+              <span class="text-white pa-3">{{ stockNotificationQty }} {{ stockNotificationQty === 1 ? 'stock' : 'stocks' }} has low quantity.</span>
+            </v-tooltip>
           </v-btn>
-          <v-card v-model="notif_card" v-if="showLowStockCard" class="notif-card">
-            <v-card-text>
-              <span>{{ stockNotificationQty }} stock has low quantity</span>
-            </v-card-text>
-          </v-card>
-          
+
           <v-btn class="ms-0" icon>
             <v-icon @click="toSettings">mdi-account-circle-outline</v-icon>
           </v-btn>
@@ -155,7 +153,6 @@ export default {
       authStore,
       stocksStore,
       loadingStore,
-      notif_card: ref(true),
       drawer: ref(true),
       open: ref(false),
       connectionStatus,
@@ -172,9 +169,6 @@ export default {
     showMenu() {
       return this.$route.name !== 'LoginPage' && this.$route.name !== 'Reference' && !this.isNotFoundPage;
     },
-    showLowStockCard() {
-      return !this.notif_card;
-    }
   },
   methods: {
     toCashier() {
@@ -218,12 +212,5 @@ export default {
   font-weight: 700 !important;
   padding: 2px 4px !important;
   min-width: 0 !important;
-}
-
-.notif-card {
-  position: fixed;
-  top: 50px;
-  right: 50px;
-  z-index: 3;
 }
 </style>
