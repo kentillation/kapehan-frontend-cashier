@@ -21,7 +21,7 @@
               style="top: 2px; right: 9px;" 
               color="error">
             </v-badge>
-            <v-icon>mdi-bell-outline</v-icon>
+            <v-icon>mdi-dropbox</v-icon>
           </v-btn>
           <v-btn class="ms-0" icon>
             <v-icon @click="toSettings">mdi-account-circle-outline</v-icon>
