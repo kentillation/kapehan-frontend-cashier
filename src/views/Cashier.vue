@@ -221,7 +221,7 @@
 </template>
 
 <script>
-import echo from '@/resources/js/echo';
+// import echo from '@/resources/js/echo';
 import { mapState } from 'pinia';
 import { useAuthStore } from '@/stores/auth';
 import { useBranchStore } from '@/stores/branchStore';
@@ -422,7 +422,7 @@ export default {
     },
     async mounted() {
         this.reloadData();
-        this.realTimeUpdates();
+        // this.realTimeUpdates();
         // this.loadingStore.show("");
         // try {
         //     await this.fetchOrderStatus();
@@ -441,14 +441,14 @@ export default {
     },
     methods: {
         // For real-time
-        realTimeUpdates() {
-            setTimeout(() => {
-                echo.channel('testChannel')
-                .listen('NewOrderSubmitted', (e) => {
-                    console.log(e);
-                })
-            }, 200);
-        },
+        // realTimeUpdates() {
+        //     setTimeout(() => {
+        //         echo.channel('testChannel')
+        //         .listen('NewOrderSubmitted', (e) => {
+        //             console.log(e);
+        //         })
+        //     }, 200);
+        // },
 
         async reloadData() {
             this.loadingStore.show("");
