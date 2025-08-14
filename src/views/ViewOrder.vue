@@ -153,7 +153,6 @@ export default {
     },
     data() {
         return {
-            // reference: this.$route.params.reference || 'No reference provided',
             product_name: '',
             product_price: 0,
             subtotal: 0,
@@ -219,14 +218,6 @@ export default {
                 }
             }
         },
-        // modelValue: {
-        //     handler(newVal) {
-        //         if (newVal && this.referenceNumber) {
-        //             this.fetchCustomerOrders(this.referenceNumber);
-        //             this.fetchQRCode(this.referenceNumber);
-        //         }
-        //     }
-        // }
     },
     setup() {
         const authStore = useAuthStore();
@@ -243,10 +234,6 @@ export default {
         const formatCurrentDate = currentDate.replace(/,/g, '');
         return { authStore, transactStore, loadingStore, formatCurrentDate };
     },
-    // mounted() {
-    //     this.fetchCustomerOrders(this.referenceNumber);
-    //     this.fetchQRCode(this.referenceNumber);
-    // },
     beforeUnmount() {
         if (this.imgSrc) {
             URL.revokeObjectURL(this.imgSrc);
@@ -339,6 +326,11 @@ export default {
                 this.showAlert('Void is already in progress.');
                 this.confirmVoidOrderDialog = false;
                 this.addVoidOrderDialog = false;
+                return;
+            }
+            if (this.selectedProduct.station_status_id === 2) {
+                this.loadingStore.hide();
+                this.showAlert('Unable to void! Order already done.');
                 return;
             }
             this.submittedVoidOrders.add(voidKey);

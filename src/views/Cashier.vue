@@ -688,7 +688,7 @@ export default {
                     this.fetchLowStocks();
                 })
                 .catch(error => {
-                    console.error('Error updating order status:', error);
+                    console.error(error);
                     this.showError(error);
                 })
                 .finally(() => {
