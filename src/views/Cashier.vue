@@ -215,18 +215,20 @@ import { useStocksStore } from '@/stores/stocksStore';
 import { useTransactStore } from '@/stores/transactionStore';
 import { useLoadingStore } from '@/stores/loading';
 import ViewOrder from './ViewOrder.vue';
+import echo from '@/resources/js/echo';
 import Snackbar from '@/components/Snackbar.vue';
 import Alert from '@/components/Alert.vue';
-import echo from '@/resources/js/echo';
 
 export default {
     // eslint-disable-next-line vue/multi-word-component-names
     name: 'Cashier',
+
     components: {
         ViewOrder,
         Snackbar,
         Alert,
     },
+
     data() {
         return {
             // Products
@@ -309,11 +311,15 @@ export default {
             ],
         };
     },
+
     beforeUnmount() {
         if (this.imgSrc) {
             URL.revokeObjectURL(this.imgSrc);
         }
+
+        echo.leave('newOrderChannel');
     },
+
     setup() {
         const authStore = useAuthStore();
         const branchStore = useBranchStore();
@@ -332,6 +338,7 @@ export default {
         const formatCurrentDate = currentDate.replace(/,/g, '');
         return { authStore, branchStore, productsStore, stocksStore, transactStore, loadingStore, formatCurrentDate };
     },
+
     watch: {
         selectedProducts: {
             handler() {
@@ -357,6 +364,7 @@ export default {
             }
         }
     },
+
     computed: {
         ...mapState(useStocksStore, ['stockNotificationQty']),
         newRefNumber() {
@@ -406,6 +414,7 @@ export default {
             return this.subTotal * (1 - discountDecimal);
         }
     },
+
     async mounted() {
         this.reloadData();
     },
@@ -418,12 +427,23 @@ export default {
             });
         },
 
+        realTimeUpdates() {
+            setTimeout(() => {
+                echo.channel('newOrderChannel')
+                    .listen('NewOrderSubmitted', (e) => {
+                        this.showNewOrderAlert(e.message);
+                        console.log(e);
+                    });
+            }, 1000);
+        },
+
         async reloadData() {
             this.loadingStore.show("");
             this.fetchProducts();
             this.fetchOrderStatus();
             this.fetchCurrentOrders();
-            this.fetchLowStocks();
+            // this.fetchLowStocks();
+            this.realTimeUpdates();
             this.lowStockAlert();
             this.loadingStore.hide();
         },
@@ -449,7 +469,7 @@ export default {
             }
         },
 
-        async fetchLowStocks() {
+        /* async fetchLowStocks() {
             try {
                 await this.stocksStore.fetchLowStocksStore(this.authStore.branchId);
                 if (this.stockNotificationQty > 0) {
@@ -458,7 +478,7 @@ export default {
             } catch (error) {
                 console.error('Error fetching stocks:', error);
             }
-        },
+        }, */
 
         async fetchOrderStatus() {
             try {
@@ -615,7 +635,7 @@ export default {
                 console.log("Submit: ", transactionData);
                 await this.transactStore.submitTransactStore(transactionData, orderedProducts);
                 this.fetchCurrentOrders();
-                this.fetchLowStocks();
+                // this.fetchLowStocks();
                 this.$refs.transactionForm.reset();
                 this.resetPaymentSection();
                 this.subTotal = 0;
@@ -665,7 +685,7 @@ export default {
                     const statusName = this.getStatusName(newStatus);
                     this.showSuccess(`Table# ${order.table_number} is ${statusName}`);
                     order.order_status_id = newStatus;
-                    this.fetchLowStocks();
+                    // this.fetchLowStocks();
                 })
                 .catch(error => {
                     console.error(error);
@@ -745,6 +765,10 @@ export default {
 
         showAlert(message) {
             this.$refs.alertRef.showSnackbarAlert(message, "error");
+        },
+
+        showNewOrderAlert(message) {
+            this.$refs.alertRef.showSnackbarAlert(message, "success");
         },
 
         showSuccess(message) {
