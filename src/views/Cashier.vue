@@ -163,31 +163,11 @@
                                     <span v-if="Number(item.order_status_id) === 1" class="smoke smoke5"></span>
                                 </v-chip>
 
-                                <!-- <v-chip v-if="item.statusMeta" :color="item.statusMeta.color"
-                                    :prepend-icon="item.statusMeta.icon" size="small" variant="flat"
-                                    @click="changeStatus(item)" class="text-white"
-                                    style="width: 80px; justify-content: flex-start;">
-                                    <span :class="item.statusMeta.animationClass">
-                                        {{ item.statusMeta.name }}
-                                    </span>
-                                    <template v-if="item.statusMeta.showSmoke">
-                                        <span class="smoke"></span>
-                                        <span class="smoke smoke2"></span>
-                                        <span class="smoke smoke3"></span>
-                                        <span class="smoke smoke4"></span>
-                                        <span class="smoke smoke5"></span>
-                                    </template>
-                                    </v-chip>
-                                    <v-chip v-else color="grey" size="small" variant="flat">
-                                        <v-icon>mdi-loading</v-icon>
-                                        <span>Loading...</span>
-                                    </v-chip> -->
-
                                 <v-chip color="#0090b6" prepend-icon="mdi-eye-outline" size="small" variant="flat"
                                     class="ps-5 text-white" @click="toViewOrder(item)">
                                 </v-chip>
                             </div>
-                            <ViewOrder v-model="viewOrderDialog" @update:modelValue="productEditDialog = $event"
+                            <ViewOrder :key="selectedReferenceNumber" v-model="viewOrderDialog" @update:modelValue="productEditDialog = $event"
                                 :reference-number="selectedReferenceNumber" />
                         </template>
 
@@ -776,42 +756,6 @@ export default {
             this.products = [];
             this.fetchProducts();
         },
-
-        // getStatusMeta(statusId) {
-        //     try {
-        //         if (!Array.isArray(this.order_statuses) || this.order_statuses.length === 0) {
-        //             return this.defaultStatusMeta;
-        //         }
-        //         const status = this.order_statuses.find(s =>
-        //             Number(s.order_status_id) === Number(statusId)
-        //         );
-        //         if (!status) return this.defaultStatusMeta;
-        //         return {
-        //             color: this.getStatusColor(statusId),
-        //             icon: this.getStatusIcon(statusId),
-        //             name: status.order_status,
-        //             hasAnimation: statusId === 1,
-        //             animationClass: statusId === 1 ? 'typewriter-fixed' : '',
-        //             showSmoke: statusId === 1
-        //         };
-        //     } catch (error) {
-        //         console.error('Error getting status meta:', error);
-        //         return this.defaultStatusMeta;
-        //     }
-        // },
-
-        // async fetchQRCode(reference) {
-        //     try {
-        //         const qrCodeBlob = await this.transactStore.fetchQRcodeStore(reference);
-        //         this.imgSrc = URL.createObjectURL(qrCodeBlob);
-        //         if (!this.imgSrc) {
-        //             console.error('Failed to create image URL from blob');
-        //         }
-        //     } catch (error) {
-        //         console.error('Error fetching order details:', error);
-        //         this.imgSrc = '';
-        //     }
-        // },
 
         // async printOrders(order) {
         //     if (!order || !order.reference_number) {
