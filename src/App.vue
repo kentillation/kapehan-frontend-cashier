@@ -22,7 +22,7 @@
               class="position-absolute" 
               style="top: 2px; right: 9px;" 
               color="error"/>
-            <v-icon>mdi-dropbox</v-icon>
+            <v-icon>mdi-archive-outline</v-icon>
             <v-tooltip v-if="stockNotificationQty >= 1" activator="parent" location="bottom">
               <span class="text-white pa-3">{{ stockNotificationQty }} {{ stockNotificationQty === 1 ? 'stock' : 'stocks' }} has low quantity.</span>
             </v-tooltip>

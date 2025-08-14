@@ -24,7 +24,7 @@
                 <v-data-table
                     :headers="headersOrderDetails" 
                     :items="currentOrders"
-                    height="250px"
+                    height="220px"
                     density="compact"
                     class="bg-grey-darken-3 hover-table rounded"
                     @click:row="selectedOrder"
@@ -305,10 +305,10 @@ export default {
         },
 
         minusQuantity() {
-            if (this.selectedProduct && this.selectedProduct.quantity > 1) {
-                this.selectedProduct.quantity -= 1;
+            if (this.selectedProduct && this.selectedProduct.quantity == 0) {
+                this.showAlert("Can't reduce quantity below 0");
             } else {
-                this.showAlert("Can't reduce quantity below 1");
+                this.selectedProduct.quantity -= 1;
             }
         },
 
@@ -332,7 +332,7 @@ export default {
             this.confirmVoidOrderDialog = false;
             this.addVoidOrderDialog = false;
             try {
-                if (!this.selectedProduct || this.selectedProduct.quantity <= 0) {
+                if (!this.selectedProduct || this.selectedProduct.quantity < 0) {
                     this.$emit('update:modelValue', false);
                     this.loadingStore.hide();
                     return;
@@ -345,7 +345,11 @@ export default {
                     from_quantity: this.selectedProductOriginalQuantity,
                     to_quantity: this.selectedProduct.quantity,
                 };
-                await this.transactStore.saveVoidOrderStore(voidOrderData);
+                const response = await this.transactStore.saveVoidOrderStore(voidOrderData);
+                if (response.status === true)
+                {
+                    window.location.reload();
+                }
                 this.showSuccess('Void has been saved successfully');
             } catch (error) {
                 console.error('Error saving void order:', error);
