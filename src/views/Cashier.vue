@@ -653,9 +653,10 @@ export default {
             }
         },
 
-        toViewOrder(item) {
-            this.viewOrderDialog = true;
+        async toViewOrder(item) {
+            await this.transactStore.fetchOrderDetailsStore(item.reference_number);
             this.selectedReferenceNumber = item.reference_number;
+            this.viewOrderDialog = true;
         },
 
         changeStatus(order) {
