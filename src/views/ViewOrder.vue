@@ -243,6 +243,7 @@ export default {
         async fetchCustomerOrders(referenceNumber) {
             try {
                 const response = await this.transactStore.fetchOrderDetailsStore(referenceNumber);
+                console.log('API Response:', response);
                 let allOrders = [];
                 if (response?.data?.all_orders) {
                     allOrders = response.data.all_orders;
@@ -374,14 +375,8 @@ export default {
                 quantity: order.quantity ? parseInt(order.quantity, 10) : 0,
                 temp_label: order.temp_label || '',
                 size_label: order.size_label || '',
-                total_quantity: order.total_quantity ? parseInt(order.total_quantity, 10) : 0,
-                total_amount: order.total_amount ? parseFloat(order.total_amount) : 0,
-                customer_cash: order.customer_cash ? parseFloat(order.customer_cash) : 0,
-                customer_discount: order.customer_discount ? parseFloat(order.customer_discount) : 0,
-                customer_change: order.customer_change ? parseFloat(order.customer_change) : 0,
                 table_number: order.table_number || 'N/A',
-                created_at: order.created_at ? this.formatDateTime(order.created_at) : 'N/A',
-                updated_at: order.updated_at ? this.formatDateTime(order.updated_at) : 'N/A',
+                station_status_id: order.station_status_id || 'N/A',
             };
         },
 
