@@ -140,10 +140,12 @@ import Snackbar from '@/components/Snackbar.vue';
 export default {
     // eslint-disable-next-line vue/multi-word-component-names
     name: 'ViewOrder',
+
     components: {
         Alert,
         Snackbar,
     },
+
     data() {
         return {
             product_name: '',
@@ -177,22 +179,25 @@ export default {
             selectedProduct: null,
             selectedProductOriginalQuantity: 0,
             isSubmitting: false,
-            submittedVoidOrders: new Set(),
         };
     },
+
     props: {
         modelValue: {
             type: Boolean,
             required: true
         },
+
         referenceNumber: {
             type: String,
         },
     },
+
     computed: {
         currentOrders() {
             return this.orderDetails;
         },
+
         selectedProductText() {
             if (!this.selectedProduct) return '';
             return `${this.selectedProduct.product_name || ''}
@@ -200,7 +205,9 @@ export default {
                 ${this.selectedProduct.size_label || ''}`;
         },
     },
+
     emits: ['update:modelValue'],
+
     watch: {
         referenceNumber: {
             immediate: true,
@@ -212,6 +219,7 @@ export default {
             }
         },
     },
+
     setup() {
         const authStore = useAuthStore();
         const transactStore = useTransactStore();
@@ -227,12 +235,15 @@ export default {
         const formatCurrentDate = currentDate.replace(/,/g, '');
         return { authStore, transactStore, loadingStore, formatCurrentDate };
     },
+
     beforeUnmount() {
         if (this.imgSrc) {
             URL.revokeObjectURL(this.imgSrc);
         }
     },
+
     methods: {
+
         async fetchCustomerOrders(referenceNumber) {
             try {
                 const response = await this.transactStore.fetchOrderDetailsStore(referenceNumber);
@@ -314,20 +325,11 @@ export default {
 
         async saveVoidOrder() {
             this.loadingStore.show("Saving void order...");
-            const voidKey = `${this.selectedProduct.transaction_id}-${this.selectedProduct.product_id}-${this.referenceNumber}`;
-            if (this.submittedVoidOrders.has(voidKey)) {
-                this.loadingStore.hide();
-                this.showAlert('Void is already in progress.');
-                this.confirmVoidOrderDialog = false;
-                this.addVoidOrderDialog = false;
-                return;
-            }
             if (this.selectedProduct.station_status_id === 2) {
                 this.loadingStore.hide();
                 this.showAlert('Unable to void! Order already done.');
                 return;
             }
-            this.submittedVoidOrders.add(voidKey);
             this.isSubmitting = true;
             this.confirmVoidOrderDialog = false;
             this.addVoidOrderDialog = false;
@@ -348,11 +350,13 @@ export default {
                 const response = await this.transactStore.saveVoidOrderStore(voidOrderData);
                 if (response.status === true)
                 {
-                    window.location.reload();
+                    this.showSuccess('Void has been saved successfully');
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000)
                 }
-                this.showSuccess('Void has been saved successfully');
             } catch (error) {
-                console.error('Error saving void order:', error);
+                console.error(error);
                 this.showAlert(error.message);
             } finally {
                 // this.confirmVoidOrderDialog = false;
