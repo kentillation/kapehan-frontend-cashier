@@ -427,23 +427,12 @@ export default {
             });
         },
 
-        realTimeUpdates() {
-            setTimeout(() => {
-                echo.channel('newOrderChannel')
-                    .listen('NewOrderSubmitted', (e) => {
-                        this.showNewOrderAlert(e.message);
-                        console.log(e);
-                    });
-            }, 1000);
-        },
-
         async reloadData() {
             this.loadingStore.show("");
             this.fetchProducts();
             this.fetchOrderStatus();
             this.fetchCurrentOrders();
             // this.fetchLowStocks();
-            this.realTimeUpdates();
             this.lowStockAlert();
             this.loadingStore.hide();
         },
@@ -765,10 +754,6 @@ export default {
 
         showAlert(message) {
             this.$refs.alertRef.showSnackbarAlert(message, "error");
-        },
-
-        showNewOrderAlert(message) {
-            this.$refs.alertRef.showSnackbarAlert(message, "success");
         },
 
         showSuccess(message) {
