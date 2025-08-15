@@ -19,12 +19,11 @@
                             <div class="d-flex justify-center mt-10" style="z-index: 1;">
                                 <template v-if="this.selectedCategory">
                                     <!-- <v-chip v-if="this.selectedCategory" color="gray" variant="flat" class="text-white position-absolute"> -->
-                                    <v-chip color="#696969" variant="flat" class="position-absolute" 
-                                    style="top: 105px;" size="small">
+                                    <v-chip color="#696969" variant="flat" class="position-absolute" style="top: 105px;"
+                                        size="small">
                                         {{ this.selectedCategory }}
                                     </v-chip>
-                                    <v-icon @click="closeSelectedCategory" class="position-absolute"
-                                        style="top: 95px;">
+                                    <v-icon @click="closeSelectedCategory" class="position-absolute" style="top: 95px;">
                                         mdi-close</v-icon>
                                 </template>
                             </div>
@@ -36,7 +35,8 @@
                     </div>
                     <v-data-table v-if="this.products.length > 0" :headers="headersDisplay" :items="filteredProducts"
                         :loading="loadingProducts" :items-per-page="-1" height="400px"
-                        @click:row="(event, { item }) => selectProduct(item)" density="comfortable" class="hover-table mt-2">
+                        @click:row="(event, { item }) => selectProduct(item)" density="comfortable"
+                        class="hover-table mt-2">
                         <!-- eslint-disable vue/valid-v-slot -->
                         <template v-slot:item.product_name="{ item }">
                             <span class="small">
@@ -153,8 +153,8 @@
                                     :prepend-icon="getStatusIcon(Number(item.order_status_id))" size="small"
                                     variant="flat" @click="changeStatus(item)" class="text-white"
                                     style="width: 80px; justify-content: flex-start;">
-                                    <span v-if="Number(item.order_status_id) === 1"
-                                        class="typewriter-fixed">{{ item.order_status }}</span>
+                                    <span v-if="Number(item.order_status_id) === 1" class="typewriter-fixed">{{
+                                        item.order_status }}</span>
                                     <span v-else>{{ getStatusName(Number(item.order_status_id)) }}</span>
                                     <span v-if="Number(item.order_status_id) === 1" class="smoke"></span>
                                     <span v-if="Number(item.order_status_id) === 1" class="smoke smoke2"></span>
@@ -167,7 +167,8 @@
                                     class="ps-5 text-white" @click="toViewOrder(item)">
                                 </v-chip>
                             </div>
-                            <ViewOrder :key="selectedReferenceNumber" v-model="viewOrderDialog" @update:modelValue="productEditDialog = $event"
+                            <ViewOrder :key="selectedReferenceNumber" v-model="viewOrderDialog"
+                                @update:modelValue="productEditDialog = $event"
                                 :reference-number="selectedReferenceNumber" />
                         </template>
 
@@ -182,7 +183,8 @@
                     <v-icon>mdi-close</v-icon>
                 </v-btn>
                 <v-card>
-                    <h3 class="bg-grey-lighten-4 position-fixed pa-2 w-100" style="z-index: 2; border-radius: 3px 3px 0 0;">
+                    <h3 class="bg-grey-lighten-4 position-fixed pa-2 w-100"
+                        style="z-index: 2; border-radius: 3px 3px 0 0;">
                         <p class="ms-3">Categories</p>
                     </h3>
                     <div class="d-flex align-center flex-column pa-8 mt-6">
@@ -420,11 +422,31 @@ export default {
     },
     methods: {
         // real-time
-        async lowStockAlert() {
+        lowStockAlert() {
             echo.channel('lowStockLevelChannel')
                 .listen('LowStockLevel', (e) => {
                     this.showAlert(e.message);
-            });
+                });
+        },
+
+        updateFromBarista() {
+            echo.channel('station.1')
+                .listen('OrderStatusUpdated', (e) => {
+                    console.log(e);
+                    if (e.stationId === "1") {
+                        this.showNewOrderAlert(e.message);
+                    }
+                });
+        },
+
+        updateFromKitchen() {
+            echo.channel('station.2')
+                .listen('OrderStatusUpdated', (e) => {
+                    console.log(e);
+                    if (e.stationId === "2") {
+                        this.showNewOrderAlert(e.message);
+                    }
+                });
         },
 
         async reloadData() {
@@ -434,6 +456,8 @@ export default {
             this.fetchCurrentOrders();
             // this.fetchLowStocks();
             this.lowStockAlert();
+            this.updateFromBarista();
+            this.updateFromKitchen();
             this.loadingStore.hide();
         },
 
@@ -755,6 +779,10 @@ export default {
             this.$refs.alertRef.showSnackbarAlert(message, "error");
         },
 
+        showNewOrderAlert(message) {
+            this.$refs.alertRef.showSnackbarAlert(message, "success");
+        },
+
         showSuccess(message) {
             this.$refs.snackbarRef.showSnackbar(message, "success");
         },
@@ -945,7 +973,6 @@ export default {
 </script>
 
 <style scoped>
-
 .v-text-field input {
     margin-left: 0 !important;
 }
