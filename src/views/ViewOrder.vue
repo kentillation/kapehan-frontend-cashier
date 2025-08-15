@@ -26,7 +26,7 @@
                     :headers="headersOrderDetails" 
                     :items="currentOrders"
                     :loading="loadingOrderItems"
-                    height="220px"
+                    height="200px"
                     density="compact"
                     class="bg-grey-darken-3 hover-table rounded"
                     @click:row="selectedOrder"
