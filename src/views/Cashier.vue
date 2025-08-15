@@ -449,7 +449,6 @@ export default {
             try {
                 await this.productsStore.fetchAllProductsStore();
                 this.products = this.productsStore.products;
-                this.loadingProducts = false;
             } catch (error) {
                 console.error('Error fetching products:', error);
                 this.showError("Error fetching products!");

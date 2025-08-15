@@ -9,7 +9,8 @@
         <v-card>
             <v-container class="pa-5">
                 <div class="centered">
-                    <img v-if="imgSrc" :src="imgSrc" width="120" height="120" alt="Order QR Code">
+                    <img v-if="imgSrc" :src="imgSrc" loading="lazy" width="120" height="120" alt="Order QR Code">
+                    <v-skeleton-loader v-else type="button" width="120" height="120" class="bg-grey-lighten-1"></v-skeleton-loader>
                     <span>Scan this QR Code to track order</span><br />
                     <h3>Table #: {{ this.tableNumber }}</h3>
                 </div>
@@ -24,6 +25,7 @@
                 <v-data-table
                     :headers="headersOrderDetails" 
                     :items="currentOrders"
+                    :loading="loadingOrderItems"
                     height="220px"
                     density="compact"
                     class="bg-grey-darken-3 hover-table rounded"
@@ -176,6 +178,7 @@ export default {
             imgSrc: null,
             addVoidOrderDialog: false,
             confirmVoidOrderDialog: false,
+            loadingOrderItems: false,
             selectedProduct: null,
             selectedProductOriginalQuantity: 0,
             isSubmitting: false,
@@ -245,6 +248,7 @@ export default {
     methods: {
 
         async fetchCustomerOrders(referenceNumber) {
+            this.loadingOrderItems = true;
             try {
                 const response = await this.transactStore.fetchOrderDetailsStore(referenceNumber);
                 console.log('API Response:', response);
@@ -280,6 +284,8 @@ export default {
             } catch (error) {
                 console.error('Error fetching order details:', error);
                 this.orderDetails = [];
+            } finally {
+                this.loadingOrderItems = false;
             }
         },
 
