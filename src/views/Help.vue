@@ -1,7 +1,8 @@
 <!-- eslint-disable vue/multi-word-component-names -->
 <template>
     <v-container>
-        <h1 class="text-brown-lighten-1">Help</h1>
+        <h3>Help</h3>
+        <v-card class="pa-8 mt-3"></v-card>
     </v-container>
 </template>
 
